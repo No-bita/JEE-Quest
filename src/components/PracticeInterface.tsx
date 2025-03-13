@@ -278,7 +278,7 @@ const PracticeInterface: React.FC = () => {
           </Button>
           
           <Button
-            variant="primary"
+            variant="default"
             onClick={handleSubmit}
             className="gap-2"
           >

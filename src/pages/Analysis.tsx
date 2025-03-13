@@ -4,7 +4,7 @@ import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, PieChart, LineChart, PieArcDatum } from '@/components/ui/chart';
+import { BarChart, PieChart, LineChart, PieArcDatum } from '@/components/ui/recharts';
 import { BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, BookOpen } from 'lucide-react';
 
 // Mock data for charts
