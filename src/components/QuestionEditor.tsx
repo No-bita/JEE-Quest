@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -46,7 +45,6 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
   const [latexPreview, setLatexPreview] = useState<string>('');
   
   useEffect(() => {
-    // Initialize with at least one empty question if none provided
     if (initialQuestions.length === 0) {
       setQuestions([{
         id: 1,
@@ -71,7 +69,6 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
   
   const currentQuestion = questions[currentQuestionIndex] || questions[0];
   
-  // Initialize LaTeX preview
   useEffect(() => {
     if (currentQuestion?.latex) {
       setLatexPreview(currentQuestion.latex);
@@ -132,7 +129,6 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
   };
   
   const handleSave = () => {
-    // Validate questions
     const invalidQuestions = questions.filter(
       q => !q.text || q.options.some(opt => !opt.text) || !q.topic
     );
@@ -355,11 +351,11 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
             <div className="space-y-2">
               <Label>LaTeX Tips</Label>
               <div className="text-sm space-y-1 p-3 bg-slate-50 rounded-md">
-                <p>• Fractions: \frac{numerator}{denominator}</p>
-                <p>• Powers: x^2, x^{a+b}</p>
-                <p>• Square roots: \sqrt{x}, \sqrt[n]{x}</p>
+                <p>• Fractions: \frac{"{numerator}"}{"{denominator}"}</p>
+                <p>• Powers: x^2, x^{"{a+b}"}</p>
+                <p>• Square roots: \sqrt{"{x}"}, \sqrt[n]{"{x}"}</p>
                 <p>• Greek letters: \alpha, \beta, \gamma, \Delta</p>
-                <p>• Subscripts: x_i, x_{i,j}</p>
+                <p>• Subscripts: x_i, x_{"{i,j}"}</p>
               </div>
             </div>
           </TabsContent>
