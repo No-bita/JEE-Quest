@@ -10,8 +10,19 @@ const Practice: React.FC = () => {
   const navigate = useNavigate();
   const [hasAccess, setHasAccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   
   useEffect(() => {
+    // Check if user is logged in
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+    
+    if (!loggedIn) {
+      toast.error("Please sign in to access practice papers");
+      navigate('/signin');
+      return;
+    }
+    
     if (!paperId) {
       toast.error("No paper selected");
       navigate('/papers');

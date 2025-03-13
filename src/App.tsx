@@ -10,6 +10,8 @@ import Index from "./pages/Index";
 import Papers from "./pages/Papers";
 import Practice from "./pages/Practice";
 import Analysis from "./pages/Analysis";
+import SignIn from "./pages/SignIn";
+import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ const App = () => (
           <Route path="/papers" element={<Papers />} />
           <Route path="/practice/:paperId?" element={<Practice />} />
           <Route path="/analysis" element={<Analysis />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/register" element={<Register />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

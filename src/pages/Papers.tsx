@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import PaperCard from '@/components/PaperCard';
@@ -6,10 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Search, Filter, CalendarRange, Plus, Settings, ShieldCheck } from 'lucide-react';
+import { Search, Filter, CalendarRange, Plus, LogIn } from 'lucide-react';
 import QuestionEditor from '@/components/QuestionEditor';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 // Mock papers data
 const mockPapers = [
@@ -160,9 +159,11 @@ const Papers: React.FC = () => {
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [currentPaperId, setCurrentPaperId] = useState<string>('');
   const [showQuestionEditor, setShowQuestionEditor] = useState<boolean>(false);
   const [paperQuestions, setPaperQuestions] = useState<Question[]>([]);
+  const navigate = useNavigate();
   
   // Check if user has a subscription
   const hasSubscription = () => {
@@ -175,19 +176,28 @@ const Papers: React.FC = () => {
   };
   
   useEffect(() => {
-    // Check for admin status in localStorage (in a real app, this would be from your auth system)
-    const storedAdminStatus = localStorage.getItem('isAdmin') === 'true';
-    setIsAdmin(storedAdminStatus);
+    // Check login status from localStorage
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+    
+    // Only admins should have admin mode
+    const adminStatus = localStorage.getItem('isAdmin') === 'true';
+    setIsAdmin(adminStatus);
   }, []);
   
-  const toggleAdminMode = () => {
-    const newStatus = !isAdmin;
-    setIsAdmin(newStatus);
-    localStorage.setItem('isAdmin', newStatus.toString());
-    toast.info(newStatus ? "Admin mode enabled" : "Admin mode disabled");
-  };
-  
   const handleEditPaper = (paperId: string) => {
+    // Check if user is logged in and is admin
+    if (!isLoggedIn) {
+      toast.error("Please log in to continue");
+      navigate('/signin');
+      return;
+    }
+    
+    if (!isAdmin) {
+      toast.error("You don't have permission to edit papers");
+      return;
+    }
+    
     setCurrentPaperId(paperId);
     // Load questions for this paper
     const questions = mockQuestionsByPaperId[paperId] || [];
@@ -290,15 +300,12 @@ const Papers: React.FC = () => {
                 </Select>
               </div>
               
-              <div className="flex items-center gap-2">
-                <div className="flex items-center space-x-2">
-                  <Switch id="admin-mode" checked={isAdmin} onCheckedChange={toggleAdminMode} />
-                  <label htmlFor="admin-mode" className="text-sm cursor-pointer flex items-center gap-1">
-                    <ShieldCheck size={14} />
-                    Admin Mode
-                  </label>
-                </div>
-              </div>
+              {!isLoggedIn && (
+                <Button variant="outline" onClick={() => navigate('/signin')} className="gap-2">
+                  <LogIn size={16} />
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
           
