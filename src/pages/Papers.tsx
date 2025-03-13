@@ -1,12 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import PaperCard from '@/components/PaperCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, CalendarRange } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Search, Filter, CalendarRange, Plus, Settings, ShieldCheck } from 'lucide-react';
+import QuestionEditor from '@/components/QuestionEditor';
+import { toast } from 'sonner';
 
 // Mock papers data
 const mockPapers = [
@@ -120,10 +123,84 @@ const mockPapers = [
   },
 ];
 
+interface Question {
+  id: number;
+  text: string;
+  options: { id: string; text: string }[];
+  correctOption: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  subject: string;
+  topic: string;
+}
+
+// Mock questions by paper ID
+const mockQuestionsByPaperId: Record<string, Question[]> = {
+  'jee2025-1': [
+    {
+      id: 1,
+      text: "A particle of mass m is projected with velocity v at an angle θ with the horizontal. The magnitude of angular momentum of the particle about the point of projection when the particle is at its highest point is:",
+      options: [
+        { id: 'A', text: "mv² sin θ cos θ / g" },
+        { id: 'B', text: "mv² sin² θ / g" },
+        { id: 'C', text: "mv² cos² θ / g" },
+        { id: 'D', text: "zero" }
+      ],
+      correctOption: 'A',
+      difficulty: 'medium',
+      subject: 'Physics',
+      topic: 'Kinematics'
+    },
+    // Add more questions as needed
+  ],
+  // Add more papers with their questions
+};
+
 const Papers: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [currentPaperId, setCurrentPaperId] = useState<string>('');
+  const [showQuestionEditor, setShowQuestionEditor] = useState<boolean>(false);
+  const [paperQuestions, setPaperQuestions] = useState<Question[]>([]);
+  
+  // Check if user has a subscription
+  const hasSubscription = () => {
+    return localStorage.getItem('hasSubscription') === 'true';
+  };
+  
+  // Get purchased papers
+  const getPurchasedPapers = () => {
+    return JSON.parse(localStorage.getItem('purchasedPapers') || '[]');
+  };
+  
+  useEffect(() => {
+    // Check for admin status in localStorage (in a real app, this would be from your auth system)
+    const storedAdminStatus = localStorage.getItem('isAdmin') === 'true';
+    setIsAdmin(storedAdminStatus);
+  }, []);
+  
+  const toggleAdminMode = () => {
+    const newStatus = !isAdmin;
+    setIsAdmin(newStatus);
+    localStorage.setItem('isAdmin', newStatus.toString());
+    toast.info(newStatus ? "Admin mode enabled" : "Admin mode disabled");
+  };
+  
+  const handleEditPaper = (paperId: string) => {
+    setCurrentPaperId(paperId);
+    // Load questions for this paper
+    const questions = mockQuestionsByPaperId[paperId] || [];
+    setPaperQuestions(questions);
+    setShowQuestionEditor(true);
+  };
+  
+  const handleSaveQuestions = (questions: Question[]) => {
+    // In a real app, this would save to a database
+    // For demo, we'll just update our local mock data
+    mockQuestionsByPaperId[currentPaperId] = questions;
+    setPaperQuestions(questions);
+  };
   
   // Filter papers based on search query and filters
   const filteredPapers = mockPapers.filter(paper => {
@@ -151,6 +228,13 @@ const Papers: React.FC = () => {
   });
   
   const years = Object.keys(papersByYear).sort((a, b) => Number(b) - Number(a));
+  
+  // Determine if a paper is premium (In a real app, this would come from your backend)
+  const isPaperPremium = (paperId: string) => {
+    // For demo purposes, let's make 2025 and 2024 papers premium, others free
+    const year = parseInt(paperId.split('-')[0].replace('jee', ''));
+    return year >= 2024;
+  };
 
   return (
     <>
@@ -164,7 +248,7 @@ const Papers: React.FC = () => {
         </div>
         
         <div className="glass-card rounded-xl p-4 sm:p-6 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
               <Input
@@ -175,7 +259,7 @@ const Papers: React.FC = () => {
               />
             </div>
             
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4 items-center">
               <div className="min-w-40">
                 <Select value={yearFilter} onValueChange={setYearFilter}>
                   <SelectTrigger>
@@ -205,8 +289,30 @@ const Papers: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="flex items-center space-x-2">
+                  <Switch id="admin-mode" checked={isAdmin} onCheckedChange={toggleAdminMode} />
+                  <label htmlFor="admin-mode" className="text-sm cursor-pointer flex items-center gap-1">
+                    <ShieldCheck size={14} />
+                    Admin Mode
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
+          
+          {isAdmin && (
+            <div className="mt-4 pt-4 border-t">
+              <Button variant="outline" className="gap-2" onClick={() => {
+                // In a real app, this would create a new paper in the database
+                toast.info("Create new paper functionality would go here");
+              }}>
+                <Plus size={16} />
+                Create New Paper
+              </Button>
+            </div>
+          )}
         </div>
         
         {searchQuery || yearFilter !== 'all' || difficultyFilter !== 'all' ? (
@@ -227,6 +333,9 @@ const Papers: React.FC = () => {
                   questionCount={paper.questionCount}
                   duration={paper.duration}
                   difficulty={paper.difficulty}
+                  isPremium={isPaperPremium(paper.id)}
+                  isAdmin={isAdmin}
+                  onEditPaper={handleEditPaper}
                 />
               ))}
             </div>
@@ -272,6 +381,9 @@ const Papers: React.FC = () => {
                       questionCount={paper.questionCount}
                       duration={paper.duration}
                       difficulty={paper.difficulty}
+                      isPremium={isPaperPremium(paper.id)}
+                      isAdmin={isAdmin}
+                      onEditPaper={handleEditPaper}
                     />
                   ))}
                 </div>
@@ -280,6 +392,17 @@ const Papers: React.FC = () => {
           </Tabs>
         )}
       </div>
+      
+      {/* Question Editor for Admin */}
+      {isAdmin && (
+        <QuestionEditor
+          open={showQuestionEditor}
+          onOpenChange={setShowQuestionEditor}
+          paperId={currentPaperId}
+          initialQuestions={paperQuestions}
+          onSave={handleSaveQuestions}
+        />
+      )}
     </>
   );
 };

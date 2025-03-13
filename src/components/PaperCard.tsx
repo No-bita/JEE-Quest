@@ -1,10 +1,12 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, FileText, ArrowRight, Star } from 'lucide-react';
+import { Calendar, Clock, FileText, ArrowRight, Star, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import PaperPaywall from './PaperPaywall';
 
 interface PaperCardProps {
   id: string;
@@ -14,6 +16,9 @@ interface PaperCardProps {
   questionCount: number;
   duration: number;
   difficulty: 'easy' | 'medium' | 'hard';
+  isPremium?: boolean;
+  isAdmin?: boolean;
+  onEditPaper?: (paperId: string) => void;
 }
 
 const PaperCard: React.FC<PaperCardProps> = ({
@@ -24,7 +29,28 @@ const PaperCard: React.FC<PaperCardProps> = ({
   questionCount,
   duration,
   difficulty,
+  isPremium = true, // Most papers will be premium by default
+  isAdmin = false,
+  onEditPaper
 }) => {
+  const { toast } = useToast();
+  const [showPaywall, setShowPaywall] = React.useState(false);
+  
+  // Function to determine if user has access to this paper
+  const hasPaperAccess = () => {
+    // In a real app, this would check if the user has purchased this paper
+    // For now, we'll use localStorage as a simple way to track purchases
+    const purchasedPapers = JSON.parse(localStorage.getItem('purchasedPapers') || '[]');
+    return !isPremium || purchasedPapers.includes(id);
+  };
+  
+  const handlePracticeClick = (e: React.MouseEvent) => {
+    if (isPremium && !hasPaperAccess()) {
+      e.preventDefault();
+      setShowPaywall(true);
+    }
+  };
+  
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy':
@@ -78,19 +104,47 @@ const PaperCard: React.FC<PaperCardProps> = ({
             <Clock size={14} className="mr-1.5 text-muted-foreground" />
             <span>{duration} Minutes</span>
           </div>
+          {isPremium && !hasPaperAccess() && (
+            <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50 flex items-center gap-1">
+              <Lock size={12} />
+              Premium
+            </Badge>
+          )}
         </div>
 
         <div className="flex gap-2">
-          <Link to={`/papers/${id}`} className="flex-1">
-            <Button variant="outline" className="w-full">View Paper</Button>
-          </Link>
-          <Link to={`/practice/${id}`} className="flex-1">
-            <Button className="w-full flex items-center justify-center">
-              Practice <ArrowRight size={16} className="ml-2" />
+          {isAdmin && (
+            <Button variant="outline" className="flex-1" onClick={() => onEditPaper?.(id)}>
+              Edit Questions
+            </Button>
+          )}
+          
+          <Link 
+            to={`/practice/${id}`} 
+            className={cn("flex-1", isPremium && !hasPaperAccess() && "pointer-events-none")}
+            onClick={handlePracticeClick}
+          >
+            <Button 
+              className="w-full flex items-center justify-center"
+              variant={isPremium && !hasPaperAccess() ? "outline" : "default"}
+            >
+              {isPremium && !hasPaperAccess() ? (
+                <>Unlock Practice <Lock size={14} className="ml-2" /></>
+              ) : (
+                <>Practice <ArrowRight size={16} className="ml-2" /></>
+              )}
             </Button>
           </Link>
         </div>
       </div>
+      
+      {/* Paywall Dialog */}
+      <PaperPaywall 
+        open={showPaywall} 
+        onOpenChange={setShowPaywall}
+        paperId={id}
+        paperTitle={`JEE Mains ${year} - ${shift}`}
+      />
     </div>
   );
 };

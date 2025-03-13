@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Flag, AlertCircle, ChevronLeft, ChevronRight, Timer, Save } from 'lucide-react';
+import { Flag, ChevronLeft, ChevronRight, Timer, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
@@ -85,22 +84,52 @@ const mockQuestions = [
   }
 ];
 
-const PracticeInterface: React.FC = () => {
-  const { paperId } = useParams<{ paperId: string }>();
+interface PracticeInterfaceProps {
+  paperId: string;
+}
+
+const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [questionStatus, setQuestionStatus] = useState<Record<number, QuestionStatus>>({});
   const [timeLeft, setTimeLeft] = useState(7200); // 2 hours in seconds
   const [isActive, setIsActive] = useState(true);
+  const [questions, setQuestions] = useState(mockQuestions);
+
+  // Load questions for this paper
+  useEffect(() => {
+    // In a real app, this would fetch questions from an API
+    // For now, let's use our mock data
+    const loadQuestions = () => {
+      // Here we would make an API call to get questions for this paper
+      // For demo, we'll just use the mock data
+      console.log(`Loading questions for paper: ${paperId}`);
+      
+      // Simulate a different set of questions for different papers
+      const paperId2DigitYear = parseInt(paperId.split('-')[0].slice(-2));
+      const questionCount = 5 + (paperId2DigitYear % 3); // 5-7 questions based on year
+      
+      // Use our existing mock questions, but vary them slightly based on paperId
+      const paperQuestions = mockQuestions.slice(0, questionCount).map(q => ({
+        ...q,
+        id: q.id + (paperId2DigitYear * 10), // Make IDs unique per paper
+        text: q.text + (paperId.includes('shift-2') ? ' (Shift 2 variant)' : '')
+      }));
+      
+      setQuestions(paperQuestions);
+    };
+    
+    loadQuestions();
+  }, [paperId]);
 
   // Initialize question status
   useEffect(() => {
     const initialStatus: Record<number, QuestionStatus> = {};
-    mockQuestions.forEach(q => {
+    questions.forEach(q => {
       initialStatus[q.id] = 'unattempted';
     });
     setQuestionStatus(initialStatus);
-  }, []);
+  }, [questions]);
 
   // Timer effect
   useEffect(() => {
@@ -156,7 +185,7 @@ const PracticeInterface: React.FC = () => {
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < mockQuestions.length - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
@@ -168,7 +197,7 @@ const PracticeInterface: React.FC = () => {
   };
 
   const handleSelectQuestion = (questionId: number) => {
-    const index = mockQuestions.findIndex(q => q.id === questionId);
+    const index = questions.findIndex(q => q.id === questionId);
     if (index !== -1) {
       setCurrentQuestionIndex(index);
     }
@@ -180,8 +209,17 @@ const PracticeInterface: React.FC = () => {
     // Here you would typically send the answers to a server
   };
 
-  const currentQuestion = mockQuestions[currentQuestionIndex];
-  const navigatorQuestions = mockQuestions.map(q => ({
+  // If there are no questions yet, show a loading state
+  if (questions.length === 0) {
+    return (
+      <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const navigatorQuestions = questions.map(q => ({
     id: q.id,
     status: questionStatus[q.id] || 'unattempted'
   }));
@@ -190,7 +228,7 @@ const PracticeInterface: React.FC = () => {
   const attemptedCount = Object.values(questionStatus).filter(
     status => status === 'attempted' || status === 'marked'
   ).length;
-  const progress = (attemptedCount / mockQuestions.length) * 100;
+  const progress = (attemptedCount / questions.length) * 100;
 
   return (
     <div className="page-container grid grid-cols-1 lg:grid-cols-4 gap-6 pt-24">
@@ -204,7 +242,7 @@ const PracticeInterface: React.FC = () => {
               <span className="font-mono font-medium">{formatTime(timeLeft)}</span>
             </div>
             <Badge variant="outline" className="px-2 py-0.5">
-              Question {currentQuestionIndex + 1} of {mockQuestions.length}
+              Question {currentQuestionIndex + 1} of {questions.length}
             </Badge>
           </div>
           <Progress value={progress} className="h-2" />
@@ -289,7 +327,7 @@ const PracticeInterface: React.FC = () => {
           <Button
             variant="outline"
             onClick={handleNextQuestion}
-            disabled={currentQuestionIndex === mockQuestions.length - 1}
+            disabled={currentQuestionIndex === questions.length - 1}
             className="gap-2"
           >
             Next
