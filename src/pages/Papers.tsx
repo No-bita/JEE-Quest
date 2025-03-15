@@ -218,7 +218,7 @@ const Papers: React.FC = () => {
     if (yearFilter !== 'all' && paper.year.toString() !== yearFilter) return false;
     
     // Apply search query
-    if (searchQuery && !`JEE Mains ${paper.year} ${paper.session}`.toLowerCase().includes(searchQuery.toLowerCase())) {
+    if (searchQuery && !`${paper.year} ${paper.session}`.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
     
