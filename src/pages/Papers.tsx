@@ -32,7 +32,8 @@ const mockPapers = [
   {
     id: 'jee2024-1',
     year: 2024,
-    shift: 'Shift 1',
+    session: 'Session 2',
+    shift: 'Shift Morning',
     date: 'Apr 04, 2024',
     questionCount: 90,
     duration: 180,
@@ -40,7 +41,8 @@ const mockPapers = [
   {
     id: 'jee2024-2',
     year: 2024,
-    shift: 'Shift 1',
+    session: 'Session 1',
+    shift: 'Shift Morning',
     date: 'Jan 27, 2024',
     questionCount: 90,
     duration: 180,
@@ -206,7 +208,7 @@ const Papers: React.FC = () => {
     if (yearFilter !== 'all' && paper.year.toString() !== yearFilter) return false;
     
     // Apply search query
-    if (searchQuery && !`JEE Mains ${paper.year} ${paper.shift}`.toLowerCase().includes(searchQuery.toLowerCase())) {
+    if (searchQuery && !`JEE Mains ${paper.year} ${paper.session}`.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
     
