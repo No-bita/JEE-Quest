@@ -44,12 +44,12 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
-            <Route path="/papers" element={<Papers />} />
-            <Route path="/practice/:paperId?" element={<Practice />} />
-            <Route path="/analysis" element={<Analysis />} />
-            <Route path="/results/:paperId?" element={<Results />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/papers" element={isLoggedIn ? <Papers /> : <Navigate to="/" />} />
+            <Route path="/practice/:paperId?" element={isLoggedIn ? <Practice /> : <Navigate to="/" />} />
+            <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/" />} />
+            <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/" />} />
+            <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn />} />
+            <Route path="/register" element={isLoggedIn ? <Navigate to="/papers" /> : <Register />} />
             <Route path="/pricing" element={<Pricing />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -39,6 +39,13 @@ const NavBar: React.FC = () => {
     navigate('/signin');
   };
 
+  const handleSignOutClick = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('isAdmin');
+    setIsLoggedIn(false);
+    navigate('/');
+  };
+
   const handleLogoClick = (e: React.MouseEvent) => {
     if (isLoggedIn) {
       e.preventDefault();
@@ -84,12 +91,7 @@ const NavBar: React.FC = () => {
           {/* Sign In Button */}
           <div className="hidden md:flex items-center">
             {isLoggedIn ? (
-              <Button variant="ghost" size="sm" onClick={() => {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('isAdmin');
-                setIsLoggedIn(false);
-                navigate('/');
-              }}>
+              <Button variant="ghost" size="sm" onClick={handleSignOutClick}>
                 Sign Out
               </Button>
             ) : (
@@ -135,10 +137,7 @@ const NavBar: React.FC = () => {
                   variant="ghost"
                   className="w-full justify-start text-left flex items-center gap-2"
                   onClick={() => {
-                    localStorage.removeItem('isLoggedIn');
-                    localStorage.removeItem('isAdmin');
-                    setIsLoggedIn(false);
-                    navigate('/');
+                    handleSignOutClick();
                     setIsMobileMenuOpen(false);
                   }}
                 >
