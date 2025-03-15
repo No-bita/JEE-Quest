@@ -16,6 +16,7 @@ const mockPapers = [
   {
     id: 'jee2025-1',
     year: 2025,
+    session: 'Session 1',
     shift: 'Shift 1',
     date: 'Jan 24, 2025',
     questionCount: 75,
@@ -24,6 +25,7 @@ const mockPapers = [
   {
     id: 'jee2025-2',
     year: 2025,
+    session: 'Session 1',
     shift: 'Shift 2',
     date: 'Jan 25, 2025',
     questionCount: 75,
@@ -50,6 +52,7 @@ const mockPapers = [
   {
     id: 'jee2023-1',
     year: 2023,
+    session: 'Session 1',
     shift: 'Shift 1',
     date: 'Jan 24, 2023',
     questionCount: 75,
@@ -58,6 +61,7 @@ const mockPapers = [
   {
     id: 'jee2023-2',
     year: 2023,
+    session: 'Session 1',
     shift: 'Shift 2',
     date: 'Jan 25, 2023',
     questionCount: 75,
@@ -66,6 +70,7 @@ const mockPapers = [
   {
     id: 'jee2022-1',
     year: 2022,
+    session: 'Session 1',
     shift: 'Shift 1',
     date: 'Jan 24, 2022',
     questionCount: 75,
@@ -74,6 +79,7 @@ const mockPapers = [
   {
     id: 'jee2022-2',
     year: 2022,
+    session: 'Session 1',
     shift: 'Shift 2',
     date: 'Jan 25, 2022',
     questionCount: 75,
@@ -82,6 +88,7 @@ const mockPapers = [
   {
     id: 'jee2021-1',
     year: 2021,
+    session: 'Session 1',
     shift: 'Shift 1',
     date: 'Feb 24, 2021',
     questionCount: 75,
@@ -90,6 +97,7 @@ const mockPapers = [
   {
     id: 'jee2021-2',
     year: 2021,
+    session: 'Session 1',
     shift: 'Shift 2',
     date: 'Feb 25, 2021',
     questionCount: 75,
@@ -98,6 +106,7 @@ const mockPapers = [
   {
     id: 'jee2020-1',
     year: 2020,
+    session: 'Session 1',
     shift: 'Shift 1',
     date: 'Jan 24, 2020',
     questionCount: 75,
@@ -106,6 +115,7 @@ const mockPapers = [
   {
     id: 'jee2020-2',
     year: 2020,
+    session: 'Session 1',
     shift: 'Shift 2',
     date: 'Jan 25, 2020',
     questionCount: 75,
@@ -307,6 +317,7 @@ const Papers: React.FC = () => {
                   key={paper.id}
                   id={paper.id}
                   year={paper.year}
+                  session={paper.session}
                   shift={paper.shift}
                   date={paper.date}
                   questionCount={paper.questionCount}
@@ -353,6 +364,7 @@ const Papers: React.FC = () => {
                       key={paper.id}
                       id={paper.id}
                       year={paper.year}
+                      session={paper.session}
                       shift={paper.shift}
                       date={paper.date}
                       questionCount={paper.questionCount}
