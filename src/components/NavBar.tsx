@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, BookOpen, PencilRuler, BarChart3, Search } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, BookOpen, PencilRuler, BarChart3, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -9,11 +9,17 @@ const NavBar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
+
+    // Check login status
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -28,6 +34,10 @@ const NavBar: React.FC = () => {
     { name: 'Practice', path: '/practice', icon: PencilRuler },
     { name: 'Analysis', path: '/analysis', icon: BarChart3 },
   ];
+
+  const handleSignInClick = () => {
+    navigate('/signin');
+  };
 
   return (
     <nav
@@ -63,11 +73,23 @@ const NavBar: React.FC = () => {
             })}
           </div>
 
-          {/* Search Button */}
+          {/* Sign In Button */}
           <div className="hidden md:flex items-center">
-            <Button variant="ghost" size="icon">
-              <Search size={20} />
-            </Button>
+            {isLoggedIn ? (
+              <Button variant="ghost" size="sm" onClick={() => {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('isAdmin');
+                setIsLoggedIn(false);
+                navigate('/');
+              }}>
+                Sign Out
+              </Button>
+            ) : (
+              <Button variant="default" size="sm" onClick={handleSignInClick} className="gap-2">
+                <LogIn size={16} />
+                Sign In
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -100,13 +122,33 @@ const NavBar: React.FC = () => {
                   </Link>
                 );
               })}
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-left flex items-center gap-2"
-              >
-                <Search size={18} />
-                <span>Search</span>
-              </Button>
+              {isLoggedIn ? (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left flex items-center gap-2"
+                  onClick={() => {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('isAdmin');
+                    setIsLoggedIn(false);
+                    navigate('/');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  className="w-full justify-start text-left flex items-center gap-2"
+                  onClick={() => {
+                    navigate('/signin');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <LogIn size={18} />
+                  <span>Sign In</span>
+                </Button>
+              )}
             </div>
           </div>
         )}

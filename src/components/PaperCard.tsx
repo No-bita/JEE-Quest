@@ -1,12 +1,10 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Calendar, Clock, FileText, ArrowRight, Star, Lock } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Calendar, Clock, FileText, ArrowRight, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import PaperPaywall from './PaperPaywall';
 
 interface PaperCardProps {
   id: string;
@@ -15,7 +13,6 @@ interface PaperCardProps {
   date: string;
   questionCount: number;
   duration: number;
-  difficulty: 'easy' | 'medium' | 'hard';
   isPremium?: boolean;
   isAdmin?: boolean;
   onEditPaper?: (paperId: string) => void;
@@ -28,13 +25,11 @@ const PaperCard: React.FC<PaperCardProps> = ({
   date,
   questionCount,
   duration,
-  difficulty,
   isPremium = true, // Most papers will be premium by default
   isAdmin = false,
   onEditPaper
 }) => {
-  const { toast } = useToast();
-  const [showPaywall, setShowPaywall] = React.useState(false);
+  const navigate = useNavigate();
   
   // Function to determine if user has access to this paper
   const hasPaperAccess = () => {
@@ -45,29 +40,12 @@ const PaperCard: React.FC<PaperCardProps> = ({
   };
   
   const handlePracticeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (isPremium && !hasPaperAccess()) {
-      e.preventDefault();
-      setShowPaywall(true);
+      navigate(`/pricing?paperId=${id}&title=JEE Mains ${year} - ${shift}`);
+    } else {
+      navigate(`/practice/${id}`);
     }
-  };
-  
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'text-green-500 bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800';
-      case 'medium':
-        return 'text-amber-500 bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800';
-      case 'hard':
-        return 'text-red-500 bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800';
-      default:
-        return '';
-    }
-  };
-
-  const difficultyStars = {
-    easy: 1,
-    medium: 2,
-    hard: 3,
   };
 
   return (
@@ -82,17 +60,12 @@ const PaperCard: React.FC<PaperCardProps> = ({
               <Calendar size={14} className="mr-1" /> {date}
             </div>
           </div>
-          <Badge
-            variant="outline"
-            className={cn('font-medium', getDifficultyColor(difficulty))}
-          >
-            {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-            {Array(difficultyStars[difficulty])
-              .fill(0)
-              .map((_, i) => (
-                <Star key={i} size={12} className="ml-0.5 inline-block" fill="currentColor" />
-              ))}
-          </Badge>
+          {isPremium && !hasPaperAccess() && (
+            <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50 flex items-center gap-1">
+              <Lock size={12} />
+              Premium
+            </Badge>
+          )}
         </div>
 
         <div className="flex space-x-4 mb-6">
@@ -104,12 +77,6 @@ const PaperCard: React.FC<PaperCardProps> = ({
             <Clock size={14} className="mr-1.5 text-muted-foreground" />
             <span>{duration} Minutes</span>
           </div>
-          {isPremium && !hasPaperAccess() && (
-            <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50 flex items-center gap-1">
-              <Lock size={12} />
-              Premium
-            </Badge>
-          )}
         </div>
 
         <div className="flex gap-2">
@@ -119,32 +86,19 @@ const PaperCard: React.FC<PaperCardProps> = ({
             </Button>
           )}
           
-          <Link 
-            to={`/practice/${id}`} 
-            className={cn("flex-1", isPremium && !hasPaperAccess() && "pointer-events-none")}
+          <Button 
+            className="w-full flex items-center justify-center"
+            variant={isPremium && !hasPaperAccess() ? "outline" : "default"}
             onClick={handlePracticeClick}
           >
-            <Button 
-              className="w-full flex items-center justify-center"
-              variant={isPremium && !hasPaperAccess() ? "outline" : "default"}
-            >
-              {isPremium && !hasPaperAccess() ? (
-                <>Unlock Practice <Lock size={14} className="ml-2" /></>
-              ) : (
-                <>Practice <ArrowRight size={16} className="ml-2" /></>
-              )}
-            </Button>
-          </Link>
+            {isPremium && !hasPaperAccess() ? (
+              <>Unlock Practice <Lock size={14} className="ml-2" /></>
+            ) : (
+              <>Practice <ArrowRight size={16} className="ml-2" /></>
+            )}
+          </Button>
         </div>
       </div>
-      
-      {/* Paywall Dialog */}
-      <PaperPaywall 
-        open={showPaywall} 
-        onOpenChange={setShowPaywall}
-        paperId={id}
-        paperTitle={`JEE Mains ${year} - ${shift}`}
-      />
     </div>
   );
 };

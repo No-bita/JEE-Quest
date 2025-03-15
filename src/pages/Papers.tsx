@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import PaperCard from '@/components/PaperCard';
@@ -5,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, CalendarRange, Plus, LogIn } from 'lucide-react';
+import { Search, CalendarRange, Plus, LogIn } from 'lucide-react';
 import QuestionEditor from '@/components/QuestionEditor';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +20,6 @@ const mockPapers = [
     date: 'Jan 24, 2025',
     questionCount: 75,
     duration: 180,
-    difficulty: 'medium' as const,
   },
   {
     id: 'jee2025-2',
@@ -28,7 +28,6 @@ const mockPapers = [
     date: 'Jan 25, 2025',
     questionCount: 75,
     duration: 180,
-    difficulty: 'hard' as const,
   },
   {
     id: 'jee2024-1',
@@ -37,7 +36,6 @@ const mockPapers = [
     date: 'Jan 24, 2024',
     questionCount: 75,
     duration: 180,
-    difficulty: 'medium' as const,
   },
   {
     id: 'jee2024-2',
@@ -46,7 +44,6 @@ const mockPapers = [
     date: 'Jan 25, 2024',
     questionCount: 75,
     duration: 180,
-    difficulty: 'easy' as const,
   },
   {
     id: 'jee2023-1',
@@ -55,7 +52,6 @@ const mockPapers = [
     date: 'Jan 24, 2023',
     questionCount: 75,
     duration: 180,
-    difficulty: 'hard' as const,
   },
   {
     id: 'jee2023-2',
@@ -64,7 +60,6 @@ const mockPapers = [
     date: 'Jan 25, 2023',
     questionCount: 75,
     duration: 180,
-    difficulty: 'medium' as const,
   },
   {
     id: 'jee2022-1',
@@ -73,7 +68,6 @@ const mockPapers = [
     date: 'Jan 24, 2022',
     questionCount: 75,
     duration: 180,
-    difficulty: 'medium' as const,
   },
   {
     id: 'jee2022-2',
@@ -82,7 +76,6 @@ const mockPapers = [
     date: 'Jan 25, 2022',
     questionCount: 75,
     duration: 180,
-    difficulty: 'easy' as const,
   },
   {
     id: 'jee2021-1',
@@ -91,7 +84,6 @@ const mockPapers = [
     date: 'Feb 24, 2021',
     questionCount: 75,
     duration: 180,
-    difficulty: 'hard' as const,
   },
   {
     id: 'jee2021-2',
@@ -100,7 +92,6 @@ const mockPapers = [
     date: 'Feb 25, 2021',
     questionCount: 75,
     duration: 180,
-    difficulty: 'medium' as const,
   },
   {
     id: 'jee2020-1',
@@ -109,7 +100,6 @@ const mockPapers = [
     date: 'Jan 24, 2020',
     questionCount: 75,
     duration: 180,
-    difficulty: 'medium' as const,
   },
   {
     id: 'jee2020-2',
@@ -118,7 +108,6 @@ const mockPapers = [
     date: 'Jan 25, 2020',
     questionCount: 75,
     duration: 180,
-    difficulty: 'easy' as const,
   },
 ];
 
@@ -157,7 +146,6 @@ const mockQuestionsByPaperId: Record<string, Question[]> = {
 const Papers: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFilter, setYearFilter] = useState<string>('all');
-  const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [currentPaperId, setCurrentPaperId] = useState<string>('');
@@ -216,9 +204,6 @@ const Papers: React.FC = () => {
   const filteredPapers = mockPapers.filter(paper => {
     // Apply year filter
     if (yearFilter !== 'all' && paper.year.toString() !== yearFilter) return false;
-    
-    // Apply difficulty filter
-    if (difficultyFilter !== 'all' && paper.difficulty !== difficultyFilter) return false;
     
     // Apply search query
     if (searchQuery && !`JEE Mains ${paper.year} ${paper.shift}`.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -285,21 +270,6 @@ const Papers: React.FC = () => {
                 </Select>
               </div>
               
-              <div className="min-w-40">
-                <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                  <SelectTrigger>
-                    <Filter size={16} className="mr-2 text-muted-foreground" />
-                    <SelectValue placeholder="Filter by difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Difficulties</SelectItem>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
               {!isLoggedIn && (
                 <Button variant="outline" onClick={() => navigate('/signin')} className="gap-2">
                   <LogIn size={16} />
@@ -322,7 +292,7 @@ const Papers: React.FC = () => {
           )}
         </div>
         
-        {searchQuery || yearFilter !== 'all' || difficultyFilter !== 'all' ? (
+        {searchQuery || yearFilter !== 'all' ? (
           // Show filtered results
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">
@@ -339,7 +309,6 @@ const Papers: React.FC = () => {
                   date={paper.date}
                   questionCount={paper.questionCount}
                   duration={paper.duration}
-                  difficulty={paper.difficulty}
                   isPremium={isPaperPremium(paper.id)}
                   isAdmin={isAdmin}
                   onEditPaper={handleEditPaper}
@@ -356,7 +325,6 @@ const Papers: React.FC = () => {
                   onClick={() => {
                     setSearchQuery('');
                     setYearFilter('all');
-                    setDifficultyFilter('all');
                   }}
                 >
                   Reset Filters
@@ -387,7 +355,6 @@ const Papers: React.FC = () => {
                       date={paper.date}
                       questionCount={paper.questionCount}
                       duration={paper.duration}
-                      difficulty={paper.difficulty}
                       isPremium={isPaperPremium(paper.id)}
                       isAdmin={isAdmin}
                       onEditPaper={handleEditPaper}
