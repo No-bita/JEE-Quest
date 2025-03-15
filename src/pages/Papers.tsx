@@ -40,9 +40,9 @@ const mockPapers = [
   {
     id: 'jee2024-2',
     year: 2024,
-    shift: 'Shift 2',
-    date: 'Jan 25, 2024',
-    questionCount: 75,
+    shift: 'Shift 1',
+    date: 'Jan 27, 2024',
+    questionCount: 90,
     duration: 180,
   },
   {
