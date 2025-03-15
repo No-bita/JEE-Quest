@@ -1,11 +1,29 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, BookOpen, Clock, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 const Hero: React.FC = () => {
+  const navigate = useNavigate();
+  
+  const handlePracticeClick = () => {
+    // Navigate to a sample paper to show how the exam interface looks
+    navigate('/practice/jee2022-1');
+  };
+  
+  const handleBrowsePapers = () => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) {
+      toast.info("Please sign in to browse papers");
+      navigate('/signin');
+    } else {
+      navigate('/papers');
+    }
+  };
+  
   return (
     <div className="relative overflow-hidden">
       {/* Background pattern */}
@@ -28,19 +46,20 @@ const Hero: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in delay-100">
-            <Link to="/papers">
-              <Button size="lg" className="w-full sm:w-auto gap-2">
-                <BookOpen size={18} />
-                Browse Papers
-                <ArrowRight size={16} className="ml-1" />
-              </Button>
-            </Link>
-            <Link to="/practice">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
-                <Clock size={18} />
-                Practice Mode
-              </Button>
-            </Link>
+            <Button size="lg" className="w-full sm:w-auto gap-2" onClick={handleBrowsePapers}>
+              <BookOpen size={18} />
+              Browse Papers
+              <ArrowRight size={16} className="ml-1" />
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="w-full sm:w-auto gap-2"
+              onClick={handlePracticeClick}
+            >
+              <Clock size={18} />
+              Practice Mode
+            </Button>
           </div>
         </div>
         

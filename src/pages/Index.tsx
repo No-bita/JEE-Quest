@@ -3,10 +3,13 @@ import React from 'react';
 import Hero from '@/components/Hero';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Lightbulb, BarChart3 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
+import { toast } from 'sonner';
 
 const Index: React.FC = () => {
+  const navigate = useNavigate();
+  
   // Sample stats
   const stats = [
     { label: 'Past Papers', value: '25+' },
@@ -14,6 +17,19 @@ const Index: React.FC = () => {
     { label: 'Detailed Solutions', value: '100%' },
     { label: 'Students Helped', value: '10k+' },
   ];
+  
+  const handleNavigate = (path: string) => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (path === '/papers' && !isLoggedIn) {
+      toast.info("Please sign in to browse papers");
+      navigate('/signin');
+    } else if (path === '/practice') {
+      // Navigate to sample paper
+      navigate('/practice/jee2022-1');
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <>
@@ -58,11 +74,13 @@ const Index: React.FC = () => {
                 <p className="text-muted-foreground mb-4">
                   Every paper is carefully organized by year and shift, making it easy to find exactly what you need.
                 </p>
-                <Link to="/papers">
-                  <Button variant="link" className="text-primary gap-1">
-                    View Papers <ArrowRight size={14} />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="link" 
+                  className="text-primary gap-1" 
+                  onClick={() => handleNavigate('/papers')}
+                >
+                  View Papers <ArrowRight size={14} />
+                </Button>
               </div>
               
               <div className="glass-card rounded-xl p-8 text-center animate-fade-in" style={{ animationDelay: '100ms' }}>
@@ -75,11 +93,13 @@ const Index: React.FC = () => {
                 <p className="text-muted-foreground mb-4">
                   Our practice mode lets you simulate real exam conditions with timed sessions and question tracking.
                 </p>
-                <Link to="/practice">
-                  <Button variant="link" className="text-primary gap-1">
-                    Try Practice Mode <ArrowRight size={14} />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="link" 
+                  className="text-primary gap-1" 
+                  onClick={() => handleNavigate('/practice')}
+                >
+                  Try Practice Mode <ArrowRight size={14} />
+                </Button>
               </div>
               
               <div className="glass-card rounded-xl p-8 text-center animate-fade-in" style={{ animationDelay: '200ms' }}>
@@ -92,11 +112,13 @@ const Index: React.FC = () => {
                 <p className="text-muted-foreground mb-4">
                   Get insights into your performance with subject-wise and topic-wise analysis to focus your preparation.
                 </p>
-                <Link to="/analysis">
-                  <Button variant="link" className="text-primary gap-1">
-                    See Analysis <ArrowRight size={14} />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="link" 
+                  className="text-primary gap-1" 
+                  onClick={() => handleNavigate('/analysis')}
+                >
+                  See Analysis <ArrowRight size={14} />
+                </Button>
               </div>
             </div>
           </div>
@@ -111,12 +133,10 @@ const Index: React.FC = () => {
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
               Start practicing with our comprehensive collection of past papers and take your preparation to the next level.
             </p>
-            <Link to="/papers">
-              <Button size="lg" className="gap-2">
-                Get Started Now
-                <ArrowRight size={16} />
-              </Button>
-            </Link>
+            <Button size="lg" className="gap-2" onClick={() => handleNavigate('/papers')}>
+              Get Started Now
+              <ArrowRight size={16} />
+            </Button>
           </div>
         </section>
       </main>
