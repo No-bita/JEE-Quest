@@ -39,6 +39,14 @@ const NavBar: React.FC = () => {
     navigate('/signin');
   };
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (isLoggedIn) {
+      e.preventDefault();
+      navigate('/papers');
+    }
+    // If not logged in, normal link behavior takes them to '/'
+  };
+
   return (
     <nav
       className={cn(
@@ -50,7 +58,7 @@ const NavBar: React.FC = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="text-primary flex items-center gap-2">
-            <Link to="/" className="text-2xl font-bold tracking-tight">
+            <Link to="/" className="text-2xl font-bold tracking-tight" onClick={handleLogoClick}>
               JEE Quest
             </Link>
           </div>

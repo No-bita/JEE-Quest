@@ -23,9 +23,9 @@ const Practice: React.FC = () => {
       return;
     }
     
+    // If no paperId is provided, redirect to sample paper
     if (!paperId) {
-      toast.error("No paper selected");
-      navigate('/papers');
+      navigate('/practice/jee2022-1');
       return;
     }
     

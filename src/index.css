@@ -38,7 +38,8 @@
     /* Question status colors */
     --status-unattempted: 220 13% 91%;
     --status-attempted: 142 72% 50%;
-    --status-marked: 35 100% 60%;
+    --status-marked-unattempted: 270 70% 60%;
+    --status-marked-attempted: 270 70% 60%;
   }
 
   .dark {
@@ -73,7 +74,8 @@
     /* Question status colors */
     --status-unattempted: 215 20.2% 25%;
     --status-attempted: 142 72% 30%;
-    --status-marked: 35 80% 40%;
+    --status-marked-unattempted: 270 60% 50%;
+    --status-marked-attempted: 270 60% 50%;
   }
 }
 
@@ -120,8 +122,12 @@
     @apply bg-status-attempted text-white;
   }
   
-  .question-btn-marked {
-    @apply bg-status-marked text-white;
+  .question-btn-marked-unattempted {
+    @apply bg-status-marked-unattempted text-white;
+  }
+  
+  .question-btn-marked-attempted {
+    @apply bg-status-marked-attempted text-white;
   }
 }
 

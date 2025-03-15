@@ -5,7 +5,7 @@ import { AlertCircle, CheckCircle, Flag, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
-export type QuestionStatus = 'unattempted' | 'attempted' | 'marked';
+export type QuestionStatus = 'unattempted' | 'attempted' | 'marked-unattempted' | 'marked-attempted';
 
 interface QuestionNavigationProps {
   questions: Array<{
@@ -25,8 +25,15 @@ const QuestionNavigation: React.FC<QuestionNavigationProps> = ({
     switch (status) {
       case 'attempted':
         return <CheckCircle size={16} />;
-      case 'marked':
+      case 'marked-unattempted':
         return <Flag size={16} />;
+      case 'marked-attempted':
+        return (
+          <div className="relative">
+            <Flag size={16} />
+            <CheckCircle size={10} className="absolute -bottom-1 -right-1 text-status-attempted" />
+          </div>
+        );
       case 'unattempted':
       default:
         return <HelpCircle size={16} />;
@@ -43,8 +50,10 @@ const QuestionNavigation: React.FC<QuestionNavigationProps> = ({
     switch (status) {
       case 'attempted':
         return cn(baseClasses, 'question-btn-attempted');
-      case 'marked':
-        return cn(baseClasses, 'question-btn-marked');
+      case 'marked-unattempted':
+        return cn(baseClasses, 'question-btn-marked-unattempted');
+      case 'marked-attempted':
+        return cn(baseClasses, 'question-btn-marked-attempted');
       case 'unattempted':
       default:
         return cn(baseClasses, 'question-btn-unattempted');
@@ -89,10 +98,19 @@ const QuestionNavigation: React.FC<QuestionNavigationProps> = ({
             <span className="text-sm">Attempted</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="question-btn question-btn-marked flex-shrink-0 w-6 h-6">
+            <div className="question-btn question-btn-marked-unattempted flex-shrink-0 w-6 h-6">
               <Flag size={14} />
             </div>
-            <span className="text-sm">Marked for Review</span>
+            <span className="text-sm">Unattempted & Marked for Review</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="question-btn question-btn-marked-attempted flex-shrink-0 w-6 h-6">
+              <div className="relative">
+                <Flag size={14} />
+                <CheckCircle size={8} className="absolute -bottom-1 -right-1 text-status-attempted" />
+              </div>
+            </div>
+            <span className="text-sm">Attempted & Marked for Review</span>
           </div>
         </div>
       </div>

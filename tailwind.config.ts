@@ -66,7 +66,8 @@ export default {
 				status: {
 					unattempted: 'hsl(var(--status-unattempted))',
 					attempted: 'hsl(var(--status-attempted))',
-					marked: 'hsl(var(--status-marked))'
+					'marked-unattempted': 'hsl(var(--status-marked-unattempted))',
+					'marked-attempted': 'hsl(var(--status-marked-attempted))'
 				}
 			},
 			borderRadius: {

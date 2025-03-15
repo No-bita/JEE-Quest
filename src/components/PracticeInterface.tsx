@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Flag, ChevronLeft, ChevronRight, Timer, Save } from 'lucide-react';
+import { Flag, ChevronLeft, ChevronRight, Timer, Save, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
@@ -8,7 +8,19 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import QuestionNavigation, { QuestionStatus } from './QuestionNavigation';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Mock data for practice interface
 const mockQuestions = [
@@ -95,6 +107,8 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [timeLeft, setTimeLeft] = useState(7200); // 2 hours in seconds
   const [isActive, setIsActive] = useState(true);
   const [questions, setQuestions] = useState(mockQuestions);
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const navigate = useNavigate();
 
   // Load questions for this paper
   useEffect(() => {
@@ -169,19 +183,41 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
         ...prev,
         [questionId]: 'attempted'
       }));
+    } else if (questionStatus[questionId] === 'marked-unattempted') {
+      setQuestionStatus(prev => ({
+        ...prev,
+        [questionId]: 'marked-attempted'
+      }));
     }
   };
 
   const handleMarkForReview = (questionId: number) => {
-    setQuestionStatus(prev => ({
-      ...prev,
-      [questionId]: prev[questionId] === 'marked' ? 
-        (answers[questionId] ? 'attempted' : 'unattempted') : 'marked'
-    }));
+    setQuestionStatus(prev => {
+      const currentStatus = prev[questionId];
+      let newStatus: QuestionStatus;
+      
+      if (currentStatus === 'marked-unattempted') {
+        newStatus = 'unattempted';
+      } else if (currentStatus === 'marked-attempted') {
+        newStatus = 'attempted';
+      } else if (currentStatus === 'attempted') {
+        newStatus = 'marked-attempted';
+      } else {
+        // unattempted
+        newStatus = 'marked-unattempted';
+      }
+      
+      return {
+        ...prev,
+        [questionId]: newStatus
+      };
+    });
     
-    toast.info(questionStatus[questionId] === 'marked' 
-      ? "Question unmarked from review" 
-      : "Question marked for review");
+    toast.info(
+      questionStatus[questionId]?.includes('marked') 
+        ? "Question unmarked from review" 
+        : "Question marked for review"
+    );
   };
 
   const handleNextQuestion = () => {
@@ -205,8 +241,28 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
   const handleSubmit = () => {
     setIsActive(false);
+    
+    // Save results to localStorage (in a real app this would go to a database)
+    const results = {
+      paperId,
+      answers,
+      questionStatus,
+      timeSpent: 7200 - timeLeft,
+      date: new Date().toISOString()
+    };
+    
+    // Get existing test results or initialize empty array
+    const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
+    
+    // Add this test result 
+    localStorage.setItem('testResults', JSON.stringify([...allResults, results]));
+    
     toast.success("Your responses have been submitted successfully!");
-    // Here you would typically send the answers to a server
+    
+    // Redirect to results page
+    setTimeout(() => {
+      navigate(`/results/${paperId}`);
+    }, 1000);
   };
 
   // If there are no questions yet, show a loading state
@@ -226,7 +282,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
   // Calculate progress
   const attemptedCount = Object.values(questionStatus).filter(
-    status => status === 'attempted' || status === 'marked'
+    status => status === 'attempted' || status === 'marked-attempted'
   ).length;
   const progress = (attemptedCount / questions.length) * 100;
 
@@ -274,7 +330,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
             >
               <Flag 
                 size={18} 
-                className={questionStatus[currentQuestion.id] === 'marked' ? 'text-status-marked fill-status-marked' : ''} 
+                className={questionStatus[currentQuestion.id]?.includes('marked') ? 'text-purple-500 fill-purple-200' : ''} 
               />
             </Button>
           </div>
@@ -315,14 +371,36 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
             Previous
           </Button>
           
-          <Button
-            variant="default"
-            onClick={handleSubmit}
-            className="gap-2"
-          >
-            <Save size={16} />
-            Submit
-          </Button>
+          <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="default"
+                className="gap-2"
+              >
+                <Save size={16} />
+                Submit
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {attemptedCount < questions.length ? (
+                    <div className="flex items-center text-amber-600 gap-2 mt-2">
+                      <AlertTriangle size={16} />
+                      <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
+                    </div>
+                  ) : (
+                    <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleSubmit}>Submit Test</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           
           <Button
             variant="outline"
