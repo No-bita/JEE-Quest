@@ -46,12 +46,14 @@ const NavBar: React.FC = () => {
     navigate('/');
   };
 
+  // Logo click handler - always navigate to papers if logged in, otherwise to landing
   const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (isLoggedIn) {
-      e.preventDefault();
       navigate('/papers');
+    } else {
+      navigate('/');
     }
-    // If not logged in, normal link behavior takes them to '/'
   };
 
   return (

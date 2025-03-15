@@ -43,15 +43,21 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Redirect from landing page to papers if logged in */}
             <Route path="/" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
+            
+            {/* Protected routes - redirect to landing if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Papers /> : <Navigate to="/" />} />
             <Route path="/practice/:paperId?" element={isLoggedIn ? <Practice /> : <Navigate to="/" />} />
             <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/" />} />
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/" />} />
+            
+            {/* Auth routes - redirect to papers if already logged in */}
             <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/papers" /> : <Register />} />
+            
+            {/* Public routes */}
             <Route path="/pricing" element={<Pricing />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
