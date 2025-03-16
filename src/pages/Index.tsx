@@ -2,7 +2,7 @@
 import React from 'react';
 import Hero from '@/components/Hero';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BookOpen, Lightbulb, BarChart3 } from 'lucide-react';
+import { ArrowRight, BookOpen, Lightbulb, BarChart3, Linkedin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
@@ -137,6 +137,27 @@ const Index: React.FC = () => {
               Get Started Now
               <ArrowRight size={16} />
             </Button>
+          </div>
+        </section>
+        
+        {/* Social Proof Section */}
+        <section className="py-16 bg-secondary/20">
+          <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center">
+            <p className="text-lg text-muted-foreground italic mb-4">
+              "Created by IITians for today's JEE aspirants and tomorrow's IITians"
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              Need guidance? Reach out for personalized advice on your JEE preparation journey.
+            </p>
+            <a 
+              href="https://www.linkedin.com/in/your-linkedin-profile" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              <Linkedin size={20} />
+              Connect on LinkedIn
+            </a>
           </div>
         </section>
       </main>

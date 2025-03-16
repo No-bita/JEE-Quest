@@ -45,6 +45,10 @@ const Hero: React.FC = () => {
             advanced practice tools to help you excel in your exams.
           </p>
           
+          <p className="text-sm text-primary italic mb-8 animate-fade-in delay-75">
+            By IITians who've been in your shoes, for aspiring IITians like you
+          </p>
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in delay-100">
             <Button size="lg" className="w-full sm:w-auto gap-2" onClick={handleBrowsePapers}>
               <BookOpen size={18} />
