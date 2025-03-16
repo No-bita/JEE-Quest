@@ -23,13 +23,18 @@ const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(loggedIn);
+    // Check login status from localStorage
+    const checkLoginStatus = () => {
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      setIsLoggedIn(loggedIn);
+    };
     
-    // Add event listener for storage events (for login state changes in other tabs)
+    // Check on initial load
+    checkLoginStatus();
+    
+    // Add event listener for storage events (for login state changes in other tabs or components)
     const handleStorageChange = () => {
-      const updatedLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      setIsLoggedIn(updatedLoggedIn);
+      checkLoginStatus();
     };
     
     window.addEventListener('storage', handleStorageChange);
@@ -47,10 +52,10 @@ const App = () => {
             <Route path="/" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
             
             {/* Protected routes - redirect to landing if not logged in */}
-            <Route path="/papers" element={isLoggedIn ? <Papers /> : <Navigate to="/" />} />
+            <Route path="/papers" element={isLoggedIn ? <Papers /> : <Navigate to="/signin" />} />
             <Route path="/practice/:paperId?" element={<Practice />} />
-            <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/" />} />
-            <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/" />} />
+            <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/signin" />} />
+            <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
             
             {/* Auth routes - redirect to papers if already logged in */}
             <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn />} />

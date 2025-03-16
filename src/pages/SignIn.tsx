@@ -51,6 +51,9 @@ const SignIn: React.FC = () => {
         toast.success('Logged in successfully');
       }
       
+      // Trigger a storage event so other components can detect the login
+      window.dispatchEvent(new Event('storage'));
+      
       // Redirect to papers page
       navigate('/papers');
     } catch (error) {

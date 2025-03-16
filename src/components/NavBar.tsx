@@ -18,11 +18,22 @@ const NavBar: React.FC = () => {
     };
 
     // Check login status
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(loggedIn);
-
+    const checkLoginStatus = () => {
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      setIsLoggedIn(loggedIn);
+    };
+    
+    // Check on initial load
+    checkLoginStatus();
+    
+    // Listen for storage events (login state changes)
+    window.addEventListener('storage', checkLoginStatus);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const toggleMobileMenu = () => {
@@ -42,6 +53,11 @@ const NavBar: React.FC = () => {
   const handleSignOutClick = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('isAdmin');
+    localStorage.removeItem('userEmail');
+    
+    // Dispatch storage event to notify components
+    window.dispatchEvent(new Event('storage'));
+    
     setIsLoggedIn(false);
     navigate('/');
   };
