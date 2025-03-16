@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -27,6 +28,11 @@ const Results: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [totalScore, setTotalScore] = useState(0);
   const [maxPossibleScore, setMaxPossibleScore] = useState(0);
+  const [pieData, setPieData] = useState([
+    { name: 'Correct', value: 0, color: '#22c55e' },
+    { name: 'Incorrect', value: 0, color: '#ef4444' },
+    { name: 'Unattempted', value: 0, color: '#94a3b8' }
+  ]);
   
   useEffect(() => {
     if (!paperId) {
@@ -45,7 +51,7 @@ const Results: React.FC = () => {
     setResults(paperResult);
     
     const loadQuestions = () => {
-      const mockQuestions = [
+      const mockQuestions: Question[] = [
         {
           id: 1,
           text: "A particle of mass m is projected with velocity v at an angle θ with the horizontal. The magnitude of angular momentum of the particle about the point of projection when the particle is at its highest point is:",
@@ -134,6 +140,45 @@ const Results: React.FC = () => {
     loadQuestions();
   }, [paperId, navigate]);
   
+  useEffect(() => {
+    if (questions.length > 0 && results) {
+      const correctAnswers = questions.filter(q => 
+        results.answers[q.id] === q.correctOption
+      ).length;
+      
+      const incorrectAnswers = questions.filter(q => 
+        results?.answers[q.id] && results?.answers[q.id] !== q.correctOption
+      ).length;
+      
+      const unattemptedQuestions = questions.length - correctAnswers - incorrectAnswers;
+      
+      const updatedPieData = [
+        { name: 'Correct', value: correctAnswers, color: '#22c55e' },
+        { name: 'Incorrect', value: incorrectAnswers, color: '#ef4444' },
+        { name: 'Unattempted', value: unattemptedQuestions, color: '#94a3b8' }
+      ];
+      
+      setPieData(updatedPieData);
+      
+      const calculatedTotalScore = questions.reduce((score, question) => {
+        const userAnswer = results.answers[question.id];
+        
+        if (!userAnswer) {
+          return score + UNATTEMPTED_MARKS;
+        }
+        
+        if (userAnswer === question.correctOption) {
+          return score + CORRECT_MARKS;
+        }
+        
+        return score + INCORRECT_MARKS;
+      }, 0);
+      
+      setTotalScore(calculatedTotalScore);
+      setMaxPossibleScore(questions.length * CORRECT_MARKS);
+    }
+  }, [questions, results]);
+  
   if (isLoading || !results) {
     return (
       <>
@@ -157,12 +202,6 @@ const Results: React.FC = () => {
   ).length;
   
   const unattemptedQuestions = questions.length - correctAnswers - incorrectAnswers;
-  
-  const pieData = [
-    { name: 'Correct', value: correctAnswers, color: '#22c55e' },
-    { name: 'Incorrect', value: incorrectAnswers, color: '#ef4444' },
-    { name: 'Unattempted', value: unattemptedQuestions, color: '#94a3b8' }
-  ];
   
   const scorePercentage = maxPossibleScore > 0 
     ? Math.round((totalScore / maxPossibleScore) * 100) 
@@ -196,25 +235,6 @@ const Results: React.FC = () => {
     incorrect: data.total - data.correct,
     score: Math.round((data.correct / data.total) * 100)
   }));
-  
-  const calculatedTotalScore = questions.reduce((score, question) => {
-    const userAnswer = results.answers[question.id];
-    
-    if (!userAnswer) {
-      return score + UNATTEMPTED_MARKS;
-    }
-    
-    if (userAnswer === question.correctOption) {
-      return score + CORRECT_MARKS;
-    }
-    
-    return score + INCORRECT_MARKS;
-  }, 0);
-  
-  useEffect(() => {
-    setTotalScore(calculatedTotalScore);
-    setMaxPossibleScore(questions.length * CORRECT_MARKS);
-  }, [calculatedTotalScore, questions.length]);
   
   const isPassed = scorePercentage >= 60;
   
