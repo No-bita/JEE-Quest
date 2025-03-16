@@ -23,3 +23,6 @@ export interface Question {
 export const CORRECT_MARKS = 4;
 export const INCORRECT_MARKS = -1;
 export const UNATTEMPTED_MARKS = 0;
+
+// Freemium model constants
+export const FREE_TEST_LIMIT = 1;

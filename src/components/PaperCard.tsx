@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, Clock, FileText, ArrowRight, Lock } from 'lucide-react';
+import { Calendar, Clock, FileText, ArrowRight, Lock, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { FREE_TEST_LIMIT } from '@/utils/types';
 
 interface PaperCardProps {
   id: string;
@@ -38,7 +39,12 @@ const PaperCard: React.FC<PaperCardProps> = ({
     // In a real app, this would check if the user has purchased this paper
     // For now, we'll use localStorage as a simple way to track purchases
     const purchasedPapers = JSON.parse(localStorage.getItem('purchasedPapers') || '[]');
-    return !isPremium || purchasedPapers.includes(id);
+    
+    // Check if user has completed their free test
+    const completedTests = JSON.parse(localStorage.getItem('testResults') || '[]');
+    const freeTestsRemaining = Math.max(0, FREE_TEST_LIMIT - completedTests.length);
+    
+    return !isPremium || purchasedPapers.includes(id) || freeTestsRemaining > 0;
   };
   
   const handlePracticeClick = (e: React.MouseEvent) => {
@@ -50,10 +56,18 @@ const PaperCard: React.FC<PaperCardProps> = ({
     }
   };
 
+  // Check if user has any free tests remaining
+  const getFreeTestsRemaining = () => {
+    const completedTests = JSON.parse(localStorage.getItem('testResults') || '[]');
+    return Math.max(0, FREE_TEST_LIMIT - completedTests.length);
+  };
+
   // Determine title display based on whether session is provided
   const titleDisplay = session 
     ? `JEE Mains ${year} - ${session}, ${shift}`
     : `JEE Mains ${year} - ${shift}`;
+
+  const freeTestsRemaining = getFreeTestsRemaining();
 
   return (
     <div className="glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl animate-scale-in">
@@ -67,11 +81,18 @@ const PaperCard: React.FC<PaperCardProps> = ({
               <Calendar size={14} className="mr-1" /> {date}
             </div>
           </div>
-          {isPremium && !hasPaperAccess() && (
+          {isPremium && !hasPaperAccess() ? (
             <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50 flex items-center gap-1">
               <Lock size={12} />
               Premium
             </Badge>
+          ) : (
+            freeTestsRemaining > 0 && isPremium && (
+              <Badge variant="outline" className="text-green-500 border-green-200 bg-green-50 flex items-center gap-1">
+                <CheckCircle size={12} />
+                Free Trial
+              </Badge>
+            )
           )}
         </div>
 

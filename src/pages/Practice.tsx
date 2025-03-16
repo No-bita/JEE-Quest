@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import PracticeInterface from '@/components/PracticeInterface';
 import { toast } from 'sonner';
+import { FREE_TEST_LIMIT } from '@/utils/types';
 
 const Practice: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -41,15 +42,27 @@ const Practice: React.FC = () => {
       // Check for individual paper purchase
       const purchasedPapers = JSON.parse(localStorage.getItem('purchasedPapers') || '[]');
       
+      // Get completed free tests
+      const completedTests = JSON.parse(localStorage.getItem('testResults') || '[]');
+      const hasCompletedFreeTest = completedTests.length >= FREE_TEST_LIMIT;
+      
       // For demo purposes, let's make 2023 and older papers free
       const year = parseInt(paperId.split('-')[0].replace('jee', ''));
       const isFree = year < 2024;
       
-      if (isFree || purchasedPapers.includes(paperId)) {
+      // Allow access if:
+      // 1. Paper is free (2023 or older), or
+      // 2. Paper has been purchased, or
+      // 3. User hasn't used their free test yet
+      if (isFree || purchasedPapers.includes(paperId) || !hasCompletedFreeTest) {
         setHasAccess(true);
       } else {
-        toast.error("You need to purchase this paper to access it");
-        navigate('/papers');
+        if (hasCompletedFreeTest) {
+          toast.error("You've used your free test. Please purchase to continue.");
+        } else {
+          toast.error("You need to purchase this paper to access it");
+        }
+        navigate(`/pricing?paperId=${paperId}&title=JEE Mains ${year}`);
       }
       
       setIsLoading(false);

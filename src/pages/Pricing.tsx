@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
-import { Check, CreditCard, Package, Lock } from 'lucide-react';
+import { Check, CreditCard, Package, Lock, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { FREE_TEST_LIMIT } from '@/utils/types';
 
 const Pricing: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,15 @@ const Pricing: React.FC = () => {
   
   const [isProcessingPaper, setIsProcessingPaper] = useState(false);
   const [isProcessingSub, setIsProcessingSub] = useState(false);
+  const [freeTestsUsed, setFreeTestsUsed] = useState(0);
+  const [freeTestsRemaining, setFreeTestsRemaining] = useState(FREE_TEST_LIMIT);
+  
+  useEffect(() => {
+    // Check how many free tests the user has used
+    const testResults = JSON.parse(localStorage.getItem('testResults') || '[]');
+    setFreeTestsUsed(testResults.length);
+    setFreeTestsRemaining(Math.max(0, FREE_TEST_LIMIT - testResults.length));
+  }, []);
   
   const handlePurchasePaper = () => {
     if (!paperId) {
@@ -79,6 +89,15 @@ const Pricing: React.FC = () => {
                 <span>You're unlocking: <b>{paperTitle}</b></span>
               </div>
             )}
+            
+            <div className="mt-4 p-3 border border-blue-200 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-400 rounded-md inline-flex items-center gap-2">
+              <Info size={16} />
+              <span>
+                {freeTestsRemaining > 0 
+                  ? `You have ${freeTestsRemaining} free test${freeTestsRemaining !== 1 ? 's' : ''} remaining.`
+                  : "You've used your free test. Subscribe to unlock more papers."}
+              </span>
+            </div>
           </div>
           
           <div className="grid md:grid-cols-2 gap-8 mb-16">
