@@ -10,6 +10,7 @@ interface PaperCardProps {
   id: string;
   year: number;
   shift: string;
+  session?: string; // Add session as an optional prop
   date: string;
   questionCount: number;
   duration: number;
@@ -22,6 +23,7 @@ const PaperCard: React.FC<PaperCardProps> = ({
   id,
   year,
   shift,
+  session,
   date,
   questionCount,
   duration,
@@ -48,13 +50,18 @@ const PaperCard: React.FC<PaperCardProps> = ({
     }
   };
 
+  // Determine title display based on whether session is provided
+  const titleDisplay = session 
+    ? `JEE Mains ${year} - ${session}, ${shift}`
+    : `JEE Mains ${year} - ${shift}`;
+
   return (
     <div className="glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl animate-scale-in">
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-xl font-semibold mb-1">
-              JEE Mains {year} - {shift}
+              {titleDisplay}
             </h3>
             <div className="flex items-center text-sm text-muted-foreground">
               <Calendar size={14} className="mr-1" /> {date}
