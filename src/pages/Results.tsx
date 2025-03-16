@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -36,12 +35,19 @@ interface Question {
   topic: string;
 }
 
+// Scoring algorithm constants
+const CORRECT_MARKS = 4;
+const INCORRECT_MARKS = -1;
+const UNATTEMPTED_MARKS = 0;
+
 const Results: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
   const navigate = useNavigate();
   const [results, setResults] = useState<ResultsData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [totalScore, setTotalScore] = useState(0);
+  const [maxPossibleScore, setMaxPossibleScore] = useState(0);
   
   useEffect(() => {
     if (!paperId) {
@@ -174,8 +180,18 @@ const Results: React.FC = () => {
     results.answers[q.id] === q.correctOption
   ).length;
   
-  // Calculate score percentage
-  const scorePercentage = (correctAnswers / totalQuestions) * 100;
+  // Calculate incorrect answers (attempted but wrong)
+  const incorrectAnswers = questions.filter(q => 
+    results?.answers[q.id] && results?.answers[q.id] !== q.correctOption
+  ).length;
+  
+  // Calculate unattempted questions
+  const unattemptedQuestions = questions.length - correctAnswers - incorrectAnswers;
+  
+  // Calculate score percentage based on actual score vs max possible score
+  const scorePercentage = maxPossibleScore > 0 
+    ? Math.round((totalScore / maxPossibleScore) * 100) 
+    : 0;
   
   // Format time spent
   const formatTime = (seconds: number) => {
@@ -209,13 +225,30 @@ const Results: React.FC = () => {
     score: Math.round((data.correct / data.total) * 100)
   }));
   
-  // Prepare pie chart data
-  const pieData = [
-    { name: 'Correct', value: correctAnswers, color: '#22c55e' },
-    { name: 'Incorrect', value: totalQuestions - correctAnswers, color: '#ef4444' },
-  ];
+  // Calculate total score based on marking scheme
+  const calculatedTotalScore = questions.reduce((score, question) => {
+    const userAnswer = results.answers[question.id];
+    
+    // If question was not attempted
+    if (!userAnswer) {
+      return score + UNATTEMPTED_MARKS;
+    }
+    
+    // If answer is correct
+    if (userAnswer === question.correctOption) {
+      return score + CORRECT_MARKS;
+    }
+    
+    // If answer is incorrect
+    return score + INCORRECT_MARKS;
+  }, 0);
   
-  // Determine pass status (60% is pass)
+  setTotalScore(calculatedTotalScore);
+  
+  // Calculate maximum possible score (if all answers were correct)
+  setMaxPossibleScore(questions.length * CORRECT_MARKS);
+  
+  // Determine pass status (60% of max possible score)
   const isPassed = scorePercentage >= 60;
   
   return (
@@ -239,7 +272,7 @@ const Results: React.FC = () => {
             <div>
               <h2 className="text-2xl font-bold mb-4">JEE Mains {paperId?.replace('jee', '')}</h2>
               <p className="text-muted-foreground">
-                Completed on {new Date(results.date).toLocaleDateString('en-US', {
+                Completed on {new Date(results?.date || '').toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -248,31 +281,45 @@ const Results: React.FC = () => {
             </div>
             
             <div className="flex flex-col items-center justify-center mt-4 md:mt-0 bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
-              <div className="text-5xl font-bold mb-2">{Math.round(scorePercentage)}%</div>
+              <div className="text-4xl font-bold mb-2">{scorePercentage}%</div>
+              <div className="text-2xl font-semibold mb-1">{totalScore}/{maxPossibleScore}</div>
               <div className={`text-lg font-medium ${isPassed ? 'text-green-600' : 'text-red-500'}`}>
                 {isPassed ? 'Passed' : 'Needs Improvement'}
               </div>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary rounded-full p-3">
+              <div className="bg-green-100 text-green-600 rounded-full p-3">
                 <CheckCircle size={24} />
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Correct Answers</div>
-                <div className="text-xl font-semibold">{correctAnswers} / {totalQuestions}</div>
+                <div className="text-sm text-muted-foreground">Correct</div>
+                <div className="text-xl font-semibold">{correctAnswers} × +{CORRECT_MARKS}</div>
               </div>
             </div>
             
             <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary rounded-full p-3">
+              <div className="bg-red-100 text-red-600 rounded-full p-3">
                 <XCircle size={24} />
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Incorrect Answers</div>
-                <div className="text-xl font-semibold">{totalQuestions - correctAnswers} / {totalQuestions}</div>
+                <div className="text-sm text-muted-foreground">Incorrect</div>
+                <div className="text-xl font-semibold">{incorrectAnswers} × {INCORRECT_MARKS}</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="bg-gray-100 text-gray-600 rounded-full p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="12" x2="12" y2="12"></line>
+                </svg>
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Unattempted</div>
+                <div className="text-xl font-semibold">{unattemptedQuestions} × {UNATTEMPTED_MARKS}</div>
               </div>
             </div>
             
@@ -282,9 +329,18 @@ const Results: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Time Taken</div>
-                <div className="text-xl font-semibold">{formatTime(results.timeSpent)}</div>
+                <div className="text-xl font-semibold">{formatTime(results?.timeSpent || 0)}</div>
               </div>
             </div>
+          </div>
+          
+          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
+            <h3 className="font-semibold mb-2">Marking Scheme:</h3>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+              <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+              <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+            </ul>
           </div>
           
           <Link to={`/practice/${paperId}`}>
@@ -351,9 +407,16 @@ const Results: React.FC = () => {
           
           <div className="space-y-6">
             {questions.map((question, index) => {
-              const userAnswer = results.answers[question.id] || '';
+              const userAnswer = results?.answers[question.id] || '';
               const isCorrect = userAnswer === question.correctOption;
               const answerStatus = !userAnswer ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';
+              
+              // Calculate marks for this question
+              const questionMarks = !userAnswer ? 
+                UNATTEMPTED_MARKS : 
+                isCorrect ? 
+                  CORRECT_MARKS : 
+                  INCORRECT_MARKS;
               
               return (
                 <div key={question.id} className="p-4 rounded-lg border">
@@ -362,14 +425,15 @@ const Results: React.FC = () => {
                       <span className="bg-primary/10 text-primary rounded px-2 py-0.5">{index + 1}</span>
                       {question.text}
                     </div>
-                    <div className={`text-sm font-medium px-2 py-1 rounded ${
+                    <div className={`flex items-center gap-2 text-sm font-medium px-3 py-1 rounded ${
                       !userAnswer 
-                        ? 'bg-yellow-50 text-yellow-600' 
+                        ? 'bg-gray-50 text-gray-600' 
                         : isCorrect 
                         ? 'bg-green-50 text-green-600' 
                         : 'bg-red-50 text-red-600'
                     }`}>
-                      {answerStatus}
+                      <span>{answerStatus}</span>
+                      <span className="font-bold">{questionMarks > 0 ? '+' : ''}{questionMarks}</span>
                     </div>
                   </div>
                   

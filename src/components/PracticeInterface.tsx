@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Flag, ChevronLeft, ChevronRight, Timer, Save, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// Mock data for practice interface
 const mockQuestions = [
   {
     id: 1,
@@ -110,23 +108,20 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const navigate = useNavigate();
 
-  // Load questions for this paper
+  const CORRECT_MARKS = 4;
+  const INCORRECT_MARKS = -1;
+  const UNATTEMPTED_MARKS = 0;
+
   useEffect(() => {
-    // In a real app, this would fetch questions from an API
-    // For now, let's use our mock data
     const loadQuestions = () => {
-      // Here we would make an API call to get questions for this paper
-      // For demo, we'll just use the mock data
       console.log(`Loading questions for paper: ${paperId}`);
       
-      // Simulate a different set of questions for different papers
       const paperId2DigitYear = parseInt(paperId.split('-')[0].slice(-2));
-      const questionCount = 5 + (paperId2DigitYear % 3); // 5-7 questions based on year
+      const questionCount = 5 + (paperId2DigitYear % 3);
       
-      // Use our existing mock questions, but vary them slightly based on paperId
       const paperQuestions = mockQuestions.slice(0, questionCount).map(q => ({
         ...q,
-        id: q.id + (paperId2DigitYear * 10), // Make IDs unique per paper
+        id: q.id + (paperId2DigitYear * 10),
         text: q.text + (paperId.includes('shift-2') ? ' (Shift 2 variant)' : '')
       }));
       
@@ -136,7 +131,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     loadQuestions();
   }, [paperId]);
 
-  // Initialize question status
   useEffect(() => {
     const initialStatus: Record<number, QuestionStatus> = {};
     questions.forEach(q => {
@@ -145,7 +139,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     setQuestionStatus(initialStatus);
   }, [questions]);
 
-  // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     
@@ -177,7 +170,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
       [questionId]: answer
     }));
     
-    // If question was unattempted, mark it as attempted
     if (questionStatus[questionId] === 'unattempted') {
       setQuestionStatus(prev => ({
         ...prev,
@@ -203,7 +195,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
       } else if (currentStatus === 'attempted') {
         newStatus = 'marked-attempted';
       } else {
-        // unattempted
         newStatus = 'marked-unattempted';
       }
       
@@ -242,30 +233,33 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const handleSubmit = () => {
     setIsActive(false);
     
-    // Save results to localStorage (in a real app this would go to a database)
+    const score = questions.reduce((total, q) => {
+      const userAnswer = answers[q.id];
+      if (!userAnswer) return total + UNATTEMPTED_MARKS;
+      return userAnswer === q.correctOption ? total + CORRECT_MARKS : total + INCORRECT_MARKS;
+    }, 0);
+    
     const results = {
       paperId,
       answers,
       questionStatus,
       timeSpent: 7200 - timeLeft,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      score: score,
+      maxPossibleScore: questions.length * CORRECT_MARKS
     };
     
-    // Get existing test results or initialize empty array
     const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
     
-    // Add this test result 
     localStorage.setItem('testResults', JSON.stringify([...allResults, results]));
     
     toast.success("Your responses have been submitted successfully!");
     
-    // Redirect to results page
     setTimeout(() => {
       navigate(`/results/${paperId}`);
     }, 1000);
   };
 
-  // If there are no questions yet, show a loading state
   if (questions.length === 0) {
     return (
       <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
@@ -280,17 +274,20 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     status: questionStatus[q.id] || 'unattempted'
   }));
 
-  // Calculate progress
-  const attemptedCount = Object.values(questionStatus).filter(
-    status => status === 'attempted' || status === 'marked-attempted'
-  ).length;
+  const attemptedCount = Object.keys(answers).length;
   const progress = (attemptedCount / questions.length) * 100;
-
+  
+  const potentialScore = questions.reduce((total, q) => {
+    const userAnswer = answers[q.id];
+    if (!userAnswer) return total + UNATTEMPTED_MARKS;
+    return userAnswer === q.correctOption ? total + CORRECT_MARKS : total + INCORRECT_MARKS;
+  }, 0);
+  
+  const maxPossibleScore = questions.length * CORRECT_MARKS;
+  
   return (
     <div className="page-container grid grid-cols-1 lg:grid-cols-4 gap-6 pt-24">
-      {/* Main content - 3/4 width on desktop */}
       <div className="col-span-1 lg:col-span-3 glass-card rounded-xl p-6">
-        {/* Timer and progress bar */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center space-x-2">
@@ -304,7 +301,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
           <Progress value={progress} className="h-2" />
         </div>
 
-        {/* Question */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Badge 
@@ -359,7 +355,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
         
         <Separator className="my-6" />
         
-        {/* Navigation buttons */}
         <div className="flex justify-between">
           <Button
             variant="outline"
@@ -386,12 +381,32 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
                 <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
                 <AlertDialogDescription>
                   {attemptedCount < questions.length ? (
-                    <div className="flex items-center text-amber-600 gap-2 mt-2">
-                      <AlertTriangle size={16} />
-                      <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center text-amber-600 gap-2">
+                        <AlertTriangle size={16} />
+                        <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
+                      </div>
+                      <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                        <p className="font-medium mb-1">Marking Scheme:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                        </ul>
+                      </div>
                     </div>
                   ) : (
-                    <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
+                    <div className="flex flex-col gap-2">
+                      <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
+                      <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                        <p className="font-medium mb-1">Marking Scheme:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                        </ul>
+                      </div>
+                    </div>
                   )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -414,7 +429,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
         </div>
       </div>
       
-      {/* Sidebar - 1/4 width on desktop */}
       <div className="col-span-1">
         <QuestionNavigation
           questions={navigatorQuestions}
