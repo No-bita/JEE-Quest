@@ -17,28 +17,7 @@ import {
   Cell
 } from 'recharts';
 import { ArrowLeft, CheckCircle, XCircle, Clock, FileText, Brain } from 'lucide-react';
-
-interface ResultsData {
-  paperId: string;
-  answers: Record<number, string>;
-  questionStatus: Record<number, string>;
-  timeSpent: number;
-  date: string;
-}
-
-interface Question {
-  id: number;
-  text: string;
-  options: Array<{id: string, text: string}>;
-  correctOption: string;
-  subject: string;
-  topic: string;
-}
-
-// Scoring algorithm constants
-const CORRECT_MARKS = 4;
-const INCORRECT_MARKS = -1;
-const UNATTEMPTED_MARKS = 0;
+import { CORRECT_MARKS, INCORRECT_MARKS, UNATTEMPTED_MARKS, ResultsData, Question } from '@/utils/types';
 
 const Results: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -55,7 +34,6 @@ const Results: React.FC = () => {
       return;
     }
     
-    // Load test results for this paper
     const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
     const paperResult = allResults.find((result: ResultsData) => result.paperId === paperId);
     
@@ -66,8 +44,6 @@ const Results: React.FC = () => {
     
     setResults(paperResult);
     
-    // Load questions for this paper (this would normally be an API call)
-    // For now, we'll simulate with our mock data
     const loadQuestions = () => {
       const mockQuestions = [
         {
@@ -142,14 +118,12 @@ const Results: React.FC = () => {
         }
       ];
       
-      // Simulate a different set of questions for different papers
       const paperId2DigitYear = parseInt(paperId.split('-')[0].slice(-2));
-      const questionCount = 5 + (paperId2DigitYear % 3); // 5-7 questions based on year
+      const questionCount = 5 + (paperId2DigitYear % 3);
       
-      // Use our existing mock questions, but vary them slightly based on paperId
       const paperQuestions = mockQuestions.slice(0, questionCount).map(q => ({
         ...q,
-        id: q.id + (paperId2DigitYear * 10), // Make IDs unique per paper
+        id: q.id + (paperId2DigitYear * 10),
         text: q.text + (paperId.includes('shift-2') ? ' (Shift 2 variant)' : '')
       }));
       
@@ -171,29 +145,29 @@ const Results: React.FC = () => {
     );
   }
   
-  // Calculate results
   const totalQuestions = questions.length;
   const attemptedQuestions = Object.keys(results.answers).length;
   
-  // Calculate correct answers
   const correctAnswers = questions.filter(q => 
     results.answers[q.id] === q.correctOption
   ).length;
   
-  // Calculate incorrect answers (attempted but wrong)
   const incorrectAnswers = questions.filter(q => 
     results?.answers[q.id] && results?.answers[q.id] !== q.correctOption
   ).length;
   
-  // Calculate unattempted questions
   const unattemptedQuestions = questions.length - correctAnswers - incorrectAnswers;
   
-  // Calculate score percentage based on actual score vs max possible score
+  const pieData = [
+    { name: 'Correct', value: correctAnswers, color: '#22c55e' },
+    { name: 'Incorrect', value: incorrectAnswers, color: '#ef4444' },
+    { name: 'Unattempted', value: unattemptedQuestions, color: '#94a3b8' }
+  ];
+  
   const scorePercentage = maxPossibleScore > 0 
     ? Math.round((totalScore / maxPossibleScore) * 100) 
     : 0;
   
-  // Format time spent
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -202,7 +176,6 @@ const Results: React.FC = () => {
     return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${remainingSeconds}s`;
   };
   
-  // Group questions by subject for statistics
   const subjectData = questions.reduce((acc: Record<string, {correct: number, total: number}>, q) => {
     if (!acc[q.subject]) {
       acc[q.subject] = { correct: 0, total: 0 };
@@ -217,7 +190,6 @@ const Results: React.FC = () => {
     return acc;
   }, {});
   
-  // Prepare chart data
   const subjectChartData = Object.entries(subjectData).map(([subject, data]) => ({
     subject,
     correct: data.correct,
@@ -225,30 +197,25 @@ const Results: React.FC = () => {
     score: Math.round((data.correct / data.total) * 100)
   }));
   
-  // Calculate total score based on marking scheme
   const calculatedTotalScore = questions.reduce((score, question) => {
     const userAnswer = results.answers[question.id];
     
-    // If question was not attempted
     if (!userAnswer) {
       return score + UNATTEMPTED_MARKS;
     }
     
-    // If answer is correct
     if (userAnswer === question.correctOption) {
       return score + CORRECT_MARKS;
     }
     
-    // If answer is incorrect
     return score + INCORRECT_MARKS;
   }, 0);
   
-  setTotalScore(calculatedTotalScore);
+  useEffect(() => {
+    setTotalScore(calculatedTotalScore);
+    setMaxPossibleScore(questions.length * CORRECT_MARKS);
+  }, [calculatedTotalScore, questions.length]);
   
-  // Calculate maximum possible score (if all answers were correct)
-  setMaxPossibleScore(questions.length * CORRECT_MARKS);
-  
-  // Determine pass status (60% of max possible score)
   const isPassed = scorePercentage >= 60;
   
   return (
@@ -266,7 +233,6 @@ const Results: React.FC = () => {
           </Button>
         </div>
         
-        {/* Result summary */}
         <div className="glass-card rounded-xl p-6 mb-8">
           <div className="flex flex-col md:flex-row justify-between mb-6">
             <div>
@@ -350,7 +316,6 @@ const Results: React.FC = () => {
           </Link>
         </div>
         
-        {/* Performance by Subject */}
         <div className="glass-card rounded-xl p-6 mb-8">
           <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
             <Brain className="text-primary" size={20} />
@@ -358,7 +323,6 @@ const Results: React.FC = () => {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Bar Chart */}
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
@@ -375,7 +339,6 @@ const Results: React.FC = () => {
               </ResponsiveContainer>
             </div>
             
-            {/* Pie Chart */}
             <div className="h-72 flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -401,7 +364,6 @@ const Results: React.FC = () => {
           </div>
         </div>
         
-        {/* Detailed Question Analysis */}
         <div className="glass-card rounded-xl p-6">
           <h2 className="text-xl font-bold mb-6">Question Analysis</h2>
           
@@ -411,7 +373,6 @@ const Results: React.FC = () => {
               const isCorrect = userAnswer === question.correctOption;
               const answerStatus = !userAnswer ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';
               
-              // Calculate marks for this question
               const questionMarks = !userAnswer ? 
                 UNATTEMPTED_MARKS : 
                 isCorrect ? 
