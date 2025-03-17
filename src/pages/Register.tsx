@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
+import { authApi, useMockApi, mockStorageApi } from '@/utils/api';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -26,6 +27,7 @@ type FormValues = z.infer<typeof formSchema>;
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const useMock = useMockApi();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -41,21 +43,26 @@ const Register: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // In a real app, this would make an API request to register the user
-      // For demo, we'll just simulate a successful registration
+      let response;
       
-      // Store basic user data in localStorage
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userName', values.name);
-      localStorage.setItem('userEmail', values.email);
-      localStorage.setItem('isAdmin', 'false'); // Regular users are not admins by default
+      if (useMock) {
+        // Use mock implementation for development
+        response = await mockStorageApi.register(values.name, values.email);
+      } else {
+        // Use real API for production
+        response = await authApi.register(values.name, values.email, values.password);
+      }
       
-      toast.success('Registration successful!');
-      
-      // Redirect to papers page
-      navigate('/papers');
+      if (response.success) {
+        toast.success('Registration successful!');
+        
+        // Redirect to papers page
+        navigate('/papers');
+      } else {
+        toast.error(response.error || 'Registration failed. Please try again.');
+      }
     } catch (error) {
-      toast.error('Registration failed. Please try again.');
+      toast.error('An unexpected error occurred. Please try again.');
       console.error('Registration error:', error);
     } finally {
       setIsLoading(false);

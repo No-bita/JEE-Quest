@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
+import { authApi, useMockApi, mockStorageApi } from '@/utils/api';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -21,6 +22,7 @@ type FormValues = z.infer<typeof formSchema>;
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const useMock = useMockApi();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -34,30 +36,31 @@ const SignIn: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // For demo purposes, we'll check against hardcoded admin credentials
-      // In a real app, this would be handled by a backend service
-      const isAdmin = values.email === 'admin@example.com' && values.password === 'admin123';
+      let response;
       
-      // Store auth state in localStorage (would use proper auth in production)
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', values.email);
-      
-      // Set admin status if applicable
-      if (isAdmin) {
-        localStorage.setItem('isAdmin', 'true');
-        toast.success('Logged in as admin');
+      if (useMock) {
+        // Use mock implementation for development
+        response = await mockStorageApi.login(values.email, values.password);
       } else {
-        localStorage.setItem('isAdmin', 'false');
-        toast.success('Logged in successfully');
+        // Use real API for production
+        response = await authApi.login(values.email, values.password);
       }
       
-      // Trigger a storage event so other components can detect the login
-      window.dispatchEvent(new Event('storage'));
-      
-      // Redirect to papers page
-      navigate('/papers');
+      if (response.success) {
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        if (isAdmin) {
+          toast.success('Logged in as admin');
+        } else {
+          toast.success('Logged in successfully');
+        }
+        
+        // Redirect to papers page
+        navigate('/papers');
+      } else {
+        toast.error(response.error || 'Failed to sign in. Please check your credentials.');
+      }
     } catch (error) {
-      toast.error('Failed to sign in. Please check your credentials.');
+      toast.error('An unexpected error occurred. Please try again.');
       console.error('Sign in error:', error);
     } finally {
       setIsLoading(false);

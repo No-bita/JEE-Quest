@@ -5,6 +5,7 @@ import NavBar from '@/components/NavBar';
 import PracticeInterface from '@/components/PracticeInterface';
 import { toast } from 'sonner';
 import { FREE_TEST_LIMIT } from '@/utils/types';
+import { papersApi, userApi, useMockApi, mockStorageApi } from '@/utils/api';
 
 const Practice: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -12,6 +13,7 @@ const Practice: React.FC = () => {
   const [hasAccess, setHasAccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const useMock = useMockApi();
   
   useEffect(() => {
     // Check if user is logged in
@@ -31,46 +33,85 @@ const Practice: React.FC = () => {
     }
     
     // Check if user has access to this paper
-    const checkAccess = () => {
-      // Check for subscription
-      if (localStorage.getItem('hasSubscription') === 'true') {
-        setHasAccess(true);
-        setIsLoading(false);
-        return;
-      }
-      
-      // Check for individual paper purchase
-      const purchasedPapers = JSON.parse(localStorage.getItem('purchasedPapers') || '[]');
-      
-      // Get completed free tests
-      const completedTests = JSON.parse(localStorage.getItem('testResults') || '[]');
-      const hasCompletedFreeTest = completedTests.length >= FREE_TEST_LIMIT;
-      
-      // For demo purposes, let's make 2023 and older papers free
-      const year = parseInt(paperId.split('-')[0].replace('jee', ''));
-      const isFree = year < 2024;
-      
-      // Allow access if:
-      // 1. Paper is free (2023 or older), or
-      // 2. Paper has been purchased, or
-      // 3. User hasn't used their free test yet
-      if (isFree || purchasedPapers.includes(paperId) || !hasCompletedFreeTest) {
-        setHasAccess(true);
-      } else {
-        if (hasCompletedFreeTest) {
-          toast.error("You've used your free test. Please purchase to continue.");
+    const checkAccess = async () => {
+      try {
+        if (useMock) {
+          // Mock implementation using localStorage
+          const { hasSubscription, purchasedPapers } = mockStorageApi.getUserSubscriptionStatus();
+          
+          // Get completed free tests
+          const completedTests = JSON.parse(localStorage.getItem('testResults') || '[]');
+          const hasCompletedFreeTest = completedTests.length >= FREE_TEST_LIMIT;
+          
+          // For demo purposes, let's make 2023 and older papers free
+          const year = parseInt(paperId.split('-')[0].replace('jee', ''));
+          const isFree = year < 2024;
+          
+          // Allow access if:
+          // 1. Paper is free (2023 or older), or
+          // 2. Paper has been purchased, or
+          // 3. User hasn't used their free test yet
+          if (hasSubscription || purchasedPapers.includes(paperId) || isFree || !hasCompletedFreeTest) {
+            setHasAccess(true);
+          } else {
+            if (hasCompletedFreeTest) {
+              toast.error("You've used your free test. Please purchase to continue.");
+            } else {
+              toast.error("You need to purchase this paper to access it");
+            }
+            navigate(`/pricing?paperId=${paperId}&title=JEE Mains ${year}`);
+          }
         } else {
-          toast.error("You need to purchase this paper to access it");
+          // Real API implementation
+          const paperResponse = await papersApi.getPaperById(paperId);
+          
+          if (!paperResponse.success) {
+            toast.error("Failed to load paper information");
+            navigate('/papers');
+            return;
+          }
+          
+          const userResponse = await userApi.getUserProfile();
+          
+          if (!userResponse.success) {
+            toast.error("Failed to load user information");
+            navigate('/signin');
+            return;
+          }
+          
+          const { subscription, purchasedPapers, freeTestsRemaining } = userResponse.data;
+          const paperData = paperResponse.data;
+          
+          if (
+            subscription?.active || 
+            purchasedPapers.some(p => p.paperId === paperId) || 
+            paperData.isFree || 
+            freeTestsRemaining > 0
+          ) {
+            setHasAccess(true);
+          } else {
+            if (freeTestsRemaining <= 0) {
+              toast.error("You've used your free test. Please purchase to continue.");
+            } else {
+              toast.error("You need to purchase this paper to access it");
+            }
+            navigate(`/pricing?paperId=${paperId}&title=${paperData.title}`);
+          }
         }
-        navigate(`/pricing?paperId=${paperId}&title=JEE Mains ${year}`);
+      } catch (error) {
+        console.error("Error checking access:", error);
+        toast.error("Failed to check access permissions");
+        navigate('/papers');
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
     
     // Simulate a small delay to check access
-    setTimeout(checkAccess, 500);
-  }, [paperId, navigate]);
+    setTimeout(() => {
+      checkAccess();
+    }, 500);
+  }, [paperId, navigate, useMock]);
   
   if (isLoading) {
     return (
