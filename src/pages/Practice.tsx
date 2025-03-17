@@ -79,7 +79,9 @@ const Practice: React.FC = () => {
             return;
           }
           
-          const paperData = paperResponse.data;
+          // TypeScript narrowing: We know response is successful at this point
+          // so we can safely access the data property
+          const paperData = paperResponse.success ? paperResponse.data : null;
           
           if (!paperData) {
             toast.error("Failed to load paper data");
@@ -87,7 +89,7 @@ const Practice: React.FC = () => {
             return;
           }
           
-          const userProfile = userResponse.data;
+          const userProfile = userResponse.success ? userResponse.data : null;
           
           if (!userProfile) {
             toast.error("Failed to load user profile");

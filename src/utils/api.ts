@@ -13,9 +13,9 @@ const simulateLatency = () =>
 const handleApiError = (error: unknown) => {
   console.error('API Error:', error);
   if (error instanceof Error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message } as const;
   }
-  return { success: false, error: 'Unknown API error occurred' };
+  return { success: false, error: 'Unknown API error occurred' } as const;
 };
 
 // HTTP methods wrapper with authorization header
@@ -35,7 +35,7 @@ const api = {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
       
-      return { success: true, data: await response.json() };
+      return { success: true, data: await response.json() } as const;
     } catch (error) {
       return handleApiError(error);
     }
@@ -58,7 +58,7 @@ const api = {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
       
-      return { success: true, data: await response.json() };
+      return { success: true, data: await response.json() } as const;
     } catch (error) {
       return handleApiError(error);
     }
@@ -81,7 +81,7 @@ const api = {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
       
-      return { success: true, data: await response.json() };
+      return { success: true, data: await response.json() } as const;
     } catch (error) {
       return handleApiError(error);
     }
@@ -103,7 +103,7 @@ const api = {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
       
-      return { success: true, data: await response.json() };
+      return { success: true, data: await response.json() } as const;
     } catch (error) {
       return handleApiError(error);
     }
@@ -114,7 +114,7 @@ const api = {
 export const authApi = {
   login: async (email: string, password: string) => {
     const response = await api.post('/auth/login', { email, password });
-    if (response.success && response.data) {
+    if (response.success && response.data && response.data.token) {
       localStorage.setItem('authToken', response.data.token);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userEmail', email);
@@ -126,7 +126,7 @@ export const authApi = {
   
   register: async (name: string, email: string, password: string) => {
     const response = await api.post('/auth/register', { name, email, password });
-    if (response.success && response.data) {
+    if (response.success && response.data && response.data.token) {
       localStorage.setItem('authToken', response.data.token);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userName', name);
@@ -144,7 +144,7 @@ export const authApi = {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('isAdmin');
     window.dispatchEvent(new Event('storage'));
-    return { success: true };
+    return { success: true } as const;
   },
   
   checkAuth: async () => {
@@ -248,7 +248,7 @@ export const mockStorageApi = {
     localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
     
     window.dispatchEvent(new Event('storage'));
-    return { success: true, data: { email, isAdmin } };
+    return { success: true, data: { email, isAdmin } } as const;
   },
   
   register: async (name: string, email: string) => {
@@ -259,7 +259,7 @@ export const mockStorageApi = {
     localStorage.setItem('isAdmin', 'false');
     
     window.dispatchEvent(new Event('storage'));
-    return { success: true, data: { name, email } };
+    return { success: true, data: { name, email } } as const;
   },
   
   // Mock results
@@ -268,7 +268,7 @@ export const mockStorageApi = {
     const existingResults = JSON.parse(localStorage.getItem('testResults') || '[]');
     existingResults.push(result);
     localStorage.setItem('testResults', JSON.stringify(existingResults));
-    return { success: true, data: result };
+    return { success: true, data: result } as const;
   },
   
   // Helper to check user subscription status from localStorage

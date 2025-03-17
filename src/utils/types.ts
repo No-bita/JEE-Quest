@@ -28,11 +28,17 @@ export const UNATTEMPTED_MARKS = 0;
 export const FREE_TEST_LIMIT = 1;
 
 // API response types
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
+export interface ApiSuccessResponse<T = any> {
+  success: true;
+  data: T;
 }
+
+export interface ApiErrorResponse {
+  success: false;
+  error: string;
+}
+
+export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 export interface UserSubscription {
   active: boolean;
