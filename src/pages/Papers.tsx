@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, CalendarRange, Plus, LogIn, BarChart2, BookOpen, History, Trophy, User } from 'lucide-react';
+import { Search, CalendarRange, Plus, LogIn, BarChart2, BookOpen, History, Trophy, User, Filter } from 'lucide-react';
 import QuestionEditor from '@/components/QuestionEditor';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -344,110 +344,98 @@ const Dashboard: React.FC = () => {
           </Card>
         </div>
         
-        {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity Column */}
-          <div className="lg:col-span-1">
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <History className="h-5 w-5 mr-2" />
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableBody>
-                    {recentActivity.map(activity => (
-                      <TableRow key={activity.id}>
-                        <TableCell>
-                          <div className="font-medium">{activity.type}</div>
-                          <div className="text-sm text-muted-foreground">{activity.paper}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div>{activity.score || activity.progress || ''}</div>
-                          <div className="text-sm text-muted-foreground">{activity.date}</div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-              <CardFooter className="px-6 py-3 border-t">
-                <Button variant="ghost" className="w-full" onClick={() => navigate('/analysis')}>
-                  View All Activity
-                </Button>
-              </CardFooter>
-            </Card>
+        {/* Main Content - Practice Papers with integrated filters */}
+        <Card className="mb-8">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-xl">Practice Papers</CardTitle>
+              <CardDescription>Browse JEE test papers by year</CardDescription>
+            </div>
             
-            {/* Search & Filters */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Find Test Papers</CardTitle>
-                <CardDescription>Search for practice papers</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
-                  <Input
-                    placeholder="Search for papers..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
+            {/* Filters moved into the card header */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+                <Input
+                  placeholder="Search papers..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              
+              <Select value={yearFilter} onValueChange={setYearFilter}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <CalendarRange size={16} className="mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Years</SelectItem>
+                  {years.map(year => (
+                    <SelectItem key={year} value={year}>{year}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="pt-4">
+            {searchQuery || yearFilter !== 'all' ? (
+              // Show filtered results
+              <div>
+                <h3 className="text-sm font-medium mb-4">
+                  Filtered Results ({filteredPapers.length})
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredPapers.map(paper => (
+                    <PaperCard
+                      key={paper.id}
+                      id={paper.id}
+                      year={paper.year}
+                      session={paper.session}
+                      shift={paper.shift}
+                      date={paper.date}
+                      questionCount={paper.questionCount}
+                      duration={paper.duration}
+                      isPremium={isPaperPremium(paper.id)}
+                      isAdmin={isAdmin}
+                      onEditPaper={handleEditPaper}
+                    />
+                  ))}
                 </div>
                 
-                <Select value={yearFilter} onValueChange={setYearFilter}>
-                  <SelectTrigger>
-                    <CalendarRange size={16} className="mr-2 text-muted-foreground" />
-                    <SelectValue placeholder="Filter by year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Years</SelectItem>
-                    {years.map(year => (
-                      <SelectItem key={year} value={year}>{year}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-            
-            {/* Admin Tools (if admin) */}
-            {isAdmin && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Admin Tools</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full gap-2" onClick={() => {
-                    toast.info("Create new paper functionality would go here");
-                  }}>
-                    <Plus size={16} />
-                    Create New Paper
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-          
-          {/* Papers Column */}
-          <div className="lg:col-span-2">
-            {/* Papers List (filtered or by year) */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Practice Papers</CardTitle>
-                <CardDescription>Browse JEE test papers by year</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {searchQuery || yearFilter !== 'all' ? (
-                  // Show filtered results
-                  <div>
-                    <h3 className="text-sm font-medium mb-4">
-                      Filtered Results ({filteredPapers.length})
-                    </h3>
-                    
+                {filteredPapers.length === 0 && (
+                  <div className="text-center py-6">
+                    <p className="text-muted-foreground">No papers match your search criteria.</p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-4"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setYearFilter('all');
+                      }}
+                    >
+                      Reset Filters
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Show papers organized by year in tabs
+              <Tabs defaultValue={years[0]} className="w-full">
+                <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6">
+                  {years.map(year => (
+                    <TabsTrigger key={year} value={year}>
+                      {year}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                
+                {years.map(year => (
+                  <TabsContent key={year} value={year}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredPapers.map(paper => (
+                      {papersByYear[Number(year)].map(paper => (
                         <PaperCard
                           key={paper.id}
                           id={paper.id}
@@ -463,61 +451,62 @@ const Dashboard: React.FC = () => {
                         />
                       ))}
                     </div>
-                    
-                    {filteredPapers.length === 0 && (
-                      <div className="text-center py-6">
-                        <p className="text-muted-foreground">No papers match your search criteria.</p>
-                        <Button 
-                          variant="outline" 
-                          className="mt-4"
-                          onClick={() => {
-                            setSearchQuery('');
-                            setYearFilter('all');
-                          }}
-                        >
-                          Reset Filters
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  // Show papers organized by year in tabs
-                  <Tabs defaultValue={years[0]} className="w-full">
-                    <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6">
-                      {years.map(year => (
-                        <TabsTrigger key={year} value={year}>
-                          {year}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-                    
-                    {years.map(year => (
-                      <TabsContent key={year} value={year}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {papersByYear[Number(year)].map(paper => (
-                            <PaperCard
-                              key={paper.id}
-                              id={paper.id}
-                              year={paper.year}
-                              session={paper.session}
-                              shift={paper.shift}
-                              date={paper.date}
-                              questionCount={paper.questionCount}
-                              duration={paper.duration}
-                              isPremium={isPaperPremium(paper.id)}
-                              isAdmin={isAdmin}
-                              onEditPaper={handleEditPaper}
-                            />
-                          ))}
-                        </div>
-                      </TabsContent>
-                    ))}
-                  </Tabs>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            )}
+          </CardContent>
+        </Card>
+        
+        {/* Recent Activity - Moved below */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center">
+              <History className="h-5 w-5 mr-2" />
+              Recent Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableBody>
+                {recentActivity.map(activity => (
+                  <TableRow key={activity.id}>
+                    <TableCell>
+                      <div className="font-medium">{activity.type}</div>
+                      <div className="text-sm text-muted-foreground">{activity.paper}</div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div>{activity.score || activity.progress || ''}</div>
+                      <div className="text-sm text-muted-foreground">{activity.date}</div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+          <CardFooter className="px-6 py-3 border-t">
+            <Button variant="ghost" className="w-full" onClick={() => navigate('/analysis')}>
+              View All Activity
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        {/* Admin Tools (if admin) */}
+        {isAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Admin Tools</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full gap-2" onClick={() => {
+                toast.info("Create new paper functionality would go here");
+              }}>
+                <Plus size={16} />
+                Create New Paper
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
       
       {/* Question Editor for Admin */}
