@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import PaperCard from '@/components/PaperCard';
@@ -6,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, CalendarRange, Plus, LogIn } from 'lucide-react';
+import { Search, CalendarRange, Plus, LogIn, BarChart2, BookOpen, History, Trophy, User } from 'lucide-react';
 import QuestionEditor from '@/components/QuestionEditor';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from '@/components/ui/table';
 
 // Mock papers data
 const mockPapers = [
@@ -159,12 +160,25 @@ const mockQuestionsByPaperId: Record<string, Question[]> = {
       subject: 'Physics',
       topic: 'Kinematics'
     },
-    // Add more questions as needed
   ],
-  // Add more papers with their questions
 };
 
-const Papers: React.FC = () => {
+// Mock recent activity data
+const recentActivity = [
+  { id: 1, type: 'Test Completed', paper: 'JEE 2023 Session 1', score: '78/100', date: '2 days ago' },
+  { id: 2, type: 'Test Started', paper: 'JEE 2024 Session 1', progress: '45%', date: '1 week ago' },
+  { id: 3, type: 'Test Purchased', paper: 'JEE 2025 Session 1', date: '2 weeks ago' },
+];
+
+// Mock statistics data
+const userStats = {
+  testsCompleted: 12,
+  averageScore: 76,
+  topSubject: 'Physics',
+  studyHours: 48
+};
+
+const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -172,6 +186,7 @@ const Papers: React.FC = () => {
   const [currentPaperId, setCurrentPaperId] = useState<string>('');
   const [showQuestionEditor, setShowQuestionEditor] = useState<boolean>(false);
   const [paperQuestions, setPaperQuestions] = useState<Question[]>([]);
+  const [userName, setUserName] = useState<string>('User');
   const navigate = useNavigate();
   
   // Check if user has a subscription
@@ -192,7 +207,18 @@ const Papers: React.FC = () => {
     // Only admins should have admin mode
     const adminStatus = localStorage.getItem('isAdmin') === 'true';
     setIsAdmin(adminStatus);
-  }, []);
+    
+    // Get user name from localStorage (would come from API in real implementation)
+    const storedName = localStorage.getItem('userName');
+    if (storedName) {
+      setUserName(storedName);
+    }
+    
+    // Redirect to signin if not logged in
+    if (!loggedIn) {
+      navigate('/signin');
+    }
+  }, [navigate]);
   
   const handleEditPaper = (paperId: string) => {
     // Check if user is logged in and is admin
@@ -251,32 +277,126 @@ const Papers: React.FC = () => {
     const year = parseInt(paperId.split('-')[0].replace('jee', ''));
     return year >= 2024;
   };
+  
+  // Get recommended papers based on user history (mock implementation)
+  const getRecommendedPapers = () => {
+    return mockPapers.slice(0, 3);
+  };
 
   return (
     <>
       <NavBar />
-      <div className="page-container pt-28">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4">JEE Mains Past Papers</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Browse our complete collection of JEE Mains past papers from 2020 to 2025, organized by year and shift.
-          </p>
+      <div className="page-container pt-24">
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold">Welcome back, {userName}</h1>
+          <p className="text-muted-foreground mt-2">Your JEE preparation dashboard</p>
         </div>
         
-        <div className="glass-card rounded-xl p-4 sm:p-6 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
-              <Input
-                placeholder="Search for papers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Tests Completed</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center">
+                <BookOpen className="h-5 w-5 text-primary mr-2" />
+                <span className="text-2xl font-bold">{userStats.testsCompleted}</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Average Score</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center">
+                <Trophy className="h-5 w-5 text-amber-500 mr-2" />
+                <span className="text-2xl font-bold">{userStats.averageScore}%</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Top Subject</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center">
+                <BarChart2 className="h-5 w-5 text-green-500 mr-2" />
+                <span className="text-2xl font-bold">{userStats.topSubject}</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Study Hours</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center">
+                <History className="h-5 w-5 text-blue-500 mr-2" />
+                <span className="text-2xl font-bold">{userStats.studyHours}h</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Main Content Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recent Activity Column */}
+          <div className="lg:col-span-1">
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <History className="h-5 w-5 mr-2" />
+                  Recent Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableBody>
+                    {recentActivity.map(activity => (
+                      <TableRow key={activity.id}>
+                        <TableCell>
+                          <div className="font-medium">{activity.type}</div>
+                          <div className="text-sm text-muted-foreground">{activity.paper}</div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div>{activity.score || activity.progress || ''}</div>
+                          <div className="text-sm text-muted-foreground">{activity.date}</div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+              <CardFooter className="px-6 py-3 border-t">
+                <Button variant="ghost" className="w-full" onClick={() => navigate('/analysis')}>
+                  View All Activity
+                </Button>
+              </CardFooter>
+            </Card>
             
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="min-w-40">
+            {/* Search & Filters */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Find Test Papers</CardTitle>
+                <CardDescription>Search for practice papers</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+                  <Input
+                    placeholder="Search for papers..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                
                 <Select value={yearFilter} onValueChange={setYearFilter}>
                   <SelectTrigger>
                     <CalendarRange size={16} className="mr-2 text-muted-foreground" />
@@ -289,86 +409,37 @@ const Papers: React.FC = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              
-              {!isLoggedIn && (
-                <Button variant="outline" onClick={() => navigate('/signin')} className="gap-2">
-                  <LogIn size={16} />
-                  Sign In
-                </Button>
-              )}
-            </div>
-          </div>
-          
-          {isAdmin && (
-            <div className="mt-4 pt-4 border-t">
-              <Button variant="outline" className="gap-2" onClick={() => {
-                // In a real app, this would create a new paper in the database
-                toast.info("Create new paper functionality would go here");
-              }}>
-                <Plus size={16} />
-                Create New Paper
-              </Button>
-            </div>
-          )}
-        </div>
-        
-        {searchQuery || yearFilter !== 'all' ? (
-          // Show filtered results
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Filtered Results ({filteredPapers.length})
-            </h2>
+              </CardContent>
+            </Card>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPapers.map(paper => (
-                <PaperCard
-                  key={paper.id}
-                  id={paper.id}
-                  year={paper.year}
-                  session={paper.session}
-                  shift={paper.shift}
-                  date={paper.date}
-                  questionCount={paper.questionCount}
-                  duration={paper.duration}
-                  isPremium={isPaperPremium(paper.id)}
-                  isAdmin={isAdmin}
-                  onEditPaper={handleEditPaper}
-                />
-              ))}
-            </div>
-            
-            {filteredPapers.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No papers match your search criteria.</p>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setYearFilter('all');
-                  }}
-                >
-                  Reset Filters
-                </Button>
-              </div>
+            {/* Admin Tools (if admin) */}
+            {isAdmin && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Admin Tools</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full gap-2" onClick={() => {
+                    toast.info("Create new paper functionality would go here");
+                  }}>
+                    <Plus size={16} />
+                    Create New Paper
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </div>
-        ) : (
-          // Show papers organized by year in tabs
-          <Tabs defaultValue={years[0]} className="w-full">
-            <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6">
-              {years.map(year => (
-                <TabsTrigger key={year} value={year}>
-                  {year}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            
-            {years.map(year => (
-              <TabsContent key={year} value={year}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {papersByYear[Number(year)].map(paper => (
+          
+          {/* Papers Column */}
+          <div className="lg:col-span-2">
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Recommended for You</CardTitle>
+                <CardDescription>Based on your recent activity</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {getRecommendedPapers().map(paper => (
                     <PaperCard
                       key={paper.id}
                       id={paper.id}
@@ -384,10 +455,95 @@ const Papers: React.FC = () => {
                     />
                   ))}
                 </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        )}
+              </CardContent>
+            </Card>
+            
+            {/* Papers List (filtered or by year) */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Practice Papers</CardTitle>
+                <CardDescription>Browse JEE test papers by year</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {searchQuery || yearFilter !== 'all' ? (
+                  // Show filtered results
+                  <div>
+                    <h3 className="text-sm font-medium mb-4">
+                      Filtered Results ({filteredPapers.length})
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {filteredPapers.map(paper => (
+                        <PaperCard
+                          key={paper.id}
+                          id={paper.id}
+                          year={paper.year}
+                          session={paper.session}
+                          shift={paper.shift}
+                          date={paper.date}
+                          questionCount={paper.questionCount}
+                          duration={paper.duration}
+                          isPremium={isPaperPremium(paper.id)}
+                          isAdmin={isAdmin}
+                          onEditPaper={handleEditPaper}
+                        />
+                      ))}
+                    </div>
+                    
+                    {filteredPapers.length === 0 && (
+                      <div className="text-center py-6">
+                        <p className="text-muted-foreground">No papers match your search criteria.</p>
+                        <Button 
+                          variant="outline" 
+                          className="mt-4"
+                          onClick={() => {
+                            setSearchQuery('');
+                            setYearFilter('all');
+                          }}
+                        >
+                          Reset Filters
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  // Show papers organized by year in tabs
+                  <Tabs defaultValue={years[0]} className="w-full">
+                    <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6">
+                      {years.map(year => (
+                        <TabsTrigger key={year} value={year}>
+                          {year}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    
+                    {years.map(year => (
+                      <TabsContent key={year} value={year}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {papersByYear[Number(year)].map(paper => (
+                            <PaperCard
+                              key={paper.id}
+                              id={paper.id}
+                              year={paper.year}
+                              session={paper.session}
+                              shift={paper.shift}
+                              date={paper.date}
+                              questionCount={paper.questionCount}
+                              duration={paper.duration}
+                              isPremium={isPaperPremium(paper.id)}
+                              isAdmin={isAdmin}
+                              onEditPaper={handleEditPaper}
+                            />
+                          ))}
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
       
       {/* Question Editor for Admin */}
@@ -404,4 +560,4 @@ const Papers: React.FC = () => {
   );
 };
 
-export default Papers;
+export default Dashboard;

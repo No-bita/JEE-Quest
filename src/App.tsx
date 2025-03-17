@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 // Import pages
 import Index from "./pages/Index";
-import Papers from "./pages/Papers";
+import Dashboard from "./pages/Papers"; // Note: File is still named Papers.tsx but the component is now Dashboard
 import Practice from "./pages/Practice";
 import Analysis from "./pages/Analysis";
 import SignIn from "./pages/SignIn";
@@ -48,16 +48,16 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Redirect from landing page to papers if logged in */}
+            {/* Redirect from landing page to dashboard if logged in */}
             <Route path="/" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
             
             {/* Protected routes - redirect to landing if not logged in */}
-            <Route path="/papers" element={isLoggedIn ? <Papers /> : <Navigate to="/signin" />} />
+            <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
             <Route path="/practice/:paperId?" element={<Practice />} />
             <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/signin" />} />
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
             
-            {/* Auth routes - redirect to papers if already logged in */}
+            {/* Auth routes - redirect to dashboard if already logged in */}
             <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/papers" /> : <Register />} />
             
