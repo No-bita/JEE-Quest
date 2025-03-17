@@ -432,32 +432,6 @@ const Dashboard: React.FC = () => {
           
           {/* Papers Column */}
           <div className="lg:col-span-2">
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Recommended for You</CardTitle>
-                <CardDescription>Based on your recent activity</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {getRecommendedPapers().map(paper => (
-                    <PaperCard
-                      key={paper.id}
-                      id={paper.id}
-                      year={paper.year}
-                      session={paper.session}
-                      shift={paper.shift}
-                      date={paper.date}
-                      questionCount={paper.questionCount}
-                      duration={paper.duration}
-                      isPremium={isPaperPremium(paper.id)}
-                      isAdmin={isAdmin}
-                      onEditPaper={handleEditPaper}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            
             {/* Papers List (filtered or by year) */}
             <Card>
               <CardHeader>
