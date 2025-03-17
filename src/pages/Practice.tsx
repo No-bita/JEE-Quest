@@ -79,8 +79,23 @@ const Practice: React.FC = () => {
             return;
           }
           
-          const { subscription, purchasedPapers, freeTestsRemaining } = userResponse.data;
           const paperData = paperResponse.data;
+          
+          if (!paperData) {
+            toast.error("Failed to load paper data");
+            navigate('/papers');
+            return;
+          }
+          
+          const userProfile = userResponse.data;
+          
+          if (!userProfile) {
+            toast.error("Failed to load user profile");
+            navigate('/signin');
+            return;
+          }
+          
+          const { subscription, purchasedPapers, freeTestsRemaining } = userProfile;
           
           if (
             subscription?.active || 

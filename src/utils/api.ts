@@ -1,5 +1,5 @@
 
-import { ResultsData, Question } from './types';
+import { ResultsData, Question, ApiResponse } from './types';
 
 // Base API URL - replace with your actual backend URL when deployed
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
@@ -114,7 +114,7 @@ const api = {
 export const authApi = {
   login: async (email: string, password: string) => {
     const response = await api.post('/auth/login', { email, password });
-    if (response.success && response.data.token) {
+    if (response.success && response.data) {
       localStorage.setItem('authToken', response.data.token);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userEmail', email);
@@ -126,7 +126,7 @@ export const authApi = {
   
   register: async (name: string, email: string, password: string) => {
     const response = await api.post('/auth/register', { name, email, password });
-    if (response.success && response.data.token) {
+    if (response.success && response.data) {
       localStorage.setItem('authToken', response.data.token);
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userName', name);
