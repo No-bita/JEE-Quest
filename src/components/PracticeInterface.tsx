@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Flag, ChevronLeft, ChevronRight, Timer, Save, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import QuestionNavigation, { QuestionStatus } from './QuestionNavigation';
+import MathRenderer from './MathRenderer';
+import { Question } from '@/utils/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -104,8 +107,9 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [questionStatus, setQuestionStatus] = useState<Record<number, QuestionStatus>>({});
   const [timeLeft, setTimeLeft] = useState(7200); // 2 hours in seconds
   const [isActive, setIsActive] = useState(true);
-  const [questions, setQuestions] = useState(mockQuestions);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const CORRECT_MARKS = 4;
@@ -113,31 +117,47 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const UNATTEMPTED_MARKS = 0;
 
   useEffect(() => {
-    const loadQuestions = () => {
-      console.log(`Loading questions for paper: ${paperId}`);
-      
-      const paperId2DigitYear = parseInt(paperId.split('-')[0].slice(-2));
-      const questionCount = 5 + (paperId2DigitYear % 3);
-      
-      const paperQuestions = mockQuestions.slice(0, questionCount).map(q => ({
-        ...q,
-        id: q.id + (paperId2DigitYear * 10),
-        text: q.text + (paperId.includes('shift-2') ? ' (Shift 2 variant)' : '')
-      }));
-      
-      setQuestions(paperQuestions);
+    const loadQuestions = async () => {
+      setIsLoading(true);
+      try {
+        console.log(`Loading questions for paper: ${paperId}`);
+        
+        // In a real implementation, you would fetch this from your API
+        // For now, we're using mock data with some variation based on the paperId
+        const paperId2DigitYear = parseInt(paperId.split('-')[0].slice(-2));
+        const questionCount = 5 + (paperId2DigitYear % 3);
+        
+        // Create a copy of mockQuestions with adjustments based on paperId
+        const paperQuestions = mockQuestions.slice(0, questionCount).map(q => ({
+          ...q,
+          id: q.id + (paperId2DigitYear * 10),
+          text: paperId.includes('shift-2') 
+            ? q.text + ' (Shift 2 variant)' 
+            : q.text
+        }));
+        
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        setQuestions(paperQuestions);
+        
+        // Initialize question status based on loaded questions
+        const initialStatus: Record<number, QuestionStatus> = {};
+        paperQuestions.forEach(q => {
+          initialStatus[q.id] = 'unattempted';
+        });
+        setQuestionStatus(initialStatus);
+        
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error loading questions:', error);
+        toast.error('Failed to load questions. Please try again.');
+        setIsLoading(false);
+      }
     };
     
     loadQuestions();
   }, [paperId]);
-
-  useEffect(() => {
-    const initialStatus: Record<number, QuestionStatus> = {};
-    questions.forEach(q => {
-      initialStatus[q.id] = 'unattempted';
-    });
-    setQuestionStatus(initialStatus);
-  }, [questions]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -260,10 +280,22 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     }, 1000);
   };
 
-  if (questions.length === 0) {
+  if (isLoading) {
     return (
       <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-2">No Questions Found</h2>
+          <p className="text-gray-600 mb-4">Unable to load questions for this paper.</p>
+          <Button onClick={() => navigate('/papers')}>Back to Papers</Button>
+        </div>
       </div>
     );
   }
@@ -333,7 +365,12 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
           
           <div className="text-lg font-medium mb-6">
             <span className="mr-2 inline-block bg-primary/10 text-primary rounded px-2 py-0.5">{currentQuestionIndex + 1}.</span>
-            {currentQuestion.text}
+            {/* Use MathRenderer for question text if it contains math notation */}
+            {currentQuestion.text.includes('$') || 
+             currentQuestion.text.includes('\\') ? 
+              <MathRenderer math={currentQuestion.text} /> : 
+              currentQuestion.text
+            }
           </div>
           
           <RadioGroup 
@@ -346,7 +383,12 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
                 <RadioGroupItem value={option.id} id={`option-${option.id}`} />
                 <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">
                   <span className="font-medium mr-2">{option.id}.</span>
-                  {option.text}
+                  {/* Use MathRenderer for option text if it contains math notation */}
+                  {option.text.includes('$') || 
+                   option.text.includes('\\') ? 
+                    <MathRenderer math={option.text} /> : 
+                    option.text
+                  }
                 </Label>
               </div>
             ))}
