@@ -1,0 +1,16 @@
+{
+    "name": "jee-quest",
+    "private": true,
+    "workspaces": [
+        "JEE-Quest",
+        "BacktrackJEE-my-new-branch"
+    ],
+    "scripts": {
+        "backend": "cd BacktrackJEE-my-new-branch && npm run dev",
+        "frontend": "cd JEE-Quest && npm run dev",
+        "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+    },
+    "devDependencies": {
+        "concurrently": "^9.1.2"
+    }
+}
