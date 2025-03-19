@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import getQuestionModel from "./models/Question.js"; // ✅ Ensure `.js` extension
+import getQuestionModel from "./models/Question.js";
 
 // ✅ Load environment variables
 dotenv.config();
@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const jsonFilePath = path.resolve(__dirname, "JEE Mains/2024_Apr_04_Shift_1.json");
-const collectionName = path.basename(jsonFilePath, ".json"); // ✅ Directly use the filename without modification
+const collectionName = path.basename(jsonFilePath, ".json");
 
 // ✅ Fix: Use Correct MONGO_URI with Explicit Database Name
 const MONGO_URI = process.env.MONGO_URI;
@@ -26,7 +26,9 @@ if (!MONGO_URI) {
 // ✅ Connect to MongoDB with the Correct Database
 const connectDB = async () => {
     try {
-        await mongoose.connect(MONGO_URI);
+        await mongoose.connect(MONGO_URI, {
+            dbName: "Mains",
+        });
         console.log(`✅ Connected to MongoDB: ${mongoose.connection.name}`);
     } catch (error) {
         console.error("❌ MongoDB Connection Error:", error);
@@ -41,28 +43,22 @@ const pushJSONToMongo = async () => {
         await connectDB();
 
         // ✅ Get the correct Question model dynamically (based on filename)
-        const Question = await getQuestionModel(collectionName);
+        const Paper = await getQuestionModel(collectionName);
 
         // ✅ Delete all existing documents before inserting new ones
-        await Question.deleteMany({});
+        await Paper.deleteMany({});
         console.log(`🗑️ Cleared previous data from ${collectionName}`);
 
         // ✅ Read JSON data
         const jsonData = JSON.parse(fs.readFileSync(jsonFilePath, "utf-8"));
-
-        // ✅ Format data
-        const formattedData = jsonData.map(q => ({
-            question_id: q.question_id, // ✅ Ensure question_id is included
-            type: q.type,
-            options: Array.isArray(q.options) && q.options.length === 4 ? q.options : [],
-            correctOption: q.correctOption,
-            imageUrl: q.imageUrl || null,
-            subject: q.subject,
-        }));
-
-        // ✅ Insert all questions after deletion
-        await Question.insertMany(formattedData);
-        console.log(`✅ Successfully inserted ${formattedData.length} questions into MongoDB collection: ${collectionName}`);
+        
+        // Print structure to debug
+        console.log("Paper structure:", JSON.stringify(jsonData[0], null, 2).substring(0, 500) + "...");
+        
+        // ✅ Insert the paper document directly
+        // The JSON is an array with one object, so we insert the first element
+        await Paper.create(jsonData[0]);
+        console.log(`✅ Successfully inserted paper with ${jsonData[0].questions.length} questions into MongoDB collection: ${collectionName}`);
 
     } catch (error) {
         console.error("❌ Error inserting JSON data into MongoDB:", error);

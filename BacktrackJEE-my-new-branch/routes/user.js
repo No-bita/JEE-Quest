@@ -1,13 +1,15 @@
 import express from "express";
 import User from "../models/user.js"; // ✅ Add `.js` extension in imports
-import { ensureAuth } from "../middleware/authmiddleware.js"; // ✅ Ensure file extension
+import authenticateUser  from "../middleware/authmiddleware.js"; // ✅ Ensure file extension
 
 const router = express.Router();
 
 // ✅ Fetch User Details (Protected Route)
-router.get("/profile", ensureAuth, async (req, res, next) => {
+router.get("/profile", authenticateUser, async (req, res, next) => {
     try {
-        const user = await User.findById(req.user._id).select("-password");
+        console.log("Fetching user profile...");
+        console.log("User ID:", req.user.id);
+        const user = await User.findById(req.user.id).select("-password");
         if (!user) return res.status(404).json({ error: "User not found" });
 
         res.json({ user });
