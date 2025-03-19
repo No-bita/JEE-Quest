@@ -72,7 +72,6 @@ const Practice: React.FC = () => {
         
         if (
           subscription?.active || 
-          purchasedPapers.some(p => p.paperId === paperId) || 
           paperData.isFree || 
           freeTestsRemaining > 0
         ) {

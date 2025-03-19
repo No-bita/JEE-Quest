@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const paperSchema = new mongoose.Schema({
-  paperId: { type: String, required: true, unique: true }, // Unique identifier for each paper
+  paperId: { type: String, required: true },
   year: { type: Number, required: true },
   session: { type: String, required: true },
   shift: { type: String, required: true },
@@ -12,20 +12,22 @@ const paperSchema = new mongoose.Schema({
     {
       id: { type: Number, required: true },
       type: { type: String, required: true },
-      text: { type: String, required: false },
+      text: { type: String },
       options: [
         {
-          id: { type: Number, required: false },
-          text: { type: String, required: false },
-        },
+          id: { type: Number },
+          text: { type: String },
+        }
       ],
       correctOption: { type: Number, required: true },
       imageUrl: { type: String },
       subject: { type: String, required: true },
-    },
-  ],
+    }
+  ]
 });
 
-const Paper = mongoose.model('Paper', paperSchema);
+const getQuestionModel = (collectionName) => {
+  return mongoose.model('Paper', paperSchema, collectionName);
+};
 
-export default Paper;
+export default getQuestionModel;

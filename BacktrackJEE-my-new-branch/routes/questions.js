@@ -23,7 +23,11 @@ router.get("/:paperId/questions", async (req, res) => {
 
     // Direct MongoDB collection access
     const db = mongoose.connection.db;
-    const questions = await db.collection(collectionName).find({}).toArray();
+    const papers = await db.collection(collectionName).find({}).toArray();
+    console.log(`Found ${papers.length} papers`);
+
+    // Extract questions from the first paper
+    const questions = papers[0]?.questions || [];
     console.log(`Found ${questions.length} questions`);
     
     if (!questions.length) {

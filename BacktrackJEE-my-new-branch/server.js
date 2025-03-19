@@ -56,11 +56,13 @@ import authRoutes from "./routes/auth.js";
 import attemptsRoutes from "./routes/attempts.js";
 import questionsRoutes from "./routes/questions.js";
 import resultsRoutes from "./routes/results.js";
+import userRoutes from "./routes/user.js";
 
 app.use("/api/auth", authRoutes);
 app.use("/api", attemptsRoutes);
 app.use("/api/papers", questionsRoutes);
 app.use("/api/results", resultsRoutes);
+app.use("/api/user", userRoutes);
 
 // ✅ Test Route
 app.get("/api/test", (req, res) => {
