@@ -12,11 +12,11 @@ export interface ResultsData {
 export interface Question {
   id: number;
   text: string;
+  imageUrl?: string;
   options: Array<{id: string, text: string}>;
   correctOption: string;
   subject: string;
-  topic: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  type: string;
 }
 
 // Scoring algorithm constants

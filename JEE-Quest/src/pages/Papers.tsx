@@ -136,32 +136,29 @@ const mockPapers = [
 interface Question {
   id: number;
   text: string;
-  options: { id: string; text: string }[];
+  imageUrl: string;
+  options: { id: string; text: string; }[];
   correctOption: string;
-  difficulty: 'easy' | 'medium' | 'hard';
   subject: string;
-  topic: string;
 }
 
-// Mock questions by paper ID
-const mockQuestionsByPaperId: Record<string, Question[]> = {
-  'jee2025-1': [
-    {
-      id: 1,
-      text: "A particle of mass m is projected with velocity v at an angle θ with the horizontal. The magnitude of angular momentum of the particle about the point of projection when the particle is at its highest point is:",
-      options: [
-        { id: 'A', text: "mv² sin θ cos θ / g" },
-        { id: 'B', text: "mv² sin² θ / g" },
-        { id: 'C', text: "mv² cos² θ / g" },
-        { id: 'D', text: "zero" }
-      ],
-      correctOption: 'A',
-      difficulty: 'medium',
-      subject: 'Physics',
-      topic: 'Kinematics'
-    },
-  ],
-};
+// // Mock questions by paper ID
+// const mockQuestionsByPaperId: Record<string, Question[]> = {
+//   'jee2025-1': [
+//     {
+//       id: 1,
+//       text: "A particle of mass m is projected with velocity v at an angle θ with the horizontal. The magnitude of angular momentum of the particle about the point of projection when the particle is at its highest point is:",
+//       options: [
+//         { id: 'A', text: "mv² sin θ cos θ / g" },
+//         { id: 'B', text: "mv² sin² θ / g" },
+//         { id: 'C', text: "mv² cos² θ / g" },
+//         { id: 'D', text: "zero" }
+//       ],
+//       correctOption: 'A',
+//       subject: 'Physics',
+//     },
+//   ],
+// };
 
 // Mock recent activity data
 const recentActivity = [
@@ -283,9 +280,6 @@ const Dashboard: React.FC = () => {
   };
   
   // Get recommended papers based on user history (mock implementation)
-  const getRecommendedPapers = () => {
-    return mockPapers.slice(0, 3);
-  };
 
   return (
     <>

@@ -1,9 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { 
   BarChart, 
   Bar, 
@@ -19,6 +17,7 @@ import {
 } from 'recharts';
 import { ArrowLeft, CheckCircle, XCircle, Clock, FileText, Brain } from 'lucide-react';
 import { CORRECT_MARKS, INCORRECT_MARKS, UNATTEMPTED_MARKS, ResultsData, Question } from '@/utils/types';
+import { toast } from '@/components/ui/use-toast'; // Import toast for notifications
 
 const Results: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -26,6 +25,7 @@ const Results: React.FC = () => {
   const [results, setResults] = useState<ResultsData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
   const [maxPossibleScore, setMaxPossibleScore] = useState(0);
   const [pieData, setPieData] = useState([
@@ -43,6 +43,8 @@ const Results: React.FC = () => {
     const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
     const paperResult = allResults.find((result: ResultsData) => result.paperId === paperId);
     
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     if (!paperResult) {
       navigate('/practice/' + paperId);
       return;
@@ -50,132 +52,173 @@ const Results: React.FC = () => {
     
     setResults(paperResult);
     
-    const loadQuestions = () => {
-      const mockQuestions: Question[] = [
-        {
-          id: 1,
-          text: "A particle of mass m is projected with velocity v at an angle θ with the horizontal. The magnitude of angular momentum of the particle about the point of projection when the particle is at its highest point is:",
-          options: [
-            { id: 'A', text: "mv² sin θ cos θ / g" },
-            { id: 'B', text: "mv² sin² θ / g" },
-            { id: 'C', text: "mv² cos² θ / g" },
-            { id: 'D', text: "zero" }
-          ],
-          correctOption: 'A',
-          difficulty: 'medium',
-          subject: 'Physics',
-          topic: 'Kinematics'
-        },
-        {
-          id: 2,
-          text: "The value of lim(x→0) (sin³x + tan³x) / (sin x + tan x)³ is:",
-          options: [
-            { id: 'A', text: "1/27" },
-            { id: 'B', text: "1/3" },
-            { id: 'C', text: "1" },
-            { id: 'D', text: "1/9" }
-          ],
-          correctOption: 'D',
-          difficulty: 'hard',
-          subject: 'Mathematics',
-          topic: 'Limits'
-        },
-        {
-          id: 3,
-          text: "In the reaction, 2A + B → C + D, when 3 mol of A reacts with 2 mol of B, the limiting reagent is:",
-          options: [
-            { id: 'A', text: "A" },
-            { id: 'B', text: "B" },
-            { id: 'C', text: "Both A and B" },
-            { id: 'D', text: "Neither A nor B" }
-          ],
-          correctOption: 'A',
-          difficulty: 'easy',
-          subject: 'Chemistry',
-          topic: 'Stoichiometry'
-        },
-        {
-          id: 4,
-          text: "The sum of first 20 terms of an arithmetic progression is 50. If the first term is -10, then the 20th term is:",
-          options: [
-            { id: 'A', text: "15" },
-            { id: 'B', text: "5" },
-            { id: 'C', text: "10" },
-            { id: 'D', text: "20" }
-          ],
-          correctOption: 'A',
-          difficulty: 'medium',
-          subject: 'Mathematics',
-          topic: 'Sequences and Series'
-        },
-        {
-          id: 5,
-          text: "Which of the following compounds will show optical isomerism?",
-          options: [
-            { id: 'A', text: "2-butanol" },
-            { id: 'B', text: "2-propanol" },
-            { id: 'C', text: "2,2-dimethylbutane" },
-            { id: 'D', text: "1-propanol" }
-          ],
-          correctOption: 'A',
-          difficulty: 'medium',
-          subject: 'Chemistry',
-          topic: 'Stereochemistry'
+    // Fetch questions from API
+    const fetchQuestions = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch questions');
         }
-      ];
-      
-      const paperId2DigitYear = parseInt(paperId.split('-')[0].slice(-2));
-      const questionCount = 5 + (paperId2DigitYear % 3);
-      
-      const paperQuestions = mockQuestions.slice(0, questionCount).map(q => ({
-        ...q,
-        id: q.id + (paperId2DigitYear * 10),
-        text: q.text + (paperId.includes('shift-2') ? ' (Shift 2 variant)' : '')
-      }));
-      
-      setQuestions(paperQuestions);
-      setIsLoading(false);
+        const data = await response.json();
+        
+        // Make sure we have questions data before proceeding
+        if (!data || !data.questions || !Array.isArray(data.questions)) {
+          throw new Error('Invalid questions data received from API');
+        }
+        
+        setQuestions(data.questions);
+        setIsLoading(false);
+        
+        // Save results to database only if we have valid questions
+        if (data.questions.length > 0) {
+          saveResultsToDatabase(paperResult, data.questions);
+        }
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load questions. Please try again.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+      }
     };
     
-    loadQuestions();
+    fetchQuestions();
   }, [paperId, navigate]);
   
-  useEffect(() => {
-    if (questions.length > 0 && results) {
-      const correctcorrectOptions = questions.filter(q => 
-        results.correctOptions[q.id] === q.correctOption
+  const saveResultsToDatabase = async (resultData: ResultsData, questionData: Question[]) => {
+    // Early return if no valid data
+    if (!resultData || !questionData || !Array.isArray(questionData) || questionData.length === 0) {
+      console.error('Invalid data for saving to database');
+      return;
+    }
+    
+    setIsSaving(true);
+    
+    try {
+      // Calculate scores for the API
+      const correctAnswers = questionData.filter(q => 
+        q && q.id && resultData.correctOptions && 
+        resultData.correctOptions[q.id] === q.correctOption
       ).length;
       
-      const incorrectcorrectOptions = questions.filter(q => 
-        results?.correctOptions[q.id] && results?.correctOptions[q.id] !== q.correctOption
+      const incorrectAnswers = questionData.filter(q => 
+        q && q.id && resultData.correctOptions && 
+        resultData.correctOptions[q.id] && 
+        resultData.correctOptions[q.id] !== q.correctOption
       ).length;
       
-      const unattemptedQuestions = questions.length - correctcorrectOptions - incorrectcorrectOptions;
+      const unattempted = questionData.length - correctAnswers - incorrectAnswers;
       
-      const updatedPieData = [
-        { name: 'Correct', value: correctcorrectOptions, color: '#22c55e' },
-        { name: 'Incorrect', value: incorrectcorrectOptions, color: '#ef4444' },
-        { name: 'Unattempted', value: unattemptedQuestions, color: '#94a3b8' }
-      ];
-      
-      setPieData(updatedPieData);
-      
-      const calculatedTotalScore = questions.reduce((score, question) => {
-        const usercorrectOption = results.correctOptions[question.id];
+      const calculatedTotalScore = questionData.reduce((score, question) => {
+        // Skip if question is invalid
+        if (!question || !question.id) return score;
         
-        if (!usercorrectOption) {
+        const userCorrectOption = resultData.correctOptions && resultData.correctOptions[question.id];
+        
+        if (!userCorrectOption) {
           return score + UNATTEMPTED_MARKS;
         }
         
-        if (usercorrectOption === question.correctOption) {
+        if (userCorrectOption === question.correctOption) {
           return score + CORRECT_MARKS;
         }
         
         return score + INCORRECT_MARKS;
       }, 0);
       
-      setTotalScore(calculatedTotalScore);
-      setMaxPossibleScore(questions.length * CORRECT_MARKS);
+      const maxScore = questionData.length * CORRECT_MARKS;
+      const scorePercentage = maxScore > 0 ? Math.round((calculatedTotalScore / maxScore) * 100) : 0;
+      
+      // Prepare data for API
+      const resultPayload = {
+        paperId: resultData.paperId,
+        userId: localStorage.getItem('userId') || 'anonymous',
+        date: resultData.date,
+        timeSpent: resultData.timeSpent,
+        answers: resultData.correctOptions || {},
+        score: {
+          total: calculatedTotalScore,
+          maxPossible: maxScore,
+          percentage: scorePercentage,
+          correct: correctAnswers,
+          incorrect: incorrectAnswers,
+          unattempted: unattempted
+        }
+      };
+      
+      const response = await fetch('/api/results', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
+        body: JSON.stringify(resultPayload)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save results');
+      }
+      
+    } catch (error) {
+      console.error('Error saving results:', error);
+      toast({
+        title: "Warning",
+        description: "Your results were saved locally but could not be synced to the server.",
+        variant: "default"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  useEffect(() => {
+    if (questions && questions.length > 0 && results) {
+      try {
+        // Make sure we have correctOptions before using it
+        const correctOptions = results.correctOptions || {};
+        
+        const correctAnswers = questions.filter(q => 
+          q && q.id && correctOptions[q.id] === q.correctOption
+        ).length;
+        
+        const incorrectAnswers = questions.filter(q => 
+          q && q.id && correctOptions[q.id] && 
+          correctOptions[q.id] !== q.correctOption
+        ).length;
+        
+        const unattemptedQuestions = questions.length - correctAnswers - incorrectAnswers;
+        
+        const updatedPieData = [
+          { name: 'Correct', value: correctAnswers, color: '#22c55e' },
+          { name: 'Incorrect', value: incorrectAnswers, color: '#ef4444' },
+          { name: 'Unattempted', value: unattemptedQuestions, color: '#94a3b8' }
+        ];
+        
+        setPieData(updatedPieData);
+        
+        const calculatedTotalScore = questions.reduce((score, question) => {
+          if (!question || !question.id) return score;
+          
+          const userCorrectOption = correctOptions[question.id];
+          
+          if (!userCorrectOption) {
+            return score + UNATTEMPTED_MARKS;
+          }
+          
+          if (userCorrectOption === question.correctOption) {
+            return score + CORRECT_MARKS;
+          }
+          
+          return score + INCORRECT_MARKS;
+        }, 0);
+        
+        setTotalScore(calculatedTotalScore);
+        setMaxPossibleScore(questions.length * CORRECT_MARKS);
+      } catch (error) {
+        console.error('Error calculating scores:', error);
+      }
     }
   }, [questions, results]);
   
@@ -190,18 +233,20 @@ const Results: React.FC = () => {
     );
   }
   
-  const totalQuestions = questions.length;
-  const attemptedQuestions = Object.keys(results.correctOptions).length;
+  // Safely access properties with null checks
+  const correctOptions = results.correctOptions || {};
+  const totalQuestions = questions ? questions.length : 0;
+  const attemptedQuestions = Object.keys(correctOptions).length;
   
-  const correctcorrectOptions = questions.filter(q => 
-    results.correctOptions[q.id] === q.correctOption
+  const correctAnswers = questions.filter(q => 
+    q && q.id && correctOptions[q.id] === q.correctOption
   ).length;
   
-  const incorrectcorrectOptions = questions.filter(q => 
-    results?.correctOptions[q.id] && results?.correctOptions[q.id] !== q.correctOption
+  const incorrectAnswers = questions.filter(q => 
+    q && q.id && correctOptions[q.id] && correctOptions[q.id] !== q.correctOption
   ).length;
   
-  const unattemptedQuestions = questions.length - correctcorrectOptions - incorrectcorrectOptions;
+  const unattemptedQuestions = totalQuestions - correctAnswers - incorrectAnswers;
   
   const scorePercentage = maxPossibleScore > 0 
     ? Math.round((totalScore / maxPossibleScore) * 100) 
@@ -215,14 +260,17 @@ const Results: React.FC = () => {
     return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${remainingSeconds}s`;
   };
   
+  // Handle subject data safely
   const subjectData = questions.reduce((acc: Record<string, {correct: number, total: number}>, q) => {
+    if (!q || !q.subject || !q.id) return acc;
+    
     if (!acc[q.subject]) {
       acc[q.subject] = { correct: 0, total: 0 };
     }
     
     acc[q.subject].total += 1;
     
-    if (results.correctOptions[q.id] === q.correctOption) {
+    if (correctOptions[q.id] === q.correctOption) {
       acc[q.subject].correct += 1;
     }
     
@@ -242,6 +290,13 @@ const Results: React.FC = () => {
     <>
       <NavBar />
       <div className="page-container pt-24 pb-16">
+        {isSaving && (
+          <div className="mb-4 p-2 bg-blue-50 text-blue-600 rounded flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+            <span>Syncing your results to the server...</span>
+          </div>
+        )}
+      
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <FileText className="text-primary" />
@@ -282,7 +337,7 @@ const Results: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Correct</div>
-                <div className="text-xl font-semibold">{correctcorrectOptions} × +{CORRECT_MARKS}</div>
+                <div className="text-xl font-semibold">{correctAnswers} × +{CORRECT_MARKS}</div>
               </div>
             </div>
             
@@ -292,7 +347,7 @@ const Results: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Incorrect</div>
-                <div className="text-xl font-semibold">{incorrectcorrectOptions} × {INCORRECT_MARKS}</div>
+                <div className="text-xl font-semibold">{incorrectAnswers} × {INCORRECT_MARKS}</div>
               </div>
             </div>
             
@@ -323,8 +378,8 @@ const Results: React.FC = () => {
           <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
             <h3 className="font-semibold mb-2">Marking Scheme:</h3>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Correct correctOption: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-              <li>Incorrect correctOption: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+              <li>Correct answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+              <li>Incorrect answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
               <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
             </ul>
           </div>
@@ -344,42 +399,54 @@ const Results: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={subjectChartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="subject" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [`${value}%`, 'Score']} />
-                  <Legend />
-                  <Bar dataKey="score" name="Score (%)" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {subjectChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={subjectChartData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="subject" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [`${value}%`, 'Score']} />
+                    <Legend />
+                    <Bar dataKey="score" name="Score (%)" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground">
+                  No subject data available
+                </div>
+              )}
             </div>
             
             <div className="h-72 flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => [value, 'Questions']} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              {pieData.some(item => item.value > 0) ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [value, 'Questions']} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-muted-foreground">
+                  No question data available
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -387,68 +454,85 @@ const Results: React.FC = () => {
         <div className="glass-card rounded-xl p-6">
           <h2 className="text-xl font-bold mb-6">Question Analysis</h2>
           
-          <div className="space-y-6">
-            {questions.map((question, index) => {
-              const usercorrectOption = results?.correctOptions[question.id] || '';
-              const isCorrect = usercorrectOption === question.correctOption;
-              const correctOptionStatus = !usercorrectOption ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';
-              
-              const questionMarks = !usercorrectOption ? 
-                UNATTEMPTED_MARKS : 
-                isCorrect ? 
-                  CORRECT_MARKS : 
-                  INCORRECT_MARKS;
-              
-              return (
-                <div key={question.id} className="p-4 rounded-lg border">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="font-medium flex items-center gap-2">
-                      <span className="bg-primary/10 text-primary rounded px-2 py-0.5">{index + 1}</span>
-                      {question.text}
-                    </div>
-                    <div className={`flex items-center gap-2 text-sm font-medium px-3 py-1 rounded ${
-                      !usercorrectOption 
-                        ? 'bg-gray-50 text-gray-600' 
-                        : isCorrect 
-                        ? 'bg-green-50 text-green-600' 
-                        : 'bg-red-50 text-red-600'
-                    }`}>
-                      <span>{correctOptionStatus}</span>
-                      <span className="font-bold">{questionMarks > 0 ? '+' : ''}{questionMarks}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-3">
-                    {question.options.map(option => (
-                      <div 
-                        key={option.id} 
-                        className={`p-2 rounded ${
-                          option.id === question.correctOption 
-                            ? 'bg-green-50 border border-green-200' 
-                            : option.id === usercorrectOption && option.id !== question.correctOption 
-                            ? 'bg-red-50 border border-red-200' 
-                            : 'bg-gray-50 border border-gray-200'
-                        }`}
-                      >
-                        <span className="font-medium mr-2">{option.id}.</span>
-                        {option.text}
-                        {option.id === question.correctOption && (
-                          <span className="text-green-600 text-xs ml-2">
-                            (Correct correctOption)
-                          </span>
-                        )}
+          {questions.length > 0 ? (
+            <div className="space-y-6">
+              {questions.map((question, index) => {
+                if (!question || !question.id) {
+                  return null;
+                }
+                
+                const userAnswer = correctOptions[question.id] || '';
+                const isCorrect = userAnswer === question.correctOption;
+                const answerStatus = !userAnswer ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';
+                
+                const questionMarks = !userAnswer ? 
+                  UNATTEMPTED_MARKS : 
+                  isCorrect ? 
+                    CORRECT_MARKS : 
+                    INCORRECT_MARKS;
+                
+                return (
+                  <div key={question.id} className="p-4 rounded-lg border">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="font-medium flex items-center gap-2">
+                        <span className="bg-primary/10 text-primary rounded px-2 py-0.5">{index + 1}</span>
+                        {question.text}
                       </div>
-                    ))}
+                      <div className={`flex items-center gap-2 text-sm font-medium px-3 py-1 rounded ${
+                        !userAnswer 
+                          ? 'bg-gray-50 text-gray-600' 
+                          : isCorrect 
+                          ? 'bg-green-50 text-green-600' 
+                          : 'bg-red-50 text-red-600'
+                      }`}>
+                        <span>{answerStatus}</span>
+                        <span className="font-bold">{questionMarks > 0 ? '+' : ''}{questionMarks}</span>
+                      </div>
+                    </div>
+                    
+                    {question.options && Array.isArray(question.options) ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-3">
+                        {question.options.map(option => {
+                          if (!option || !option.id) return null;
+                          
+                          return (
+                            <div 
+                              key={option.id} 
+                              className={`p-2 rounded ${
+                                option.id === question.correctOption 
+                                  ? 'bg-green-50 border border-green-200' 
+                                  : option.id === userAnswer && option.id !== question.correctOption 
+                                  ? 'bg-red-50 border border-red-200' 
+                                  : 'bg-gray-50 border border-gray-200'
+                              }`}
+                            >
+                              <span className="font-medium mr-2">{option.id}.</span>
+                              {option.text}
+                              {option.id === question.correctOption && (
+                                <span className="text-green-600 text-xs ml-2">
+                                  (Correct answer)
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-muted-foreground mb-3">Options not available</div>
+                    )}
+                    
+                    <div className="text-sm text-muted-foreground flex gap-4">
+                      <span>Subject: {question.subject}</span>
+                    </div>
                   </div>
-                  
-                  <div className="text-sm text-muted-foreground flex gap-4">
-                    <span>Subject: {question.subject}</span>
-                    <span>Topic: {question.topic}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 text-center text-muted-foreground">
+              No question data available
+            </div>
+          )}
         </div>
       </div>
     </>

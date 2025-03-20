@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Flag, ChevronLeft, ChevronRight, Timer, Save, AlertTriangle, ImageIcon } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Flag, ChevronLeft, ChevronRight, Timer, Save, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import QuestionNavigation, { QuestionStatus } from './QuestionNavigation';
+import MathRenderer from './MathRenderer';
+import { Question } from '@/utils/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,80 +23,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { papersApi } from '@/utils/api';
 
-// const mockQuestions = [
-//   {
-//     id: 1,
-//     text: "A particle of mass m is projected with velocity v at an angle θ with the horizontal. The magnitude of angular momentum of the particle about the point of projection when the particle is at its highest point is:",
-//     imageUrl: "/api/placeholder/400/300?text=Subject+Topic",
-//     options: [
-//       { id: 'A', text: "mv² sin θ cos θ / g" },
-//       { id: 'B', text: "mv² sin² θ / g" },
-//       { id: 'C', text: "mv² cos² θ / g" },
-//       { id: 'D', text: "zero" }
-//     ],
-//     correctOption: 'A',
-//     difficulty: 'medium',
-//     subject: 'Physics'
-//   },
-//   {
-//     id: 2,
-//     text: "The value of lim(x→0) (sin³x + tan³x) / (sin x + tan x)³ is:",
-//     imageUrl: "/api/placeholder/400/300?text=Subject+Topic",
-//     options: [
-//       { id: 'A', text: "1/27" },
-//       { id: 'B', text: "1/3" },
-//       { id: 'C', text: "1" },
-//       { id: 'D', text: "1/9" }
-//     ],
-//     correctOption: 'D',
-//     difficulty: 'hard',
-//     subject: 'Mathematics'
-//   },
-//   {
-//     id: 3,
-//     text: "In the reaction, 2A + B → C + D, when 3 mol of A reacts with 2 mol of B, the limiting reagent is:",
-//     imageUrl: "/api/placeholder/400/300?text=Subject+Topic",
-//     options: [
-//       { id: 'A', text: "A" },
-//       { id: 'B', text: "B" },
-//       { id: 'C', text: "Both A and B" },
-//       { id: 'D', text: "Neither A nor B" }
-//     ],
-//     correctOption: 'A',
-//     difficulty: 'easy',
-//     subject: 'Chemistry'
-//   },
-//   {
-//     id: 4,
-//     text: "The sum of first 20 terms of an arithmetic progression is 50. If the first term is -10, then the 20th term is:",
-//     imageUrl: "/api/placeholder/400/300?text=Subject+Topic",
-//     options: [
-//       { id: 'A', text: "15" },
-//       { id: 'B', text: "5" },
-//       { id: 'C', text: "10" },
-//       { id: 'D', text: "20" }
-//     ],
-//     correctOption: 'A',
-//     difficulty: 'medium',
-//     subject: 'Mathematics'
-//   },
-//   {
-//     id: 5,
-//     text: "Which of the following compounds will show optical isomerism?",
-//     imageUrl: "/api/placeholder/400/300?text=Subject+Topic",
-//     options: [
-//       { id: 'A', text: "2-butanol" },
-//       { id: 'B', text: "2-propanol" },
-//       { id: 'C', text: "2,2-dimethylbutane" },
-//       { id: 'D', text: "1-propanol" }
-//     ],
-//     correctOption: 'A',
-//     difficulty: 'medium',
-//     subject: 'Chemistry'
-//   }
-// ];
+// Scoring constants
+const CORRECT_MARKS = 4;
+const INCORRECT_MARKS = -1;
+const UNATTEMPTED_MARKS = 0;
 
 interface PracticeInterfaceProps {
   paperId: string;
@@ -101,69 +35,112 @@ interface PracticeInterfaceProps {
 
 const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [correctOptions, setcorrectOptions] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [questionStatus, setQuestionStatus] = useState<Record<number, QuestionStatus>>({});
-  const [timeLeft, setTimeLeft] = useState(7200); // 2 hours in seconds
+  const [timeLeft, setTimeLeft] = useState(10800); // 3 hours in seconds
   const [isActive, setIsActive] = useState(true);
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
-  const [showFullimageUrl, setShowFullimageUrl] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const CORRECT_MARKS = 4;
-  const INCORRECT_MARKS = -1;
-  const UNATTEMPTED_MARKS = 0;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
+  // Calculate score based on current answers
+  const calculateScore = useCallback(() => {
+    return questions.reduce((total, q) => {
+      const userAnswer = answers[q.id];
+      if (!userAnswer) return total + UNATTEMPTED_MARKS;
+      return userAnswer === q.correctOption ? total + CORRECT_MARKS : total + INCORRECT_MARKS;
+    }, 0);
+  }, [questions, answers]);
+  
+  // Handle submission with useCallback to avoid dependency issues
+  const handleSubmit = useCallback(() => {
+    setIsActive(false);
+    
+    const score = calculateScore();
+    
+    const results = {
+      paperId,
+      answers,
+      questionStatus,
+      timeSpent: 10800 - timeLeft,
+      date: new Date().toISOString(),
+      score,
+      maxPossibleScore: questions.length * CORRECT_MARKS
+    };
+    
+    const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
+    localStorage.setItem('testResults', JSON.stringify([...allResults, results]));
+    
+    toast.success("Your responses have been submitted successfully!");
+    
+    setTimeout(() => {
+      navigate(`/results/${paperId}`);
+    }, 1000);
+  }, [paperId, answers, questionStatus, timeLeft, questions, navigate, calculateScore]);
 
+  // Load questions effect
   useEffect(() => {
     const loadQuestions = async () => {
+      setIsLoading(true);
       try {
         console.log(`Loading questions for paper: ${paperId}`);
-        const response = await fetch(`/api/papers/${paperId}/questions`);
-      
+        
+        const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`);
+        
         if (!response.ok) {
           throw new Error(`Failed to fetch questions: ${response.status}`);
         }
-
-        const data = await response.json();
-
-      const paperQuestions = data.questions.map(q => ({
-        id: q._id || q.id,
-        text: q.text,
-        imageUrl: q.imageUrl || "/api/placeholder/400/300?text=Subject+Topic",
-        options: q.options.map(opt => ({
-          id: opt.id || opt._id,
-          text: opt.text
-        })),
-        correctOption: q.correctOption,
-        difficulty: q.difficulty,
-        subject: q.subject,
-        topic: q.topic
-      }));
+        
+        const result = await response.json();
       
-      setQuestions(paperQuestions);
-    } catch (error) {
-      console.error("Error loading questions:", error);
-      toast.error("Failed to load questions");
-    }
-  };
-  
-  loadQuestions();
-}, [paperId]);
+        if (!result.success || !result.data) {
+          throw new Error('Invalid response format from API');
+        }
+        
+        // Map the API response to match our component's expected format
+        const paperQuestions = result.data.map(q => ({
+          id: q.id,
+          text: '', // No text, using imageUrl instead
+          imageUrl: q.imageUrl,
+          options: q.type.toUpperCase() === 'MCQ' ? q.options.map(opt => ({
+            id: opt.id.toString(),
+            text: opt.text || '',
+          })) : [],
+          correctOption: q.correctOption.toString(), 
+          subject: q.subject || 'Unknown',
+          type: q.type.toUpperCase() || 'MCQ',
+        }));
 
-  useEffect(() => {
-    const initialStatus: Record<number, QuestionStatus> = {};
-    questions.forEach(q => {
-      initialStatus[q.id] = 'unattempted';
-    });
-    setQuestionStatus(initialStatus);
-  }, [questions]);
+        setQuestions(paperQuestions);
+        
+        // Initialize question status
+        const initialStatus: Record<number, QuestionStatus> = {};
+        paperQuestions.forEach(q => {
+          initialStatus[q.id] = 'unattempted';
+        });
+        setQuestionStatus(initialStatus);
+        
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error loading questions:', error);
+        toast.error('Failed to load questions. Please try again.');
+        setIsLoading(false);
+      }
+    };
+    
+    loadQuestions();
+  }, [paperId, API_BASE_URL]);
 
+  // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft(timeLeft => timeLeft - 1);
+        setTimeLeft(prevTime => prevTime - 1);
       }, 1000);
     } else if (timeLeft === 0) {
       toast.warning("Time's up! Your answers will be submitted automatically.");
@@ -173,7 +150,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, timeLeft]);
+  }, [isActive, timeLeft, handleSubmit]); // Added handleSubmit to dependencies
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -183,23 +160,23 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handlecorrectOptionChange = (questionId: number, correctOption: string) => {
-    setcorrectOptions(prev => ({
+  const handleAnswerChange = (questionId: number, answer: string) => {
+    setAnswers(prev => ({
       ...prev,
-      [questionId]: correctOption
+      [questionId]: answer
     }));
     
-    if (questionStatus[questionId] === 'unattempted') {
-      setQuestionStatus(prev => ({
-        ...prev,
-        [questionId]: 'attempted'
-      }));
-    } else if (questionStatus[questionId] === 'marked-unattempted') {
-      setQuestionStatus(prev => ({
-        ...prev,
-        [questionId]: 'marked-attempted'
-      }));
-    }
+    setQuestionStatus(prev => {
+      const currentStatus = prev[questionId];
+      
+      if (currentStatus === 'unattempted') {
+        return { ...prev, [questionId]: 'attempted' };
+      } else if (currentStatus === 'marked-unattempted') {
+        return { ...prev, [questionId]: 'marked-attempted' };
+      }
+      
+      return prev;
+    });
   };
 
   const handleMarkForReview = (questionId: number) => {
@@ -249,57 +226,22 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     }
   };
 
-  const toggleFullimageUrl = () => {
-    setShowFullimageUrl(!showFullimageUrl);
-  };
-
-// In PracticeInterface.tsx
-
-// Update the handleSubmit function to use the API
-const handleSubmit = async () => {
-  setIsActive(false);
-  
-  try {
-    const score = questions.reduce((total, q) => {
-      const userCorrectOption = correctOptions[q.id];
-      if (!userCorrectOption) return total + UNATTEMPTED_MARKS;
-      return userCorrectOption === q.correctOption ? total + CORRECT_MARKS : total + INCORRECT_MARKS;
-    }, 0);
-    
-    const results = {
-      paperId,
-      answers: correctOptions,
-      questionStatus,
-      timeSpent: 7200 - timeLeft,
-      score: score,
-      maxPossibleScore: questions.length * CORRECT_MARKS
-    };
-    
-    // Call the API to save results instead of localStorage
-    const response = await papersApi.submitTestResults(
-      paperId, 
-      correctOptions, 
-      7200 - timeLeft
+  if (isLoading) {
+    return (
+      <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
     );
-    
-    if (!response.success) {
-      throw new Error(response.error || "Failed to submit test");
-    }
-    
-    toast.success("Your responses have been submitted successfully!");
-    
-    // Navigate to results page
-    navigate(`/results/${paperId}`);
-  } catch (error) {
-    console.error("Error submitting test:", error);
-    toast.error("Failed to submit test results. Please try again.");
   }
-};
 
   if (questions.length === 0) {
     return (
       <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-2">No Questions Found</h2>
+          <p className="text-gray-600 mb-4">Unable to load questions for this paper.</p>
+          <Button onClick={() => navigate('/papers')}>Back to Papers</Button>
+        </div>
       </div>
     );
   }
@@ -310,47 +252,41 @@ const handleSubmit = async () => {
     status: questionStatus[q.id] || 'unattempted'
   }));
 
-  const attemptedCount = Object.keys(correctOptions).length;
+  const attemptedCount = Object.keys(answers).length;
   const progress = (attemptedCount / questions.length) * 100;
   
-  const potentialScore = questions.reduce((total, q) => {
-    const usercorrectOption = correctOptions[q.id];
-    if (!usercorrectOption) return total + UNATTEMPTED_MARKS;
-    return usercorrectOption === q.correctOption ? total + CORRECT_MARKS : total + INCORRECT_MARKS;
-  }, 0);
-  
-  const maxPossibleScore = questions.length * CORRECT_MARKS;
+  const renderQuestionContent = () => {
+    if (currentQuestion.imageUrl) {
+      return (
+        <img 
+          src={currentQuestion.imageUrl} 
+          alt={`Question ${currentQuestionIndex + 1}`} 
+          className="mt-4 w-full max-w-lg mx-auto rounded-lg shadow"
+        />
+      );
+    } else if (currentQuestion.text.includes('$') || currentQuestion.text.includes('\\')) {
+      return <MathRenderer math={currentQuestion.text} />;
+    } else {
+      return currentQuestion.text;
+    }
+  };
   
   return (
     <div className="page-container grid grid-cols-1 lg:grid-cols-4 gap-6 pt-24">
       <div className="col-span-1 lg:col-span-3 glass-card rounded-xl p-6">
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center space-x-2">
-              <Timer size={18} className="text-primary" />
-              <span className="font-mono font-medium">{formatTime(timeLeft)}</span>
-            </div>
-            <Badge variant="outline" className="px-2 py-0.5">
-              Question {currentQuestionIndex + 1} of {questions.length}
-            </Badge>
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center space-x-2">
+            <Timer size={18} className="text-primary" />
+            <span className="font-mono font-medium">{formatTime(timeLeft)}</span>
           </div>
-          <Progress value={progress} className="h-2" />
+          <Badge variant="outline" className="px-2 py-0.5">
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </Badge>
         </div>
+        <Progress value={progress} className="h-2 mb-6" />
 
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
-            <Badge 
-              variant="outline" 
-              className={`${
-                currentQuestion.difficulty === 'easy' 
-                  ? 'bg-green-50 text-green-700 border-green-200' 
-                  : currentQuestion.difficulty === 'medium' 
-                  ? 'bg-amber-50 text-amber-700 border-amber-200' 
-                  : 'bg-red-50 text-red-700 border-red-200'
-              }`}
-            >
-              {currentQuestion.difficulty.charAt(0).toUpperCase() + currentQuestion.difficulty.slice(1)}
-            </Badge>
             <Badge variant="secondary">{currentQuestion.subject}</Badge>
             
             <Button 
@@ -367,50 +303,41 @@ const handleSubmit = async () => {
           </div>
           
           <div className="text-lg font-medium mb-6">
-            <span className="mr-2 inline-block bg-primary/10 text-primary rounded px-2 py-0.5">{currentQuestionIndex + 1}.</span>
-            {currentQuestion.text}
+            <span className="mr-2 inline-block bg-primary/10 text-primary rounded px-2 py-0.5">
+              {currentQuestionIndex + 1}.
+            </span>
+            {renderQuestionContent()}
           </div>
-          
-          {currentQuestion.imageUrl && (
-            <div className="mb-6">
-              <div className="relative">
-                <img 
-                  src={currentQuestion.imageUrl} 
-                  alt={`Question ${currentQuestionIndex + 1} illustration`} 
-                  className={`rounded-lg border border-gray-200 ${showFullimageUrl ? 'w-full h-auto' : 'max-h-64 mx-auto'}`}
-                />
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="absolute bottom-2 right-2 bg-white/80 hover:bg-white"
-                  onClick={toggleFullimageUrl}
-                >
-                  <ImageIcon size={16} className="mr-1" />
-                  {showFullimageUrl ? 'Minimize' : 'Enlarge'}
-                </Button>
-              </div>
-              {showFullimageUrl && (
-                <div className="text-center mt-2 text-sm text-gray-500">
-                  Click "Minimize" to reduce imageUrl size
+
+          {currentQuestion.type === 'MCQ' ? (
+            <RadioGroup 
+              value={answers[currentQuestion.id] || ''}
+              onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
+              className="space-y-4"
+            >
+              {currentQuestion.options.map((option) => (
+                <div key={option.id} className="flex items-center space-x-3 glass-card rounded-lg p-4 transition-all hover:shadow">
+                  <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} />
+                  <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">
+                    <span className="font-medium mr-2">({option.id})</span>
+                    {option.text ? (
+                      option.text.includes('$') || option.text.includes('\\') ? 
+                        <MathRenderer math={option.text} /> : 
+                        option.text
+                    ) : null}
+                  </Label>
                 </div>
-              )}
-            </div>
+              ))}
+            </RadioGroup>
+          ) : (
+            <Input 
+              type="number" 
+              value={answers[currentQuestion.id] || ''} 
+              onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+              className="w-full p-3 rounded-lg border"
+              placeholder="Enter your answer"
+            />
           )}
-          <RadioGroup 
-            value={correctOptions[currentQuestion.id] || ''}
-            onValueChange={(value) => handlecorrectOptionChange(currentQuestion.id, value)}
-            className="space-y-4"
-          >
-            {currentQuestion.options.map((option) => (
-              <div key={option.id} className="flex items-center space-x-3 glass-card rounded-lg p-4 transition-all hover:shadow">
-                <RadioGroupItem value={option.id} id={`option-${option.id}`} />
-                <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">
-                  <span className="font-medium mr-2">{option.id}.</span>
-                  {option.text}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
         </div>
         
         <Separator className="my-6" />
@@ -428,10 +355,7 @@ const handleSubmit = async () => {
           
           <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="default"
-                className="gap-2"
-              >
+              <Button variant="default" className="gap-2">
                 <Save size={16} />
                 Submit
               </Button>
@@ -449,9 +373,9 @@ const handleSubmit = async () => {
                       <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
                         <p className="font-medium mb-1">Marking Scheme:</p>
                         <ul className="list-disc pl-5 space-y-1">
-                          <li>Correct Answers: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-                          <li>Incorrect Answers: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                          <li>Unattempted Answers: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
                         </ul>
                       </div>
                     </div>
@@ -461,9 +385,9 @@ const handleSubmit = async () => {
                       <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
                         <p className="font-medium mb-1">Marking Scheme:</p>
                         <ul className="list-disc pl-5 space-y-1">
-                          <li>Correct Answers: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-                          <li>Incorrect Answers: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                          <li>Unattempted Answers: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
                         </ul>
                       </div>
                     </div>

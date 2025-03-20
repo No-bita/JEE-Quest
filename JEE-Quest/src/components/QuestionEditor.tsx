@@ -8,20 +8,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { X, Plus, Save, imageUrl, FileText } from 'lucide-react';
+import { X, Plus, Save, FileText } from 'lucide-react';
 import imageUrlUploader from './imageUrlUploader';
 import MathRenderer from './MathRenderer';
 
-// Enhanced Question type with imageUrl and latex support
+// Question interface
 interface Question {
   id: number;
   text: string;
-  imageUrl?: string;
-  options: { id: string; text: string; imageUrl?: string }[];
+  imageUrl: string;
+  options: { id: string; text: string; }[];
   correctOption: string;
-  difficulty: 'easy' | 'medium' | 'hard';
   subject: string;
-  topic: string;
   latex?: string;
 }
 
@@ -51,15 +49,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         text: '',
         imageUrl: '',
         options: [
-          { id: 'A', text: '', imageUrl: '' },
-          { id: 'B', text: '', imageUrl: '' },
-          { id: 'C', text: '', imageUrl: '' },
-          { id: 'D', text: '', imageUrl: '' }
+          { id: 'A', text: '' },
+          { id: 'B', text: '' },
+          { id: 'C', text: '' },
+          { id: 'D', text: '' }
         ],
         correctOption: 'A',
-        difficulty: 'medium',
         subject: 'Physics',
-        topic: '',
         latex: ''
       }]);
     } else {
@@ -101,15 +97,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
       text: '',
       imageUrl: '',
       options: [
-        { id: 'A', text: '', imageUrl: '' },
-        { id: 'B', text: '', imageUrl: '' },
-        { id: 'C', text: '', imageUrl: '' },
-        { id: 'D', text: '', imageUrl: '' }
+        { id: 'A', text: '' },
+        { id: 'B', text: '' },
+        { id: 'C', text: '' },
+        { id: 'D', text: '' }
       ],
       correctOption: 'A',
-      difficulty: 'medium',
       subject: 'Physics',
-      topic: '',
       latex: ''
     };
     
@@ -130,7 +124,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
   
   const handleSave = () => {
     const invalidQuestions = questions.filter(
-      q => !q.text || q.options.some(opt => !opt.text) || !q.topic
+      q => !q.text || q.options.some(opt => !opt.text)
     );
     
     if (invalidQuestions.length > 0) {
@@ -215,62 +209,31 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
               />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="space-y-2 md:col-span-3">
-                <Label>Question imageUrl (Optional)</Label>
-                <div className="border rounded-md p-2">
-                  <imageUrlUploader 
-                    initialimageUrl={currentQuestion?.imageUrl}
-                    onimageUrlSelected={(url) => handleQuestionChange('imageUrl', url)}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="difficulty">Difficulty</Label>
-                <Select 
-                  value={currentQuestion?.difficulty || 'medium'} 
-                  onValueChange={v => handleQuestionChange('difficulty', v as 'easy' | 'medium' | 'hard')}
-                >
-                  <SelectTrigger id="difficulty">
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-2">
+              <Label>Question Image (Optional)</Label>
+              <div className="border rounded-md p-2">
+                <imageUrlUploader 
+                  initialimageUrl={currentQuestion?.imageUrl}
+                  onimageUrlSelected={(url) => handleQuestionChange('imageUrl', url)}
+                />
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
-                <Select 
-                  value={currentQuestion?.subject || 'Physics'} 
-                  onValueChange={v => handleQuestionChange('subject', v)}
-                >
-                  <SelectTrigger id="subject">
-                    <SelectValue placeholder="Select subject" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Physics">Physics</SelectItem>
-                    <SelectItem value="Chemistry">Chemistry</SelectItem>
-                    <SelectItem value="Mathematics">Mathematics</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="topic">Topic</Label>
-                <Input
-                  id="topic"
-                  value={currentQuestion?.topic || ''}
-                  onChange={e => handleQuestionChange('topic', e.target.value)}
-                  placeholder="e.g., Kinematics, Thermodynamics"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="subject">Subject</Label>
+              <Select 
+                value={currentQuestion?.subject || 'Physics'} 
+                onValueChange={v => handleQuestionChange('subject', v)}
+              >
+                <SelectTrigger id="subject">
+                  <SelectValue placeholder="Select subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Physics">Physics</SelectItem>
+                  <SelectItem value="Chemistry">Chemistry</SelectItem>
+                  <SelectItem value="Mathematics">Mathematics</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="space-y-3">
@@ -288,21 +251,12 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
                       className="flex-1"
                     />
                   </div>
-                  
-                  <div className="space-y-2 mt-2">
-                    <Label className="text-sm">Option imageUrl (Optional)</Label>
-                    <imageUrlUploader
-                      initialimageUrl={option.imageUrl}
-                      onimageUrlSelected={(url) => handleOptionChange(option.id, 'imageUrl', url)}
-                      className="mt-2"
-                    />
-                  </div>
                 </div>
               ))}
             </div>
             
             <div className="space-y-2">
-              <Label>Correct correctOption</Label>
+              <Label>Correct Option</Label>
               <RadioGroup 
                 value={currentQuestion?.correctOption || 'A'}
                 onValueChange={v => handleQuestionChange('correctOption', v)}
