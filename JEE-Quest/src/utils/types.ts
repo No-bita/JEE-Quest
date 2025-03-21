@@ -1,10 +1,11 @@
 
 export interface ResultsData {
   paperId: string;
-  correctOptions: Record<number, string>;
-  questionStatus: Record<number, string>;
-  timeSpent: number;
   date: string;
+  timeSpent: number;
+  answers: Record<number, string>;
+  questionStatus: Record<number, string>;
+  correctOptions: Record<number, string>;
   score?: number;
   maxPossibleScore?: number;
 }

@@ -17,7 +17,7 @@ import {
 } from 'recharts';
 import { ArrowLeft, CheckCircle, XCircle, Clock, FileText, Brain } from 'lucide-react';
 import { CORRECT_MARKS, INCORRECT_MARKS, UNATTEMPTED_MARKS, ResultsData, Question } from '@/utils/types';
-import { toast } from '@/components/ui/use-toast'; // Import toast for notifications
+import { toast } from '@/components/ui/use-toast';
 
 const Results: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -26,14 +26,27 @@ const Results: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [totalScore, setTotalScore] = useState(0);
-  const [maxPossibleScore, setMaxPossibleScore] = useState(0);
+  const [scoreData, setScoreData] = useState({
+    totalScore: 0,
+    maxPossibleScore: 0,
+    scorePercentage: 0,
+    correctAnswers: 0,
+    incorrectAnswers: 0,
+    unattemptedQuestions: 0
+  });
   const [pieData, setPieData] = useState([
     { name: 'Correct', value: 0, color: '#22c55e' },
     { name: 'Incorrect', value: 0, color: '#ef4444' },
     { name: 'Unattempted', value: 0, color: '#94a3b8' }
   ]);
+  const [subjectChartData, setSubjectChartData] = useState<Array<{
+    subject: string;
+    correct: number;
+    incorrect: number;
+    score: number;
+  }>>([]);
   
+  // Load results and questions
   useEffect(() => {
     if (!paperId) {
       navigate('/papers');
@@ -43,14 +56,16 @@ const Results: React.FC = () => {
     const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
     const paperResult = allResults.find((result: ResultsData) => result.paperId === paperId);
     
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+    console.log("Fetched results:", paperResult);
+    
     if (!paperResult) {
       navigate('/practice/' + paperId);
       return;
     }
     
     setResults(paperResult);
+    
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     
     // Fetch questions from API
     const fetchQuestions = async () => {
@@ -61,17 +76,16 @@ const Results: React.FC = () => {
         }
         const data = await response.json();
         
-        // Make sure we have questions data before proceeding
-        if (!data || !data.questions || !Array.isArray(data.questions)) {
+        if (!data?.data || !Array.isArray(data.data)) {
           throw new Error('Invalid questions data received from API');
         }
         
-        setQuestions(data.questions);
+        setQuestions(data.data);
         setIsLoading(false);
         
         // Save results to database only if we have valid questions
-        if (data.questions.length > 0) {
-          saveResultsToDatabase(paperResult, data.questions);
+        if (data.data.length > 0) {
+          saveResultsToDatabase(paperResult, data.data);
         }
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -87,9 +101,104 @@ const Results: React.FC = () => {
     fetchQuestions();
   }, [paperId, navigate]);
   
+  // Calculate scores whenever questions or results change
+  useEffect(() => {
+    if (!results || !questions.length || !results?.correctOptions) return;
+    
+    console.log("Calculating score with results:", results);
+    console.log("Questions array:", questions);
+    
+    try {
+      const correctOptions = results.correctOptions || {};
+      
+      // Calculate score metrics
+      const correctAnswers = questions.filter(q => 
+        q?.id && correctOptions[q.id] === q.correctOption
+      ).length;
+      
+      const incorrectAnswers = questions.filter(q => 
+        q?.id && correctOptions[q.id] && 
+        correctOptions[q.id] !== q.correctOption
+      ).length;
+      
+      const unattemptedQuestions = questions.length - correctAnswers - incorrectAnswers;
+      
+      const totalScore = calculateTotalScore(questions, correctOptions);
+      const maxPossibleScore = questions.length * CORRECT_MARKS;
+      const scorePercentage = maxPossibleScore > 0 
+        ? Math.round((totalScore / maxPossibleScore) * 100) 
+        : 0;
+      
+      // Update state with calculated values
+      setScoreData({
+        totalScore,
+        maxPossibleScore,
+        scorePercentage,
+        correctAnswers,
+        incorrectAnswers,
+        unattemptedQuestions
+      });
+      
+      // Update pie chart data
+      setPieData([
+        { name: 'Correct', value: correctAnswers, color: '#22c55e' },
+        { name: 'Incorrect', value: incorrectAnswers, color: '#ef4444' },
+        { name: 'Unattempted', value: unattemptedQuestions, color: '#94a3b8' }
+      ]);
+      
+      // Calculate subject performance
+      const subjectData = calculateSubjectPerformance(questions, correctOptions);
+      setSubjectChartData(subjectData);
+      
+    } catch (error) {
+      console.error('Error calculating scores:', error);
+    }
+  }, [questions, results]);
+  
+  // Helper function to calculate total score
+  const calculateTotalScore = (questions: Question[], correctOptions: Record<string, string>) => {
+    return questions.reduce((score, question) => {
+      if (!question?.id) return score;
+      
+      const userAnswer = correctOptions[question.id];
+      
+      if (!userAnswer) {
+        return score + UNATTEMPTED_MARKS;
+      }
+      
+      return score + (userAnswer === question.correctOption ? CORRECT_MARKS : INCORRECT_MARKS);
+    }, 0);
+  };
+  
+  // Helper function to calculate subject performance
+  const calculateSubjectPerformance = (questions: Question[], correctOptions: Record<string, string>) => {
+    const subjectData = questions.reduce((acc: Record<string, {correct: number, total: number}>, q) => {
+      if (!q?.subject || !q.id) return acc;
+      
+      if (!acc[q.subject]) {
+        acc[q.subject] = { correct: 0, total: 0 };
+      }
+      
+      acc[q.subject].total += 1;
+      
+      if (correctOptions[q.id] === q.correctOption) {
+        acc[q.subject].correct += 1;
+      }
+      
+      return acc;
+    }, {});
+    
+    return Object.entries(subjectData).map(([subject, data]) => ({
+      subject,
+      correct: data.correct,
+      incorrect: data.total - data.correct,
+      score: Math.round((data.correct / data.total) * 100)
+    }));
+  };
+  
+  // Save results to database
   const saveResultsToDatabase = async (resultData: ResultsData, questionData: Question[]) => {
-    // Early return if no valid data
-    if (!resultData || !questionData || !Array.isArray(questionData) || questionData.length === 0) {
+    if (!resultData || !questionData?.length) {
       console.error('Invalid data for saving to database');
       return;
     }
@@ -97,37 +206,22 @@ const Results: React.FC = () => {
     setIsSaving(true);
     
     try {
-      // Calculate scores for the API
+      const correctOptions = resultData.correctOptions || {};
+      
+      // Calculate metrics for API payload
       const correctAnswers = questionData.filter(q => 
-        q && q.id && resultData.correctOptions && 
-        resultData.correctOptions[q.id] === q.correctOption
+        q?.id && correctOptions[q.id] === q.correctOption
       ).length;
       
       const incorrectAnswers = questionData.filter(q => 
-        q && q.id && resultData.correctOptions && 
-        resultData.correctOptions[q.id] && 
-        resultData.correctOptions[q.id] !== q.correctOption
+        q?.id && correctOptions[q.id] && 
+        correctOptions[q.id] !== q.correctOption
       ).length;
       
       const unattempted = questionData.length - correctAnswers - incorrectAnswers;
       
-      const calculatedTotalScore = questionData.reduce((score, question) => {
-        // Skip if question is invalid
-        if (!question || !question.id) return score;
-        
-        const userCorrectOption = resultData.correctOptions && resultData.correctOptions[question.id];
-        
-        if (!userCorrectOption) {
-          return score + UNATTEMPTED_MARKS;
-        }
-        
-        if (userCorrectOption === question.correctOption) {
-          return score + CORRECT_MARKS;
-        }
-        
-        return score + INCORRECT_MARKS;
-      }, 0);
-      
+      const calculatedTotalScore = calculateTotalScore(questionData, correctOptions);
+      console.log("Score Calculation:", calculateTotalScore(questions, results.correctOptions));
       const maxScore = questionData.length * CORRECT_MARKS;
       const scorePercentage = maxScore > 0 ? Math.round((calculatedTotalScore / maxScore) * 100) : 0;
       
@@ -137,14 +231,14 @@ const Results: React.FC = () => {
         userId: localStorage.getItem('userId') || 'anonymous',
         date: resultData.date,
         timeSpent: resultData.timeSpent,
-        answers: resultData.correctOptions || {},
+        answers: correctOptions,
         score: {
           total: calculatedTotalScore,
           maxPossible: maxScore,
           percentage: scorePercentage,
           correct: correctAnswers,
           incorrect: incorrectAnswers,
-          unattempted: unattempted
+          unattempted
         }
       };
       
@@ -173,55 +267,16 @@ const Results: React.FC = () => {
     }
   };
   
-  useEffect(() => {
-    if (questions && questions.length > 0 && results) {
-      try {
-        // Make sure we have correctOptions before using it
-        const correctOptions = results.correctOptions || {};
-        
-        const correctAnswers = questions.filter(q => 
-          q && q.id && correctOptions[q.id] === q.correctOption
-        ).length;
-        
-        const incorrectAnswers = questions.filter(q => 
-          q && q.id && correctOptions[q.id] && 
-          correctOptions[q.id] !== q.correctOption
-        ).length;
-        
-        const unattemptedQuestions = questions.length - correctAnswers - incorrectAnswers;
-        
-        const updatedPieData = [
-          { name: 'Correct', value: correctAnswers, color: '#22c55e' },
-          { name: 'Incorrect', value: incorrectAnswers, color: '#ef4444' },
-          { name: 'Unattempted', value: unattemptedQuestions, color: '#94a3b8' }
-        ];
-        
-        setPieData(updatedPieData);
-        
-        const calculatedTotalScore = questions.reduce((score, question) => {
-          if (!question || !question.id) return score;
-          
-          const userCorrectOption = correctOptions[question.id];
-          
-          if (!userCorrectOption) {
-            return score + UNATTEMPTED_MARKS;
-          }
-          
-          if (userCorrectOption === question.correctOption) {
-            return score + CORRECT_MARKS;
-          }
-          
-          return score + INCORRECT_MARKS;
-        }, 0);
-        
-        setTotalScore(calculatedTotalScore);
-        setMaxPossibleScore(questions.length * CORRECT_MARKS);
-      } catch (error) {
-        console.error('Error calculating scores:', error);
-      }
-    }
-  }, [questions, results]);
+  // Helper function to format time
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    
+    return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${remainingSeconds}s`;
+  };
   
+  // Loading state
   if (isLoading || !results) {
     return (
       <>
@@ -233,56 +288,14 @@ const Results: React.FC = () => {
     );
   }
   
-  // Safely access properties with null checks
-  const correctOptions = results.correctOptions || {};
-  const totalQuestions = questions ? questions.length : 0;
-  const attemptedQuestions = Object.keys(correctOptions).length;
-  
-  const correctAnswers = questions.filter(q => 
-    q && q.id && correctOptions[q.id] === q.correctOption
-  ).length;
-  
-  const incorrectAnswers = questions.filter(q => 
-    q && q.id && correctOptions[q.id] && correctOptions[q.id] !== q.correctOption
-  ).length;
-  
-  const unattemptedQuestions = totalQuestions - correctAnswers - incorrectAnswers;
-  
-  const scorePercentage = maxPossibleScore > 0 
-    ? Math.round((totalScore / maxPossibleScore) * 100) 
-    : 0;
-  
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    
-    return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${remainingSeconds}s`;
-  };
-  
-  // Handle subject data safely
-  const subjectData = questions.reduce((acc: Record<string, {correct: number, total: number}>, q) => {
-    if (!q || !q.subject || !q.id) return acc;
-    
-    if (!acc[q.subject]) {
-      acc[q.subject] = { correct: 0, total: 0 };
-    }
-    
-    acc[q.subject].total += 1;
-    
-    if (correctOptions[q.id] === q.correctOption) {
-      acc[q.subject].correct += 1;
-    }
-    
-    return acc;
-  }, {});
-  
-  const subjectChartData = Object.entries(subjectData).map(([subject, data]) => ({
-    subject,
-    correct: data.correct,
-    incorrect: data.total - data.correct,
-    score: Math.round((data.correct / data.total) * 100)
-  }));
+  const { 
+    totalScore, 
+    maxPossibleScore, 
+    scorePercentage, 
+    correctAnswers, 
+    incorrectAnswers, 
+    unattemptedQuestions 
+  } = scoreData;
   
   const isPassed = scorePercentage >= 60;
   
@@ -302,7 +315,10 @@ const Results: React.FC = () => {
             <FileText className="text-primary" />
             Test Results
           </h1>
-          <Button variant="outline" size="sm" onClick={() => navigate('/papers')}>
+          <Button variant="outline" size="sm" onClick={() => {
+            localStorage.removeItem('testResults');
+            navigate('/papers');
+          }}>
             <ArrowLeft size={16} className="mr-2" />
             Back to Papers
           </Button>
@@ -313,7 +329,7 @@ const Results: React.FC = () => {
             <div>
               <h2 className="text-2xl font-bold mb-4">JEE Mains {paperId?.replace('jee', '')}</h2>
               <p className="text-muted-foreground">
-                Completed on {new Date(results?.date || '').toLocaleDateString('en-US', {
+                Completed on {new Date(results.date || '').toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -370,7 +386,7 @@ const Results: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Time Taken</div>
-                <div className="text-xl font-semibold">{formatTime(results?.timeSpent || 0)}</div>
+                <div className="text-xl font-semibold">{formatTime(results.timeSpent || 0)}</div>
               </div>
             </div>
           </div>
@@ -385,7 +401,10 @@ const Results: React.FC = () => {
           </div>
           
           <Link to={`/practice/${paperId}`}>
-            <Button>
+            <Button
+            onClick={() => {
+              localStorage.removeItem('testResults');
+            }}>
               Practice Again
             </Button>
           </Link>
@@ -457,10 +476,9 @@ const Results: React.FC = () => {
           {questions.length > 0 ? (
             <div className="space-y-6">
               {questions.map((question, index) => {
-                if (!question || !question.id) {
-                  return null;
-                }
+                if (!question?.id) return null;
                 
+                const correctOptions = results.correctOptions || {};
                 const userAnswer = correctOptions[question.id] || '';
                 const isCorrect = userAnswer === question.correctOption;
                 const answerStatus = !userAnswer ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';
@@ -490,10 +508,21 @@ const Results: React.FC = () => {
                       </div>
                     </div>
                     
-                    {question.options && Array.isArray(question.options) ? (
+                    {/* Render question image if available */}
+                    {question.imageUrl && (
+                      <div className="mb-3">
+                        <img 
+                          src={question.imageUrl} 
+                          alt={`Question ${index + 1}`} 
+                          className="w-full max-w-lg mx-auto rounded-lg shadow"
+                        />
+                      </div>
+                    )}
+                    
+                    {question.options?.length ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-3">
                         {question.options.map(option => {
-                          if (!option || !option.id) return null;
+                          if (!option?.id) return null;
                           
                           return (
                             <div 
