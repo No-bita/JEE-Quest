@@ -46,33 +46,58 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
+
+  interface ScoreReport {
+    totalScore: number;
+    maxPossibleScore: number;
+    correctQuestions: number;
+    incorrectQuestions: number;
+    unattemptedQuestions: number;
+  }
+
   // Calculate score based on current answers
-  const calculateScore = useCallback(() => {
-    return questions.reduce((total, q) => {
+  const calculateScore = useCallback((): ScoreReport => {
+    const report: ScoreReport = {
+      totalScore: 0,
+      maxPossibleScore: questions.length * CORRECT_MARKS,
+      correctQuestions: 0,
+      incorrectQuestions: 0,
+      unattemptedQuestions: 0
+    };
+
+    questions.forEach(q => {
       const userAnswer = answers[q.id];
-      if (!userAnswer) return total + UNATTEMPTED_MARKS;
-      return userAnswer === q.correctOption ? total + CORRECT_MARKS : total + INCORRECT_MARKS;
-    }, 0);
+      if (!userAnswer) {
+        report.unattemptedQuestions++;
+        report.totalScore += UNATTEMPTED_MARKS;
+      } else if (userAnswer === q.correctOption) {
+        report.totalScore += CORRECT_MARKS;
+        report.correctQuestions++;
+      } else {
+        report.totalScore += INCORRECT_MARKS;
+        report.incorrectQuestions++;
+      }
+    });
+
+    return report;
   }, [questions, answers]);
   
   // Handle submission with useCallback to avoid dependency issues
   const handleSubmit = useCallback(() => {
     setIsActive(false);
     
-    const score = calculateScore();
+    const scoreReport = calculateScore();
     
     const results = {
+      ...scoreReport,
       paperId,
       answers,
       questionStatus,
       timeSpent: 10800 - timeLeft,
       date: new Date().toISOString(),
-      score,
-      maxPossibleScore: questions.length * CORRECT_MARKS
     };
     
-    const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
-    localStorage.setItem('testResults', JSON.stringify([...allResults, results]));
+    localStorage.setItem('testResults', JSON.stringify(results));
     
     toast.success("Your responses have been submitted successfully!");
     

@@ -8,6 +8,7 @@ const paperSchema = new mongoose.Schema({
   date: { type: String, required: true },
   questionCount: { type: Number, required: true },
   duration: { type: Number, required: true },
+  note: { type: String },
   questions: [
     {
       id: { type: Number, required: true },

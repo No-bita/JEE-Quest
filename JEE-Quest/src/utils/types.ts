@@ -6,7 +6,7 @@ export interface ResultsData {
   answers: Record<number, string>;
   questionStatus: Record<number, string>;
   correctOptions: Record<number, string>;
-  score?: number;
+  totalScore?: number;
   maxPossibleScore?: number;
 }
 

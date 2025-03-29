@@ -1,99 +1,231 @@
-import express from "express";
-import mongoose from "mongoose";
-import Attempt from "../models/Attempt.js"; // ✅ Ensure correct file path
-import Result from "../models/Result.js"; // ✅ Ensure correct file path
-import authenticateUser from "../middleware/authmiddleware.js"; // ✅ Ensure correct file path
+import express from 'express';
+import mongoose from 'mongoose';
+import auth from '../middleware/authmiddleware.js';
 
 const router = express.Router();
 
-// 🧠 Calculate and Store Exam Results
-router.get("/calculate", authenticateUser, async (req, res) => {
-    const { user_id, year, slot } = req.query;
+// Define the Results schema
+const ResultSchema = new mongoose.Schema({
+  paperId: {
+    type: String,
+    required: true
+  },
+  userId: {
+    type: String,
+    required: true
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  },
+  timeSpent: {
+    type: Number,
+    required: true
+  },
+  answers: {
+    type: Object, // Store answers as a key-value object
+    required: true
+  },
+  score: {
+    type: Number,
+    required: true
+  },
+  maxPossibleScore: {
+    type: Number,
+    required: true
+  }
+}, { timestamps: true });
 
-    if (!user_id || !year || !slot) {
-        return res.status(400).json({ error: "Missing parameters: user_id, year, slot" });
+// Create the model
+const Result = mongoose.model('Result', ResultSchema);
+
+// POST endpoint to save results
+router.post('/', auth, async (req, res) => {
+  try {
+    const { paperId, userId, date, timeSpent, answers, score, maxPossibleScore } = req.body;
+    
+    // Validate required fields
+    if (!paperId || !userId || !timeSpent || !answers || score === undefined || maxPossibleScore === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
     }
-
-    try {
-        // 1️⃣ Fetch the user's attempt & questions **in parallel** to reduce latency
-        const collectionName = `${year}_${slot}`.replace(/\s+/g, "_"); // ✅ Ensure consistent collection names
-
-        const [attempt, questions] = await Promise.all([
-            Attempt.findOne({ user_id, year, slot }).sort({ createdAt: -1 }), // ✅ Find the latest
-            mongoose.connection.useDb("Mains").collection(collectionName).find({}, { projection: { question_id: 1, correctOption: 1 } }).toArray()
-        ]);
-
-        if (!attempt) return res.status(404).json({ error: "Attempt not found" });
-        if (!questions.length) return res.status(404).json({ error: "No questions found for this exam." });
-
-        // 2️⃣ Convert questions into a **Map** for O(1) lookup (Ensuring question_id is a number)
-        const correctcorrectOptionsMap = new Map(questions.map(q => [parseInt(q.question_id, 10), parseInt(q.correctOption, 10)]));
-
-        console.log("✅ Attempt correctOptions:", attempt.correctOptions);
-        console.log("✅ Questions Fetched from DB:", questions);
-        console.log("✅ Correct correctOptions Map:", correctcorrectOptionsMap);
-
-        // 3️⃣ Initialize score counters
-        let correct = 0, incorrect = 0, unattempted = 0, totalMarks = 0;
-
-        // 4️⃣ Process user's correctOptions efficiently
-        const detailedResults = questions.map(({ question_id }) => {
-            // Find if user attempted this question
-            const userAttempt = attempt.correctOptions.find(a => parseInt(a.question_id, 10) === parseInt(question_id, 10));
-            const usercorrectOption = userAttempt?.selected_correctOption !== undefined && userAttempt?.selected_correctOption !== "" 
-                ? parseInt(userAttempt.selected_correctOption, 10) 
-                : null;
-            const correctcorrectOption = correctcorrectOptionsMap.has(parseInt(question_id, 10)) 
-                ? correctcorrectOptionsMap.get(parseInt(question_id, 10)) 
-                : null;
-        
-            let status = "unattempted";
-            
-            if (usercorrectOption !== null) {
-                if (usercorrectOption === correctcorrectOption) {
-                    status = "correct";
-                    correct++;
-                    totalMarks += 4;
-                } else {
-                    status = "incorrect";
-                    incorrect++;
-                    totalMarks -= 1;
-                }
-            } else {
-                unattempted++;
-            }
-        
-            console.log(`🧐 QID: ${question_id} | 👤 User: ${usercorrectOption} | 🎯 Correct: ${correctcorrectOption} | 🛠 Status: ${status}`);
-        
-            return { question_id, user_correctOption: usercorrectOption, correct_correctOption: correctcorrectOption, status };
-        });        
-
-        // 5️⃣ Prepare result object
-        const resultData = {
-            user_id: attempt.user_id,
-            user_name: attempt.user_name,
-            year: attempt.year,
-            slot: attempt.slot,
-            total_questions: questions.length,
-            correct_correctOptions: correct,
-            incorrect_correctOptions: incorrect,
-            uncorrectOptioned: unattempted,
-            score: totalMarks,
-            correctOptions: detailedResults,
-        };
-
-        // 6️⃣ Upsert (update or insert) result efficiently
-        await Result.updateOne(
-            { user_id, year, slot },
-            { $set: resultData },
-            { upsert: true } // ✅ Create if not exists
-        );
-
-        res.status(200).json(resultData);
-    } catch (error) {
-        console.error("❌ Error calculating results:", error);
-        res.status(500).json({ error: error.message });
+    
+    // Check if userId matches the authenticated user (or allow admin override)
+    if (req.user.id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to save results for this user'
+      });
     }
+    
+    // Create a new result record
+    const result = new Result({
+      paperId,
+      userId,
+      date: date || Date.now(),
+      timeSpent,
+      answers,
+      score,
+      maxPossibleScore
+    });
+    
+    // Save to database
+    await result.save();
+    
+    return res.status(201).json({
+      success: true,
+      message: 'Results saved successfully',
+      data: result
+    });
+  } catch (error) {
+    console.error('Error saving results:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while saving results',
+      error: error.message
+    });
+  }
+});
+
+// GET endpoint to fetch results for a user
+router.get('/user/:userId', auth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Check authorization
+    if (req.user.id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view results for this user'
+      });
+    }
+    
+    // Fetch results
+    const results = await Result.find({ userId }).sort({ date: -1 });
+    
+    return res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results
+    });
+  } catch (error) {
+    console.error('Error fetching results:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while fetching results',
+      error: error.message
+    });
+  }
+});
+
+// GET endpoint to fetch a specific result
+router.get('/:resultId', auth, async (req, res) => {
+  try {
+    const { resultId } = req.params;
+    
+    // Fetch the result
+    const result = await Result.findById(resultId);
+    
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: 'Result not found'
+      });
+    }
+    
+    // Check authorization
+    if (req.user.id !== result.userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view this result'
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error fetching result:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while fetching result',
+      error: error.message
+    });
+  }
+});
+
+// GET endpoint to fetch results for a specific paper
+router.get('/paper/:paperId', auth, async (req, res) => {
+  try {
+    const { paperId } = req.params;
+    
+    // Check if admin (only admins can see all results for a paper)
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view all results for this paper'
+      });
+    }
+    
+    // Fetch results
+    const results = await Result.find({ paperId }).sort({ date: -1 });
+    
+    return res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results
+    });
+  } catch (error) {
+    console.error('Error fetching paper results:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while fetching paper results',
+      error: error.message
+    });
+  }
+});
+
+// DELETE endpoint to remove a result
+router.delete('/:resultId', auth, async (req, res) => {
+  try {
+    const { resultId } = req.params;
+    
+    // Fetch the result
+    const result = await Result.findById(resultId);
+    
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: 'Result not found'
+      });
+    }
+    
+    // Check authorization
+    if (req.user.id !== result.userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to delete this result'
+      });
+    }
+    
+    // Delete the result
+    await Result.findByIdAndDelete(resultId);
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Result deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting result:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while deleting result',
+      error: error.message
+    });
+  }
 });
 
 export default router;

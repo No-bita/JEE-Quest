@@ -26,14 +26,13 @@ const Results: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [scoreData, setScoreData] = useState({
-    totalScore: 0,
-    maxPossibleScore: 0,
-    scorePercentage: 0,
-    correctAnswers: 0,
-    incorrectAnswers: 0,
-    unattemptedQuestions: 0
-  });
+  const [scoreData, setScoreData] = useState<{
+    totalScore: number;
+    maxPossibleScore: number;
+    correctQuestions: number;
+    incorrectQuestions: number;
+    unattemptedQuestions: number;
+  } | null>(null);
   const [pieData, setPieData] = useState([
     { name: 'Correct', value: 0, color: '#22c55e' },
     { name: 'Incorrect', value: 0, color: '#ef4444' },
@@ -43,7 +42,8 @@ const Results: React.FC = () => {
     subject: string;
     correct: number;
     incorrect: number;
-    score: number;
+    unattempted: number;
+    total: number;
   }>>([]);
   
   // Load results and questions
@@ -53,27 +53,23 @@ const Results: React.FC = () => {
       return;
     }
     
-    const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
-    const paperResult = allResults.find((result: ResultsData) => result.paperId === paperId);
-    
-    console.log("Fetched results:", paperResult);
-    
-    if (!paperResult) {
+    const testResult = JSON.parse(localStorage.getItem('testResults') || 'null');
+
+    if (!testResult) {
+      console.error('No test result found in local storage.');
       navigate('/practice/' + paperId);
       return;
     }
     
-    setResults(paperResult);
-    
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    
-    // Fetch questions from API
     const fetchQuestions = async () => {
       try {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
         const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`);
+        
         if (!response.ok) {
           throw new Error('Failed to fetch questions');
         }
+        
         const data = await response.json();
         
         if (!data?.data || !Array.isArray(data.data)) {
@@ -81,11 +77,28 @@ const Results: React.FC = () => {
         }
         
         setQuestions(data.data);
-        setIsLoading(false);
-        
-        // Save results to database only if we have valid questions
+        setResults(testResult);
+
+        setScoreData({
+          totalScore: testResult.totalScore || 0,
+          maxPossibleScore: testResult.maxPossibleScore || (data.data.length * CORRECT_MARKS),
+          correctQuestions: testResult.correctQuestions || 0,
+          incorrectQuestions: testResult.incorrectQuestions || 0,
+          unattemptedQuestions: testResult.unattemptedQuestions || 0
+        });
+  
+        // Update pie chart data
+        setPieData([
+          { name: 'Correct', value: testResult.correctQuestions || 0, color: '#22c55e' },
+          { name: 'Incorrect', value: testResult.incorrectQuestions || 0, color: '#ef4444' },
+          { name: 'Unattempted', value: testResult.unattemptedQuestions || 0, color: '#94a3b8' }
+        ]);
+
         if (data.data.length > 0) {
-          saveResultsToDatabase(paperResult, data.data);
+          const subjectPerformance = calculateSubjectPerformance(data.data, testResult.answers || {});
+          console.log('Subject performance:', subjectPerformance);
+          setSubjectChartData(subjectPerformance);
+          saveResultsToDatabase(testResult, data.data);
         }
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -94,106 +107,50 @@ const Results: React.FC = () => {
           description: "Failed to load questions. Please try again.",
           variant: "destructive"
         });
+      } finally {
         setIsLoading(false);
       }
     };
     
     fetchQuestions();
   }, [paperId, navigate]);
-  
-  // Calculate scores whenever questions or results change
-  useEffect(() => {
-    if (!results || !questions.length || !results?.correctOptions) return;
     
-    console.log("Calculating score with results:", results);
-    console.log("Questions array:", questions);
+
+// Helper function to calculate subject performance
+  const calculateSubjectPerformance = (questions: Question[], answers: Record<string, string>) => {
+      
+    if (!questions || !answers) return [];
+
+    const subjectData = questions.reduce((acc: Record<string, {correct: number; incorrect: number; unattempted: number}>, q) => {
     
-    try {
-      const correctOptions = results.correctOptions || {};
-      
-      // Calculate score metrics
-      const correctAnswers = questions.filter(q => 
-        q?.id && correctOptions[q.id] === q.correctOption
-      ).length;
-      
-      const incorrectAnswers = questions.filter(q => 
-        q?.id && correctOptions[q.id] && 
-        correctOptions[q.id] !== q.correctOption
-      ).length;
-      
-      const unattemptedQuestions = questions.length - correctAnswers - incorrectAnswers;
-      
-      const totalScore = calculateTotalScore(questions, correctOptions);
-      const maxPossibleScore = questions.length * CORRECT_MARKS;
-      const scorePercentage = maxPossibleScore > 0 
-        ? Math.round((totalScore / maxPossibleScore) * 100) 
-        : 0;
-      
-      // Update state with calculated values
-      setScoreData({
-        totalScore,
-        maxPossibleScore,
-        scorePercentage,
-        correctAnswers,
-        incorrectAnswers,
-        unattemptedQuestions
-      });
-      
-      // Update pie chart data
-      setPieData([
-        { name: 'Correct', value: correctAnswers, color: '#22c55e' },
-        { name: 'Incorrect', value: incorrectAnswers, color: '#ef4444' },
-        { name: 'Unattempted', value: unattemptedQuestions, color: '#94a3b8' }
-      ]);
-      
-      // Calculate subject performance
-      const subjectData = calculateSubjectPerformance(questions, correctOptions);
-      setSubjectChartData(subjectData);
-      
-    } catch (error) {
-      console.error('Error calculating scores:', error);
-    }
-  }, [questions, results]);
-  
-  // Helper function to calculate total score
-  const calculateTotalScore = (questions: Question[], correctOptions: Record<string, string>) => {
-    return questions.reduce((score, question) => {
-      if (!question?.id) return score;
-      
-      const userAnswer = correctOptions[question.id];
-      
-      if (!userAnswer) {
-        return score + UNATTEMPTED_MARKS;
-      }
-      
-      return score + (userAnswer === question.correctOption ? CORRECT_MARKS : INCORRECT_MARKS);
-    }, 0);
-  };
-  
-  // Helper function to calculate subject performance
-  const calculateSubjectPerformance = (questions: Question[], correctOptions: Record<string, string>) => {
-    const subjectData = questions.reduce((acc: Record<string, {correct: number, total: number}>, q) => {
       if (!q?.subject || !q.id) return acc;
+
+      const subjectKey = q.subject.trim();
       
-      if (!acc[q.subject]) {
-        acc[q.subject] = { correct: 0, total: 0 };
+      if (!acc[subjectKey]) {
+        acc[subjectKey] = { correct: 0, incorrect: 0, unattempted: 0 };
       }
       
-      acc[q.subject].total += 1;
-      
-      if (correctOptions[q.id] === q.correctOption) {
-        acc[q.subject].correct += 1;
+      const userAnswer = Number(answers[q.id]);
+
+      if (!userAnswer) {
+        acc[subjectKey].unattempted += 1;
+      } else if (userAnswer === q.correctOption) {
+        acc[subjectKey].correct += 1;
+      } else {
+        acc[subjectKey].incorrect += 1;
       }
-      
       return acc;
-    }, {});
+    }, {}
+  );
     
     return Object.entries(subjectData).map(([subject, data]) => ({
       subject,
       correct: data.correct,
-      incorrect: data.total - data.correct,
-      score: Math.round((data.correct / data.total) * 100)
-    }));
+      incorrect: data.incorrect,
+      unattempted: data.unattempted,
+      total: data.correct + data.incorrect + data.unattempted,
+    })).filter(item => item.total > 0);
   };
   
   // Save results to database
@@ -206,47 +163,22 @@ const Results: React.FC = () => {
     setIsSaving(true);
     
     try {
-      const correctOptions = resultData.correctOptions || {};
-      
-      // Calculate metrics for API payload
-      const correctAnswers = questionData.filter(q => 
-        q?.id && correctOptions[q.id] === q.correctOption
-      ).length;
-      
-      const incorrectAnswers = questionData.filter(q => 
-        q?.id && correctOptions[q.id] && 
-        correctOptions[q.id] !== q.correctOption
-      ).length;
-      
-      const unattempted = questionData.length - correctAnswers - incorrectAnswers;
-      
-      const calculatedTotalScore = calculateTotalScore(questionData, correctOptions);
-      console.log("Score Calculation:", calculateTotalScore(questions, results.correctOptions));
-      const maxScore = questionData.length * CORRECT_MARKS;
-      const scorePercentage = maxScore > 0 ? Math.round((calculatedTotalScore / maxScore) * 100) : 0;
-      
-      // Prepare data for API
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       const resultPayload = {
         paperId: resultData.paperId,
         userId: localStorage.getItem('userId') || 'anonymous',
         date: resultData.date,
         timeSpent: resultData.timeSpent,
-        answers: correctOptions,
-        score: {
-          total: calculatedTotalScore,
-          maxPossible: maxScore,
-          percentage: scorePercentage,
-          correct: correctAnswers,
-          incorrect: incorrectAnswers,
-          unattempted
-        }
+        answers: resultData.answers,
+        score: resultData.totalScore,
+        maxPossibleScore: resultData.maxPossibleScore
       };
       
-      const response = await fetch('/api/results', {
+      const response = await fetch(`${API_BASE_URL}/results`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
         },
         body: JSON.stringify(resultPayload)
       });
@@ -277,7 +209,7 @@ const Results: React.FC = () => {
   };
   
   // Loading state
-  if (isLoading || !results) {
+  if (isLoading || !results || !scoreData) {
     return (
       <>
         <NavBar />
@@ -291,13 +223,11 @@ const Results: React.FC = () => {
   const { 
     totalScore, 
     maxPossibleScore, 
-    scorePercentage, 
-    correctAnswers, 
-    incorrectAnswers, 
+    correctQuestions, 
+    incorrectQuestions, 
     unattemptedQuestions 
   } = scoreData;
   
-  const isPassed = scorePercentage >= 60;
   
   return (
     <>
@@ -338,11 +268,7 @@ const Results: React.FC = () => {
             </div>
             
             <div className="flex flex-col items-center justify-center mt-4 md:mt-0 bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
-              <div className="text-4xl font-bold mb-2">{scorePercentage}%</div>
               <div className="text-2xl font-semibold mb-1">{totalScore}/{maxPossibleScore}</div>
-              <div className={`text-lg font-medium ${isPassed ? 'text-green-600' : 'text-red-500'}`}>
-                {isPassed ? 'Passed' : 'Needs Improvement'}
-              </div>
             </div>
           </div>
           
@@ -353,7 +279,7 @@ const Results: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Correct</div>
-                <div className="text-xl font-semibold">{correctAnswers} × +{CORRECT_MARKS}</div>
+                <div className="text-xl font-semibold">{correctQuestions}</div>
               </div>
             </div>
             
@@ -363,7 +289,7 @@ const Results: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Incorrect</div>
-                <div className="text-xl font-semibold">{incorrectAnswers} × {INCORRECT_MARKS}</div>
+                <div className="text-xl font-semibold">{incorrectQuestions}</div>
               </div>
             </div>
             
@@ -376,7 +302,7 @@ const Results: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Unattempted</div>
-                <div className="text-xl font-semibold">{unattemptedQuestions} × {UNATTEMPTED_MARKS}</div>
+                <div className="text-xl font-semibold">{unattemptedQuestions}</div>
               </div>
             </div>
             
@@ -391,55 +317,19 @@ const Results: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
-            <h3 className="font-semibold mb-2">Marking Scheme:</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Correct answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-              <li>Incorrect answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-              <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
-            </ul>
-          </div>
-          
-          <Link to={`/practice/${paperId}`}>
-            <Button
-            onClick={() => {
-              localStorage.removeItem('testResults');
-            }}>
-              Practice Again
-            </Button>
-          </Link>
-        </div>
-        
-        <div className="glass-card rounded-xl p-6 mb-8">
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <Brain className="text-primary" size={20} />
-            Performance by Subject
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="h-72">
-              {subjectChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={subjectChartData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="subject" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`${value}%`, 'Score']} />
-                    <Legend />
-                    <Bar dataKey="score" name="Score (%)" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full flex items-center justify-center text-muted-foreground">
-                  No subject data available
-                </div>
-              )}
+          <div className="flex flex-col md:flex-row items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
+            {/* Marking Scheme */}
+            <div className="md:w-1/2 w-full">
+              <h3 className="font-semibold mb-2">Marking Scheme:</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Correct answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                <li>Incorrect answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+              </ul>
             </div>
-            
-            <div className="h-72 flex items-center justify-center">
+
+            {/* Pie Chart */}
+            <div className="md:w-1/2 w-full h-72 flex items-center justify-center">
               {pieData.some(item => item.value > 0) ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -468,8 +358,73 @@ const Results: React.FC = () => {
               )}
             </div>
           </div>
+
+          
+          <Link to={`/practice/${paperId}`}>
+            <Button
+            onClick={() => {
+              localStorage.removeItem('testResults');
+            }}>
+              Practice Again
+            </Button>
+          </Link>
         </div>
         
+        <div className="glass-card rounded-xl p-6 mt-8 mb-6">
+          <h3 className="text-lg font-semibold mb-4">Subject-wise Breakdown</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {subjectChartData.map((subject) => (
+              <div key={subject.subject} className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg w-full">
+                <h4 className="font-medium mb-2">{subject.subject}</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  <div>Correct: <span className="font-semibold text-green-600">{subject.correct}</span></div>
+                  <div>Incorrect: <span className="font-semibold text-red-600">{subject.incorrect}</span></div>
+                  <div>Unattempted: <span className="font-semibold text-gray-500">{subject.unattempted}</span></div>
+                  <div>Subject Score: 
+                    <span className="font-semibold">
+                      {subject.correct * 4 + subject.incorrect * -1 + subject.unattempted * 0}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+
+        {/* <div className="glass-card rounded-xl p-6 mb-8">
+  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+    <Brain className="text-primary" size={20} />
+    Performance by Subject
+  </h2>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="h-72">
+      {subjectChartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={subjectChartData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="subject" />
+              <YAxis />
+              <Tooltip formatter={(value) => [`${value}%`, 'Score']} />
+              <Legend />
+              <Bar dataKey="score" name="Score (%)" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+      ) : (
+        <div className="h-full flex items-center justify-center text-muted-foreground">
+          No subject data available
+        </div>
+      )}
+    </div>
+  </div>
+</div> */}
+
+        
+
         <div className="glass-card rounded-xl p-6">
           <h2 className="text-xl font-bold mb-6">Question Analysis</h2>
           
@@ -478,8 +433,8 @@ const Results: React.FC = () => {
               {questions.map((question, index) => {
                 if (!question?.id) return null;
                 
-                const correctOptions = results.correctOptions || {};
-                const userAnswer = correctOptions[question.id] || '';
+                const answers = results.answers || {};
+                const userAnswer = Number(answers[question.id]);
                 const isCorrect = userAnswer === question.correctOption;
                 const answerStatus = !userAnswer ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';
                 
