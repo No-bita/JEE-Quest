@@ -4,7 +4,7 @@ import NavBar from '@/components/NavBar';
 import PracticeInterface from '@/components/PracticeInterface';
 import { toast } from 'sonner';
 import { FREE_TEST_LIMIT } from '@/utils/types';
-import { papersApi, userApi, useMockApi, mockStorageApi } from '@/utils/api';
+import { papersApi } from '@/utils/api';
 
 const Practice: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -12,7 +12,6 @@ const Practice: React.FC = () => {
   const [hasAccess, setHasAccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const useMock = useMockApi();
   
   useEffect(() => {
     // Check if user is logged in
@@ -98,7 +97,7 @@ const Practice: React.FC = () => {
     setTimeout(() => {
       checkAccess();
     }, 500);
-  }, [paperId, navigate, useMock]);
+  }, [paperId, navigate ]);
   
   if (isLoading) {
     return (

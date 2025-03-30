@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 // Import pages
 import Index from "./pages/Index";
-import Dashboard from "./pages/Papers"; // Note: File is still named Papers.tsx but the component is now Dashboard
+import Dashboard from "./pages/Papers";
 import Practice from "./pages/Practice";
 import Analysis from "./pages/Analysis";
 import SignIn from "./pages/SignIn";
@@ -20,25 +20,20 @@ import Results from "./pages/Results";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem("isLoggedIn") === "true";
+  });
   useEffect(() => {
     // Check login status from localStorage
     const checkLoginStatus = () => {
-      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      setIsLoggedIn(loggedIn);
+      setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
     };
     
     // Check on initial load
     checkLoginStatus();
     
-    // Add event listener for storage events (for login state changes in other tabs or components)
-    const handleStorageChange = () => {
-      checkLoginStatus();
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', checkLoginStatus);
+    return () => window.removeEventListener('storage', checkLoginStatus);
   }, []);
 
   return (
@@ -58,7 +53,7 @@ const App = () => {
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
             
             {/* Auth routes - redirect to dashboard if already logged in */}
-            <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn />} />
+            <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/papers" /> : <Register />} />
             
             {/* Public routes */}

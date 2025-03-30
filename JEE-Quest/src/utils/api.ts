@@ -3,20 +3,63 @@ import { ResultsData, Question } from './types';
 // Base API URL - replace with your actual backend URL when deployed
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
 
-// Error handler
-const handleApiError = (error: unknown) => {
-  console.error('API Error:', error);
-  if (error instanceof Error) {
-    return { success: false, error: error.message } as const;
+// Enhanced error handler to parse JSON error responses when available
+const handleApiError = async (response: Response) => {
+  try {
+    // Try to parse error message from API response
+    const errorData = await response.json();
+    return { 
+      success: false, 
+      error: errorData.message || `API Error: ${response.status} ${response.statusText}`,
+      status: response.status,
+      data: errorData
+    } as const;
+  } catch (e) {
+    // If we can't parse JSON, return a generic error
+    return { 
+      success: false, 
+      error: `API Error: ${response.status} ${response.statusText}`,
+      status: response.status 
+    } as const;
   }
-  return { success: false, error: 'Unknown API error occurred' } as const;
+};
+
+// Network error handler
+const handleNetworkError = (error: unknown) => {
+  console.error('Network Error:', error);
+  if (error instanceof Error) {
+    return { success: false, error: error.message, networkError: true } as const;
+  }
+  return { success: false, error: 'Unknown network error occurred', networkError: true } as const;
+};
+
+// Token management
+const tokenService = {
+  getToken: () => localStorage.getItem('authToken'),
+  setToken: (token: string) => localStorage.setItem('authToken', token),
+  removeToken: () => localStorage.removeItem('authToken'),
+  
+  // Helper to check if token is expired (if JWT)
+  isTokenExpired: () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return true;
+    
+    try {
+      // For JWT tokens
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch (e) {
+      console.warn('Could not parse token for expiration check', e);
+      return false; // Assume token is valid if we can't parse it
+    }
+  }
 };
 
 // HTTP methods wrapper with authorization header
 const api = {
   get: async (endpoint: string) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = tokenService.getToken();
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -25,18 +68,18 @@ const api = {
       });
       
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        return await handleApiError(response);
       }
       
-      return { success: true, data: await response.json() } as const;
+      return { success: true, data: await response.json(), status: response.status } as const;
     } catch (error) {
-      return handleApiError(error);
+      return handleNetworkError(error);
     }
   },
   
   post: async (endpoint: string, data: any) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = tokenService.getToken();
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
@@ -47,18 +90,18 @@ const api = {
       });
       
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        return await handleApiError(response);
       }
       
-      return { success: true, data: await response.json() } as const;
+      return { success: true, data: await response.json(), status: response.status } as const;
     } catch (error) {
-      return handleApiError(error);
+      return handleNetworkError(error);
     }
   },
   
   put: async (endpoint: string, data: any) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = tokenService.getToken();
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
         headers: {
@@ -69,18 +112,18 @@ const api = {
       });
       
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        return await handleApiError(response);
       }
       
-      return { success: true, data: await response.json() } as const;
+      return { success: true, data: await response.json(), status: response.status } as const;
     } catch (error) {
-      return handleApiError(error);
+      return handleNetworkError(error);
     }
   },
   
   delete: async (endpoint: string) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = tokenService.getToken();
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'DELETE',
         headers: {
@@ -90,26 +133,68 @@ const api = {
       });
       
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        return await handleApiError(response);
       }
       
-      return { success: true, data: await response.json() } as const;
+      // Some DELETE endpoints might not return content
+      const data = response.status !== 204 ? await response.json() : null;
+      return { success: true, data, status: response.status } as const;
     } catch (error) {
-      return handleApiError(error);
+      return handleNetworkError(error);
     }
   },
+};
+
+// User session management
+const userSession = {
+  setUserData: (userData: {
+    token: string;
+    userId: string;
+    name: string;
+    email: string;
+    isAdmin: boolean;
+  }) => {
+    tokenService.setToken(userData.token);
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userEmail', userData.email);
+    localStorage.setItem('userName', userData.name);
+    localStorage.setItem('userId', userData.userId);
+    localStorage.setItem('isAdmin', userData.isAdmin ? 'true' : 'false');
+    window.dispatchEvent(new Event('storage'));
+  },
+  
+  clearUserData: () => {
+    tokenService.removeToken();
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('isAdmin');
+    window.dispatchEvent(new Event('storage'));
+  },
+  
+  getUserData: () => ({
+    isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
+    userName: localStorage.getItem('userName'),
+    userEmail: localStorage.getItem('userEmail'),
+    userId: localStorage.getItem('userId'),
+    isAdmin: localStorage.getItem('isAdmin') === 'true',
+  })
 };
 
 // Auth API endpoints
 export const authApi = {
   login: async (email: string, password: string) => {
     const response = await api.post('/auth/login', { email, password });
+    
     if (response.success && response.data && response.data.token) {
-      localStorage.setItem('authToken', response.data.token);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', email);
-      localStorage.setItem('isAdmin', response.data.isAdmin ? 'true' : 'false');
-      window.dispatchEvent(new Event('storage'));
+      userSession.setUserData({
+        token: response.data.token,
+        userId: response.data.userId,
+        name: response.data.name, 
+        email,
+        isAdmin: response.data.isAdmin || false,
+      });
     }
     return response;
   },
@@ -118,33 +203,37 @@ export const authApi = {
     const response = await api.post('/auth/register', { name, email, password });
     
     if (response.success && response.data && response.data.token) {
-      // Store auth info in localStorage
-      localStorage.setItem('authToken', response.data.token);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userName', name);
-      localStorage.setItem('userEmail', email);
-      localStorage.setItem('isAdmin', response.data.isAdmin ? 'true' : 'false');
-      
-      // Dispatch storage event for other components to react
-      window.dispatchEvent(new Event('storage'));
+      userSession.setUserData({
+        token: response.data.token,
+        userId: response.data.userId,
+        name,
+        email,
+        isAdmin: response.data.isAdmin || false,
+      });
     }
     return response;
   },
   
   logout: () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('isAdmin');
-    window.dispatchEvent(new Event('storage'));
+    userSession.clearUserData();
     return { success: true } as const;
   },
   
   checkAuth: async () => {
-    // Check if the token is still valid
+    // Handle token expiration
+    if (tokenService.isTokenExpired()) {
+      console.log('Token expired, user needs to log in again');
+      userSession.clearUserData();
+      return { success: false, error: 'Authentication expired' } as const;
+    }
+    
+    // Check if the token is still valid with the server
     return await api.get('/auth/verify');
   },
+  
+  refreshToken: async () => {
+    return await api.post('/auth/refresh-token', {});
+  }
 };
 
 // Papers API endpoints
@@ -160,6 +249,14 @@ export const papersApi = {
       answers,
       timeSpent
     });
+  },
+  
+  getAllPapers: async () => {
+    return await api.get('/papers');
+  },
+  
+  getPaperById: async (paperId: string) => {
+    return await api.get(`/papers/${paperId}`);
   }
 };
 
@@ -176,6 +273,11 @@ export const resultsApi = {
   getResultById: async (resultId: string) => {
     return await api.get(`/results/${resultId}`);
   },
+  
+  // Get detailed analytics
+  getResultsAnalytics: async () => {
+    return await api.get('/results/analytics');
+  }
 };
 
 // Subscription & Payment API endpoints
@@ -199,6 +301,10 @@ export const subscriptionApi = {
   checkPurchaseStatus: async (sessionId: string) => {
     return await api.get(`/payments/status/${sessionId}`);
   },
+  
+  cancelSubscription: async () => {
+    return await api.post('/subscriptions/cancel', {});
+  }
 };
 
 // User API endpoints
@@ -218,57 +324,8 @@ export const userApi = {
   getPurchasedPapers: async () => {
     return await api.get('/user/purchased-papers');
   },
-};
-
-// Fallback to localStorage for development without a backend
-export const useMockApi = () => {
-  const mockApiEnabled = !import.meta.env.VITE_API_BASE_URL;
   
-  if (mockApiEnabled) {
-    console.warn('Using mock API - no API_BASE_URL provided');
-  }
-  
-  return mockApiEnabled;
-};
-
-// Mock implementation to be used during development without a backend
-export const mockStorageApi = {
-  // Mock auth (local storage based)
-  login: async (email: string, password: string) => {
-    const isAdmin = email === 'admin@example.com' && password === 'admin123';
-    
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userEmail', email);
-    localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
-    
-    window.dispatchEvent(new Event('storage'));
-    return { success: true, data: { email, isAdmin } } as const;
-  },
-  
-  register: async (name: string, email: string, password: string) => {
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userName', name);
-    localStorage.setItem('userEmail', email);
-    localStorage.setItem('isAdmin', 'false');
-    
-    window.dispatchEvent(new Event('storage'));
-    return { success: true, data: { name, email } } as const;
-  },
-  
-  // Mock results
-  saveTestResult: async (result: ResultsData) => {
-    const existingResults = JSON.parse(localStorage.getItem('testResults') || '[]');
-    existingResults.push(result);
-    localStorage.setItem('testResults', JSON.stringify(existingResults));
-    return { success: true, data: result } as const;
-  },
-  
-  // Helper to check user subscription status from localStorage
-  getUserSubscriptionStatus: () => {
-    return {
-      hasSubscription: localStorage.getItem('hasSubscription') === 'true',
-      purchasedPapers: JSON.parse(localStorage.getItem('purchasedPapers') || '[]'),
-      freeTestsRemaining: localStorage.getItem('freeTestsRemaining') || '1'
-    };
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    return await api.put('/user/change-password', { currentPassword, newPassword });
   }
 };

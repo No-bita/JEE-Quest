@@ -7,12 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, PieChart, LineChart, PieArcDatum } from '@/components/ui/recharts';
 import { BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, BookOpen } from 'lucide-react';
 
-// Mock data for charts
-const subjectPerformanceData = [
-  { name: 'Physics', score: 75, total: 100, color: 'hsl(10, 70%, 60%)' },
-  { name: 'Chemistry', score: 65, total: 100, color: 'hsl(210, 70%, 60%)' },
-  { name: 'Mathematics', score: 80, total: 100, color: 'hsl(140, 70%, 60%)' },
-];
 
 const difficultyDistributionData = [
   { name: 'Easy', value: 40, color: 'hsl(140, 70%, 60%)' },

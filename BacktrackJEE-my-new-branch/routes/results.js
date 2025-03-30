@@ -1,43 +1,8 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import auth from '../middleware/authmiddleware.js';
+import Result from '../models/Result.js';
 
 const router = express.Router();
-
-// Define the Results schema
-const ResultSchema = new mongoose.Schema({
-  paperId: {
-    type: String,
-    required: true
-  },
-  userId: {
-    type: String,
-    required: true
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
-  timeSpent: {
-    type: Number,
-    required: true
-  },
-  answers: {
-    type: Object, // Store answers as a key-value object
-    required: true
-  },
-  score: {
-    type: Number,
-    required: true
-  },
-  maxPossibleScore: {
-    type: Number,
-    required: true
-  }
-}, { timestamps: true });
-
-// Create the model
-const Result = mongoose.model('Result', ResultSchema);
 
 // POST endpoint to save results
 router.post('/', auth, async (req, res) => {

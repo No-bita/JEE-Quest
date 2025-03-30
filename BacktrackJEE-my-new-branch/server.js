@@ -3,13 +3,14 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js"; // ✅ Import database connection
+import userstatsRouter from "./routes/userstats.js"; // ✅ Import userstats router
 
 // ✅ Load environment variables
 dotenv.config();
 
 // ✅ Validate environment variables before running
-if (!process.env.MONGO_URI) {
-    console.error("❌ MONGO_URI is missing in .env");
+if (!process.env.MONGODB_URI) {
+    console.error("❌ MONGODB_URI is missing in .env");
     process.exit(1);
 }
 if (!process.env.CLIENT_URL) {
@@ -23,7 +24,7 @@ const app = express();
 // ✅ CORS Configuration
 app.use(cors({
     origin: [
-        "https://jee-quest.vercel.app/",
+        "https://jee-quest.vercel.app",
         "http://localhost:8080",
     ],
     methods: "GET,POST,PUT,DELETE,OPTIONS",
@@ -35,12 +36,6 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-app.options("*", cors());
-
-// app.listen(5001, () => {
-//     console.log("Server is running on port 5001");
-// });
 
 // ✅ Security headers
 app.use((req, res, next) => {
@@ -63,6 +58,7 @@ app.use("/api", attemptsRoutes);
 app.use("/api/papers", questionsRoutes);
 app.use("/api/results", resultsRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/userstats", userstatsRouter);
 
 // ✅ Test Route
 app.get("/api/test", (req, res) => {

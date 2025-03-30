@@ -5,12 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, CalendarRange, Plus, LogIn, BarChart2, BookOpen, History, Trophy, User, Filter } from 'lucide-react';
-import QuestionEditor from '@/components/QuestionEditor';
+import { Search, CalendarRange, Plus, LogIn, BarChart2, BookOpen, History, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from '@/components/ui/table';
+
 
 // Mock papers data
 const mockPapers = [
@@ -18,26 +18,26 @@ const mockPapers = [
     id: 'jee2025-1',
     year: 2025,
     session: 'Session 1',
-    shift: 'Shift 1',
-    date: 'Jan 24, 2025',
-    questionCount: 75,
+    shift: '',
+    date: 'To be added soon',
+    questionCount: 90,
     duration: 180,
   },
   {
     id: 'jee2025-2',
     year: 2025,
     session: 'Session 1',
-    shift: 'Shift 2',
-    date: 'Jan 25, 2025',
-    questionCount: 75,
+    shift: '',
+    date: 'To be added soon',
+    questionCount: 90,
     duration: 180,
   },
   {
     id: 'jee2024-1',
     year: 2024,
-    session: 'Session 2',
+    session: 'Session 1',
     shift: 'Morning Shift',
-    date: 'Apr 04, 2024',
+    date: 'Jan 27, 2024',
     questionCount: 90,
     duration: 180,
   },
@@ -45,7 +45,7 @@ const mockPapers = [
     id: 'jee2024-2',
     year: 2024,
     session: 'Session 1',
-    shift: 'Morning Shift',
+    shift: 'Evening Shift',
     date: 'Jan 27, 2024',
     questionCount: 90,
     duration: 180,
@@ -54,8 +54,8 @@ const mockPapers = [
     id: 'jee2024-3',
     year: 2024,
     session: 'Session 1',
-    shift: 'Evening Shift',
-    date: 'Jan 27, 2024',
+    shift: 'Morning Shift',
+    date: 'Jan 29, 2024',
     questionCount: 90,
     duration: 180,
   },
@@ -64,7 +64,95 @@ const mockPapers = [
     year: 2024,
     session: 'Session 1',
     shift: 'Evening Shift',
+    date: 'Jan 29, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
+    id: 'jee2024-5',
+    year: 2024,
+    session: 'Session 1',
+    shift: 'Morning Shift',
     date: 'Jan 30, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
+    id: 'jee2024-6',
+    year: 2024,
+    session: 'Session 1',
+    shift: 'Evening Shift',
+    date: 'Jan 30, 2024',
+    questionCount: 90,
+    duration: 180,
+  },  {
+    id: 'jee2024-7',
+    year: 2024,
+    session: 'Session 1',
+    shift: 'Morning Shift',
+    date: 'Jan 31, 2024',
+    questionCount: 90,
+    duration: 180,
+  },  {
+    id: 'jee2024-8',
+    year: 2024,
+    session: 'Session 1',
+    shift: 'Evening Shift',
+    date: 'Jan 31, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
+    id: 'jee2024-9',
+    year: 2024,
+    session: 'Session 1',
+    shift: 'Morning Shift',
+    date: 'Feb 01, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
+    id: 'jee2024-10',
+    year: 2024,
+    session: 'Session 1',
+    shift: 'Evening Shift',
+    date: 'Feb 01, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
+    id: 'jee2024-11',
+    year: 2024,
+    session: 'Session 2',
+    shift: 'Morning Shift',
+    date: 'Apr 04, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
+    id: 'jee2024-12',
+    year: 2024,
+    session: 'Session 2',
+    shift: 'Evening Shift',
+    date: 'Apr 04, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
+    id: 'jee2024-13',
+    year: 2024,
+    session: 'Session 2',
+    shift: 'Morning Shift',
+    date: 'Apr 05, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
+    id: 'jee2024-14',
+    year: 2024,
+    session: 'Session 2',
+    shift: 'Evening Shift',
+    date: 'Apr 05, 2024',
     questionCount: 90,
     duration: 180,
   },
@@ -74,7 +162,7 @@ const mockPapers = [
     session: 'Session 1',
     shift: 'Shift 1',
     date: 'Jan 24, 2023',
-    questionCount: 75,
+    questionCount: 90,
     duration: 180,
   },
   {
@@ -83,7 +171,7 @@ const mockPapers = [
     session: 'Session 1',
     shift: 'Shift 2',
     date: 'Jan 25, 2023',
-    questionCount: 75,
+    questionCount: 90,
     duration: 180,
   },
   {
@@ -92,7 +180,7 @@ const mockPapers = [
     session: 'Session 1',
     shift: 'Shift 1',
     date: 'Jan 24, 2022',
-    questionCount: 75,
+    questionCount: 90,
     duration: 180,
   },
   {
@@ -101,7 +189,7 @@ const mockPapers = [
     session: 'Session 1',
     shift: 'Shift 2',
     date: 'Jan 25, 2022',
-    questionCount: 75,
+    questionCount: 90,
     duration: 180,
   },
   {
@@ -110,7 +198,7 @@ const mockPapers = [
     session: 'Session 1',
     shift: 'Shift 1',
     date: 'Feb 24, 2021',
-    questionCount: 75,
+    questionCount: 90,
     duration: 180,
   },
   {
@@ -119,7 +207,7 @@ const mockPapers = [
     session: 'Session 1',
     shift: 'Shift 2',
     date: 'Feb 25, 2021',
-    questionCount: 75,
+    questionCount: 90,
     duration: 180,
   },
   {
@@ -128,7 +216,7 @@ const mockPapers = [
     session: 'Session 1',
     shift: 'Shift 1',
     date: 'Jan 24, 2020',
-    questionCount: 75,
+    questionCount: 90,
     duration: 180,
   },
   {
@@ -137,7 +225,7 @@ const mockPapers = [
     session: 'Session 1',
     shift: 'Shift 2',
     date: 'Jan 25, 2020',
-    questionCount: 75,
+    questionCount: 90,
     duration: 180,
   },
 ];
@@ -151,24 +239,6 @@ interface Question {
   subject: string;
 }
 
-// // Mock questions by paper ID
-// const mockQuestionsByPaperId: Record<string, Question[]> = {
-//   'jee2025-1': [
-//     {
-//       id: 1,
-//       text: "A particle of mass m is projected with velocity v at an angle θ with the horizontal. The magnitude of angular momentum of the particle about the point of projection when the particle is at its highest point is:",
-//       options: [
-//         { id: 'A', text: "mv² sin θ cos θ / g" },
-//         { id: 'B', text: "mv² sin² θ / g" },
-//         { id: 'C', text: "mv² cos² θ / g" },
-//         { id: 'D', text: "zero" }
-//       ],
-//       correctOption: 'A',
-//       subject: 'Physics',
-//     },
-//   ],
-// };
-
 // Mock recent activity data
 const recentActivity = [
   { id: 1, type: 'Test Completed', paper: 'JEE 2023 Session 1', score: '78/100', date: '2 days ago' },
@@ -176,13 +246,12 @@ const recentActivity = [
   { id: 3, type: 'Test Purchased', paper: 'JEE 2025 Session 1', date: '2 weeks ago' },
 ];
 
-// Mock statistics data
-const userStats = {
-  testsCompleted: 12,
-  averageScore: 76,
-  topSubject: 'Physics',
-  studyHours: 48
-};
+const [userStats, setUserStats] = useState({
+  testsCompleted: 0,
+  averageScore: 0,
+  topSubject: 'None',
+  studyHours: 0
+});
 
 const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -190,31 +259,21 @@ const Dashboard: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [currentPaperId, setCurrentPaperId] = useState<string>('');
-  const [showQuestionEditor, setShowQuestionEditor] = useState<boolean>(false);
   const [paperQuestions, setPaperQuestions] = useState<Question[]>([]);
   const [userName, setUserName] = useState<string>('User');
   const navigate = useNavigate();
   
-  // Check if user has a subscription
-  const hasSubscription = () => {
-    return localStorage.getItem('hasSubscription') === 'true';
-  };
-  
-  // Get purchased papers
-  const getPurchasedPapers = () => {
-    return JSON.parse(localStorage.getItem('purchasedPapers') || '[]');
-  };
+  // // Check if user has a subscription
+  // const hasSubscription = () => {
+  //   return localStorage.getItem('hasSubscription') === 'true';
+  // };
   
   useEffect(() => {
     // Check login status from localStorage
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
     setIsLoggedIn(loggedIn);
     
-    // Only admins should have admin mode
-    const adminStatus = localStorage.getItem('isAdmin') === 'true';
-    setIsAdmin(adminStatus);
-    
-    // Get user name from localStorage (would come from API in real implementation)
+    // Get user name from localStorage
     const storedName = localStorage.getItem('userName');
     if (storedName) {
       setUserName(storedName);
@@ -223,36 +282,29 @@ const Dashboard: React.FC = () => {
     // Redirect to signin if not logged in
     if (!loggedIn) {
       navigate('/signin');
+    } else {
+      const userId = localStorage.getItem('userId');
+
+      fetchUserStats(userId);
     }
   }, [navigate]);
   
-  const handleEditPaper = (paperId: string) => {
-    // Check if user is logged in and is admin
-    if (!isLoggedIn) {
-      toast.error("Please log in to continue");
-      navigate('/signin');
-      return;
+  const fetchUserStats = async (userId) => {
+    try {
+      const response = await fetch(`/api/userstats/${userId}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user stats');
+      }
+
+      const stats = await response.json();
+      setUserStats(stats);
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+      toast.error('Failed to load your stats');
     }
-    
-    if (!isAdmin) {
-      toast.error("You don't have permission to edit papers");
-      return;
-    }
-    
-    setCurrentPaperId(paperId);
-    // Load questions for this paper
-    const questions = mockQuestionsByPaperId[paperId] || [];
-    setPaperQuestions(questions);
-    setShowQuestionEditor(true);
-  };
-  
-  const handleSaveQuestions = (questions: Question[]) => {
-    // In a real app, this would save to a database
-    // For demo, we'll just update our local mock data
-    mockQuestionsByPaperId[currentPaperId] = questions;
-    setPaperQuestions(questions);
-  };
-  
+  }
+
   // Filter papers based on search query and filters
   const filteredPapers = mockPapers.filter(paper => {
     // Apply year filter
@@ -281,14 +333,13 @@ const Dashboard: React.FC = () => {
   
   const years = Object.keys(papersByYear).sort((a, b) => Number(b) - Number(a));
   
-  // Determine if a paper is premium (In a real app, this would come from your backend)
+  
   const isPaperPremium = (paperId: string) => {
     // For demo purposes, let's make 2025 and 2024 papers premium, others free
     const year = parseInt(paperId.split('-')[0].replace('jee', ''));
     return year >= 2024;
   };
   
-  // Get recommended papers based on user history (mock implementation)
 
   return (
     <>
@@ -406,8 +457,6 @@ const Dashboard: React.FC = () => {
                       questionCount={paper.questionCount}
                       duration={paper.duration}
                       isPremium={isPaperPremium(paper.id)}
-                      isAdmin={isAdmin}
-                      onEditPaper={handleEditPaper}
                     />
                   ))}
                 </div>
@@ -453,8 +502,6 @@ const Dashboard: React.FC = () => {
                           questionCount={paper.questionCount}
                           duration={paper.duration}
                           isPremium={isPaperPremium(paper.id)}
-                          isAdmin={isAdmin}
-                          onEditPaper={handleEditPaper}
                         />
                       ))}
                     </div>
@@ -465,7 +512,7 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* Recent Activity - Moved below */}
+        {/* Recent Activity */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
@@ -491,41 +538,8 @@ const Dashboard: React.FC = () => {
               </TableBody>
             </Table>
           </CardContent>
-          <CardFooter className="px-6 py-3 border-t">
-            <Button variant="ghost" className="w-full" onClick={() => navigate('/analysis')}>
-              View All Activity
-            </Button>
-          </CardFooter>
         </Card>
-        
-        {/* Admin Tools (if admin) */}
-        {isAdmin && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Admin Tools</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full gap-2" onClick={() => {
-                toast.info("Create new paper functionality would go here");
-              }}>
-                <Plus size={16} />
-                Create New Paper
-              </Button>
-            </CardContent>
-          </Card>
-        )}
       </div>
-      
-      {/* Question Editor for Admin */}
-      {isAdmin && (
-        <QuestionEditor
-          open={showQuestionEditor}
-          onOpenChange={setShowQuestionEditor}
-          paperId={currentPaperId}
-          initialQuestions={paperQuestions}
-          onSave={handleSaveQuestions}
-        />
-      )}
     </>
   );
 };

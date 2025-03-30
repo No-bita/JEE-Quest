@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -10,7 +9,42 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { authApi, useMockApi, mockStorageApi } from '@/utils/api';
+
+// Define API types for better type safety
+interface LoginResponse {
+token?: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  error?: string;
+}
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return data;
+    } else {
+      return { error: 'Failed to login' };
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    return { error: 'Network error' };
+  }
+};
+
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -19,10 +53,9 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const SignIn: React.FC = () => {
+const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const useMock = useMockApi();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -36,26 +69,30 @@ const SignIn: React.FC = () => {
     setIsLoading(true);
     
     try {
-      let response;
+      const response = await loginUser(values.email, values.password);
       
-      if (useMock) {
-        // Use mock implementation for development
-        response = await mockStorageApi.login(values.email, values.password);
-      } else {
-        // Use real API for production
-        response = await authApi.login(values.email, values.password);
-      }
-      
-      if (response.success) {
-        const isAdmin = localStorage.getItem('isAdmin') === 'true';
-        if (isAdmin) {
-          toast.success('Logged in as admin');
-        } else {
-          toast.success('Logged in successfully');
+      if (response.token && response.user) {
+        // Store user data in localStorage
+        localStorage.setItem('isLoggedIn', 'true');
+        setIsLoggedIn(true);
+        localStorage.setItem('userName', response.user.name);
+        localStorage.setItem('userEmail', response.user.email);
+        localStorage.setItem('userId', response.user.id);
+        
+        if (response.token) {
+          localStorage.setItem('authToken', response.token);
         }
         
-        // Redirect to papers page
-        navigate('/papers');
+        if (response.user.role === 'admin') {
+          toast.success('Logged in as admin');
+          localStorage.setItem('isAdmin', 'true');
+        } else {
+          toast.success('Logged in successfully');
+          localStorage.setItem('isAdmin', 'false');
+        }
+        
+
+        navigate("/papers");   
       } else {
         toast.error(response.error || 'Failed to sign in. Please check your credentials.');
       }
@@ -107,6 +144,11 @@ const SignIn: React.FC = () => {
                     </FormItem>
                   )}
                 />
+                <div className="flex justify-end">
+                  <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <span className="flex items-center justify-center">
@@ -121,9 +163,13 @@ const SignIn: React.FC = () => {
             </Form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
-            <div className="text-sm text-center text-muted-foreground">
-              Admin demo credentials: admin@example.com / admin123
-            </div>
+            {process.env.NODE_ENV !== 'production' && (
+              <div className="text-sm text-center text-muted-foreground">
+                <div>Demo credentials:</div>
+                <div>Admin: admin@example.com / admin123</div>
+                <div>User: user@example.com / user123</div>
+              </div>
+            )}
             <div className="text-sm text-center">
               Don't have an account?{' '}
               <Link to="/register" className="text-primary hover:underline">

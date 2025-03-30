@@ -12,21 +12,21 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const jsonFilePath = path.resolve(__dirname, "JEE Mains/2024_Apr_04_Shift_1.json");
+const jsonFilePath = path.resolve(__dirname, "JEE Mains/2024_Jan_27_Shift_1.json");
 const collectionName = path.basename(jsonFilePath, ".json");
 
-// ✅ Fix: Use Correct MONGO_URI with Explicit Database Name
-const MONGO_URI = process.env.MONGO_URI;
+// ✅ Fix: Use Correct MONGODB_URI with Explicit Database Name
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGO_URI) {
-    console.error("❌ MONGO_URI is not set in .env file!");
+if (!MONGODB_URI) {
+    console.error("❌ MONGODB_URI is not set in .env file!");
     process.exit(1);
 }
 
 // ✅ Connect to MongoDB with the Correct Database
 const connectDB = async () => {
     try {
-        await mongoose.connect(MONGO_URI, {
+        await mongoose.connect(MONGODB_URI, {
             dbName: "Mains",
         });
         console.log(`✅ Connected to MongoDB: ${mongoose.connection.name}`);
