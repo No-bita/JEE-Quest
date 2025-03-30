@@ -60,6 +60,15 @@ const mockPapers = [
     duration: 180,
   },
   {
+    id: 'jee2024-4',
+    year: 2024,
+    session: 'Session 1',
+    shift: 'Evening Shift',
+    date: 'Jan 30, 2024',
+    questionCount: 90,
+    duration: 180,
+  },
+  {
     id: 'jee2023-1',
     year: 2023,
     session: 'Session 1',

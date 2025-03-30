@@ -49,7 +49,7 @@ const PaperPaywall: React.FC<PaperPaywallProps> = ({
     setTimeout(() => {
       // Mark all papers as purchased
       const allPaperIds = [
-        'jee2025-1', 'jee2025-2', 'jee2024-1', 'jee2024-2', 
+        'jee2025-1', 'jee2025-2', 'jee2024-1', 'jee2024-2', 'jee2024-3', 'jee2024-4', 
         'jee2023-1', 'jee2023-2', 'jee2022-1', 'jee2022-2',
         'jee2021-1', 'jee2021-2', 'jee2020-1', 'jee2020-2'
       ];
