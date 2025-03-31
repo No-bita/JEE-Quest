@@ -24,6 +24,7 @@ const Results: React.FC = () => {
   const navigate = useNavigate();
   const [results, setResults] = useState<ResultsData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
+  // const [note, setNote] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [scoreData, setScoreData] = useState<{
@@ -61,7 +62,10 @@ const Results: React.FC = () => {
       return;
     }
     
-    const fetchQuestions = async () => {
+    // Set results state with testResult
+    setResults(testResult);
+    
+    const fetchPaperData = async () => {
       try {
         const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
         const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`);
@@ -72,16 +76,23 @@ const Results: React.FC = () => {
         
         const data = await response.json();
         
-        if (!data?.data || !Array.isArray(data.data)) {
+        if (!data?.data) {
           throw new Error('Invalid questions data received from API');
         }
         
-        setQuestions(data.data);
-        setResults(testResult);
+        // Check if data.data is an array or an object with questions
+        const questions = Array.isArray(data.data) ? data.data : data.data.questions || [];
+        setQuestions(questions);
+        // If data.data is an object, extract the note
+        // if (!Array.isArray(data.data) && data.data) {
+        //   setNote(data.note || null);
+        // } else {
+        //   setNote(null);
+        // }
 
         setScoreData({
           totalScore: testResult.totalScore || 0,
-          maxPossibleScore: testResult.maxPossibleScore || (data.data.length * CORRECT_MARKS),
+          maxPossibleScore: testResult.maxPossibleScore || (questions.length * CORRECT_MARKS),
           correctQuestions: testResult.correctQuestions || 0,
           incorrectQuestions: testResult.incorrectQuestions || 0,
           unattemptedQuestions: testResult.unattemptedQuestions || 0
@@ -94,11 +105,10 @@ const Results: React.FC = () => {
           { name: 'Unattempted', value: testResult.unattemptedQuestions || 0, color: '#94a3b8' }
         ]);
 
-        if (data.data.length > 0) {
-          const subjectPerformance = calculateSubjectPerformance(data.data, testResult.answers || {});
-          console.log('Subject performance:', subjectPerformance);
+        if (questions.length > 0) {
+          const subjectPerformance = calculateSubjectPerformance(questions, testResult.answers || {});
           setSubjectChartData(subjectPerformance);
-          saveResultsToDatabase(testResult, data.data);
+          saveResultsToDatabase(testResult, questions);
         }
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -112,18 +122,18 @@ const Results: React.FC = () => {
       }
     };
     
-    fetchQuestions();
-  }, [paperId, navigate]);
+    fetchPaperData();
+  }, [paperId, navigate]); // testResult doesn't need to be in the dependency array as it's used only once
     
 
-// Helper function to calculate subject performance
+  // Helper function to calculate subject performance
   const calculateSubjectPerformance = (questions: Question[], answers: Record<string, string>) => {
       
     if (!questions || !answers) return [];
 
     const subjectData = questions.reduce((acc: Record<string, {correct: number; incorrect: number; unattempted: number}>, q) => {
-    
-      if (!q?.subject || !q.id) return acc;
+      // Skip if question is invalid or doesn't have a subject
+      if (!q || !q.subject || !q.id) return acc;
 
       const subjectKey = q.subject.trim();
       
@@ -141,8 +151,7 @@ const Results: React.FC = () => {
         acc[subjectKey].incorrect += 1;
       }
       return acc;
-    }, {}
-  );
+    }, {});
     
     return Object.entries(subjectData).map(([subject, data]) => ({
       subject,
@@ -209,7 +218,7 @@ const Results: React.FC = () => {
   };
   
   // Loading state
-  if (isLoading || !results || !scoreData) {
+  if (isLoading || !scoreData) {
     return (
       <>
         <NavBar />
@@ -259,7 +268,7 @@ const Results: React.FC = () => {
             <div>
               <h2 className="text-2xl font-bold mb-4">JEE Mains {paperId?.replace('jee', '')}</h2>
               <p className="text-muted-foreground">
-                Completed on {new Date(results.date || '').toLocaleDateString('en-US', {
+                Completed on {new Date(results?.date || '').toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -312,7 +321,7 @@ const Results: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Time Taken</div>
-                <div className="text-xl font-semibold">{formatTime(results.timeSpent || 0)}</div>
+                <div className="text-xl font-semibold">{formatTime(results?.timeSpent || 0)}</div>
               </div>
             </div>
           </div>
@@ -360,7 +369,7 @@ const Results: React.FC = () => {
           </div>
 
           
-          <Link to={`/practice/${paperId}`}>
+          <Link to={`/papers`}>
             <Button
             onClick={() => {
               localStorage.removeItem('testResults');
@@ -391,49 +400,23 @@ const Results: React.FC = () => {
           </div>
         </div>
 
-
-        {/* <div className="glass-card rounded-xl p-6 mb-8">
-  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-    <Brain className="text-primary" size={20} />
-    Performance by Subject
-  </h2>
-  
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <div className="h-72">
-      {subjectChartData.length > 0 ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={subjectChartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="subject" />
-              <YAxis />
-              <Tooltip formatter={(value) => [`${value}%`, 'Score']} />
-              <Legend />
-              <Bar dataKey="score" name="Score (%)" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-      ) : (
-        <div className="h-full flex items-center justify-center text-muted-foreground">
-          No subject data available
-        </div>
-      )}
-    </div>
-  </div>
-</div> */}
-
         
 
         <div className="glass-card rounded-xl p-6">
           <h2 className="text-xl font-bold mb-6">Question Analysis</h2>
+          {/* <h3 className="text-l font-semibold mb-4">Note</h3>
+          {note ? (
+            <div className="text-sm text-muted-foreground">{note}</div>
+          ) : (
+            <div className="text-sm text-muted-foreground">No note available.</div>
+          )} */}
           
           {questions.length > 0 ? (
             <div className="space-y-6">
               {questions.map((question, index) => {
                 if (!question?.id) return null;
                 
-                const answers = results.answers || {};
+                const answers = results?.answers || {};
                 const userAnswer = Number(answers[question.id]);
                 const isCorrect = userAnswer === question.correctOption;
                 const answerStatus = !userAnswer ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';

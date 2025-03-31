@@ -289,7 +289,7 @@ const Dashboard: React.FC = () => {
     }
   }, [navigate]);
   
-  const fetchUserStats = async (userId) => {
+  const fetchUserStats = async (userId: string) => {
     try {
       const response = await fetch(`/api/userstats/${userId}`);
 

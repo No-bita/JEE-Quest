@@ -110,9 +110,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   useEffect(() => {
     const loadQuestions = async () => {
       setIsLoading(true);
-      try {
-        console.log(`Loading questions for paper: ${paperId}`);
-        
+      try {        
         const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`);
         
         if (!response.ok) {

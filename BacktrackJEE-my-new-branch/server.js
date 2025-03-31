@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js"; // ✅ Import database connection
-import userstatsRouter from "./routes/userstats.js"; // ✅ Import userstats router
+
 
 // ✅ Load environment variables
 dotenv.config();
@@ -52,6 +52,7 @@ import attemptsRoutes from "./routes/attempts.js";
 import questionsRoutes from "./routes/questions.js";
 import resultsRoutes from "./routes/results.js";
 import userRoutes from "./routes/user.js";
+import userstatsRouter from "./routes/userstats.js";
 
 app.use("/api/auth", authRoutes);
 app.use("/api", attemptsRoutes);
