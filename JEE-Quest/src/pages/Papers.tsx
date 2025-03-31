@@ -246,13 +246,6 @@ const recentActivity = [
   { id: 3, type: 'Test Purchased', paper: 'JEE 2025 Session 1', date: '2 weeks ago' },
 ];
 
-const [userStats, setUserStats] = useState({
-  testsCompleted: 0,
-  averageScore: 0,
-  topSubject: 'None',
-  studyHours: 0
-});
-
 const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sessionFilter, setSessionFilter] = useState<string>('all');
@@ -267,6 +260,13 @@ const Dashboard: React.FC = () => {
   // const hasSubscription = () => {
   //   return localStorage.getItem('hasSubscription') === 'true';
   // };
+
+  const [userStats, setUserStats] = useState({
+    testsCompleted: 0,
+    averageScore: 0,
+    topSubject: 'None',
+    studyHours: 0
+  });
   
   useEffect(() => {
     // Check login status from localStorage
