@@ -48,13 +48,38 @@ router.get('/:userId', async (req, res) => {
     // Determine top subject
     // First, fetch paper details to get subject information
     const paperIds = [...new Set(userTests.map(test => test.paperId))];
-    const paperObjectIds = paperIds.map(id => 
-      typeof id === 'string' ? new ObjectId(id) : id
-    );
     
-    const papers = await database.collection('papers')
-      .find({ _id: { $in: paperObjectIds } })
+    const mappings = await database.collection('mappings')
+      .find({ paperId: { $in: paperIds } })
       .toArray();
+
+    const papers = [];
+
+    for (const mapping of mappings) {
+      const paperId = mapping.paperId;
+      const collectionName = mapping.collectionName;
+  
+      if (!collectionName) {
+        console.error('Collection name not found in mapping:', mapping);
+        continue;
+      }
+      
+      try {
+        // Query the specific collection for this paper
+        const paperData = await database.collection(collectionName)
+          .findOne({ _id: paperId });
+        
+        if (paperData) {
+          papers.push({
+            _id: paperId,
+            subject: paperData.subject || 'Unknown'
+          });
+        }
+      } catch (error) {
+        console.error(`Error querying collection ${collectionName}:`, error);
+      }
+    }
+    
     
     // Create a map of paperId to subject
     const paperSubjects = {};

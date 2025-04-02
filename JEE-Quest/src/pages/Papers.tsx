@@ -18,18 +18,90 @@ const mockPapers = [
     id: 'jee2025-1',
     year: 2025,
     session: 'Session 1',
-    shift: '',
-    date: 'To be added soon',
-    questionCount: 90,
+    shift: 'Morning Shift',
+    date: 'Jan 22, 2025',
+    questionCount: 75,
     duration: 180,
   },
   {
     id: 'jee2025-2',
     year: 2025,
     session: 'Session 1',
-    shift: '',
-    date: 'To be added soon',
-    questionCount: 90,
+    shift: 'Evening Shift',
+    date: 'Jan 22, 2025',
+    questionCount: 75,
+    duration: 180,
+  },
+  {
+    id: 'jee2025-3',
+    year: 2025,
+    session: 'Session 1',
+    shift: 'Morning Shift',
+    date: 'Jan 23, 2025',
+    questionCount: 75,
+    duration: 180,
+  },
+  {
+    id: 'jee2025-4',
+    year: 2025,
+    session: 'Session 1',
+    shift: 'Evening Shift',
+    date: 'Jan 23, 2025',
+    questionCount: 75,
+    duration: 180,
+  },
+  {
+    id: 'jee2025-5',
+    year: 2025,
+    session: 'Session 1',
+    shift: 'Morning Shift',
+    date: 'Jan 24, 2025',
+    questionCount: 75,
+    duration: 180,
+  },
+  {
+    id: 'jee2025-6',
+    year: 2025,
+    session: 'Session 1',
+    shift: 'Evening Shift',
+    date: 'Jan 24, 2025',
+    questionCount: 75,
+    duration: 180,
+  },
+  {
+    id: 'jee2025-7',
+    year: 2025,
+    session: 'Session 1',
+    shift: 'Morning Shift',
+    date: 'Jan 28, 2025',
+    questionCount: 75,
+    duration: 180,
+  },
+  {
+    id: 'jee2025-8',
+    year: 2025,
+    session: 'Session 1',
+    shift: 'Evening Shift',
+    date: 'Jan 28, 2025',
+    questionCount: 75,
+    duration: 180,
+  },
+  {
+    id: 'jee2025-9',
+    year: 2025,
+    session: 'Session 1',
+    shift: 'Morning Shift',
+    date: 'Jan 29, 2025',
+    questionCount: 75,
+    duration: 180,
+  },
+  {
+    id: 'jee2025-10',
+    year: 2025,
+    session: 'Session 1',
+    shift: 'Evening Shift',
+    date: 'Jan 29, 2025',
+    questionCount: 75,
     duration: 180,
   },
   {
@@ -248,11 +320,8 @@ const recentActivity = [
 
 const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [sessionFilter, setSessionFilter] = useState<string>('all');
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [sessionFilter, setSessionFilter] = useState<string>('all');  
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [currentPaperId, setCurrentPaperId] = useState<string>('');
-  const [paperQuestions, setPaperQuestions] = useState<Question[]>([]);
   const [userName, setUserName] = useState<string>('User');
   const navigate = useNavigate();
   
@@ -268,6 +337,24 @@ const Dashboard: React.FC = () => {
     studyHours: 0
   });
   
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const fetchUserStats = async (userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/userstats/${userId}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user stats');
+      }
+
+      const stats = await response.json();
+      setUserStats(stats);
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+      toast.error('Failed to load your stats');
+    }
+  }
+
   useEffect(() => {
     // Check login status from localStorage
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -289,21 +376,6 @@ const Dashboard: React.FC = () => {
     }
   }, [navigate]);
   
-  const fetchUserStats = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/userstats/${userId}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user stats');
-      }
-
-      const stats = await response.json();
-      setUserStats(stats);
-    } catch (error) {
-      console.error('Failed to load stats:', error);
-      toast.error('Failed to load your stats');
-    }
-  }
 
   // Filter papers based on search query and filters
   const filteredPapers = mockPapers.filter(paper => {
