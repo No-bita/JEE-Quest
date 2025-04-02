@@ -1,0 +1,1034 @@
+[
+    {
+        "paperId": "jee2024-6",
+        "year": 2024,
+        "session": "Session 1",
+        "shift": "Evening Shift",
+        "date": "Jan 30, 2024",
+        "questionCount": 90,
+        "duration": 180,
+        "note": "Q.17, Q.50, Q.59 - BONUS; Q.36 - 1 & 3",
+        "questions": [
+            {
+                "id": 1,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q1.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 2,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q2.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 3,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q3.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 4,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q4.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 5, 
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q5.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 6,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q6.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 7,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q7.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 8,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q8.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 9,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q9.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 10,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q10.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 11,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q11.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 12,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q12.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 13,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q13.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 14,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q14.png",
+                "subject": "Mathematics"
+            },    
+            {
+                "id": 15,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q15.png",
+                "subject": "Mathematics"
+            },    
+            {
+                "id": 16,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q16.png",
+                "subject": "Mathematics"
+            },    
+            {
+                "id": 17,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q17.png",
+                "subject": "Mathematics"
+            },    
+            {
+                "id": 18,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q18.png",
+                "subject": "Mathematics"
+            },    
+            {
+                "id": 19,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q19.png",
+                "subject": "Mathematics"
+            },    
+            {
+                "id": 20,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q20.png",
+                "subject": "Mathematics"
+            },    
+            {
+                "id": 21,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 20,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q21.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 22,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 196,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q22.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 23,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 1575,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q23.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 24,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 10,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q24.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 25,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 9,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q25.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 26,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 11376,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q26.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 27,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 960,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q27.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 28,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q28.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 29,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 5,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q29.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 30,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 29,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q30.png",
+                "subject": "Mathematics"
+            },
+            {
+                "id": 31,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q31.png",
+                "subject": "Physics"
+            },     
+            {
+                "id": 32,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q32.png",
+                "subject": "Physics"
+            },     
+            {
+                "id": 33,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q33.png",
+                "subject": "Physics"
+            },     
+            {
+                "id": 34,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q34.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 35,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q35.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 36,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q36.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 37,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q37.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 38,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q38.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 39,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q39.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 40,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q40.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 41,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q41.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 42,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q42.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 43,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q43.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 44,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q44.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 45,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q45.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 46,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q46.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 47,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q47.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 48,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q48.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 49,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q49.png",
+                "subject": "Physics"
+            }, 
+            {
+                "id": 50,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q50.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 51,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 45,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q51.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 52,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 10,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q52.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 53,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 24,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q53.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 54,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 20,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q54.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 55,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q55.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 56,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 40,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q56.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 57,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q57.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 58,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 8,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q58.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 59,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 0,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q59.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 60,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 200,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q60.png",
+                "subject": "Physics"
+            },
+            {
+                "id": 61,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q61.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 62,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q62.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 63,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q63.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 64,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q64.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 65,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q65.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 66,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q66.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 67,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q67.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 68,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q68.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 69,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q69.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 70,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q70.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 71,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q71.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 72,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q72.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 73,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q73.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 74,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q74.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 75,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q75.png",
+                "subject": "Chemistry"
+            },    
+            {
+                "id": 76,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q76.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 77,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q77.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 78,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 1,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q78.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 79,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q79.png",
+                "subject": "Chemistry"
+            },     
+            {
+                "id": 80,
+                "type": "MCQ",
+                "options": [
+                  { "id": 1},
+                  { "id": 2},
+                  { "id": 3},
+                  { "id": 4}
+                ],
+                "correctOption": 2,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q80.png",
+                "subject": "Chemistry"
+            }, 
+            {
+                "id": 81,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q81.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 82,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 17,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q82.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 83,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 492,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q83.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 84,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 3,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q84.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 85,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 100,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q85.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 86,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q86.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 87,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 6,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q87.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 88,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 4,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q88.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 89,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 6,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q89.png",
+                "subject": "Chemistry"
+            },
+            {
+                "id": 90,
+                "type": "Integer",
+                "options": [],
+                "correctOption": 10,
+                "imageUrl": "https://raw.githubusercontent.com/No-bita/JEE-Quest/refs/heads/master/BacktrackJEE-my-new-branch/output/Jan_30_Shift_2/q90.png",
+                "subject": "Chemistry"
+            }
+        ]
+    }
+]
