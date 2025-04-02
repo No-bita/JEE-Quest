@@ -12,7 +12,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const jsonFilePath = path.resolve(__dirname, "JEE Mains/2025_Jan_22_Shift_1.json");
+const jsonFilePath = path.resolve(__dirname, "JEE Mains/2025_Jan_23_Shift_1.json");
 const collectionName = path.basename(jsonFilePath, ".json");
 
 // ✅ Fix: Use Correct MONGODB_URI with Explicit Database Name
