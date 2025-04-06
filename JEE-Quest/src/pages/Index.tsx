@@ -1,11 +1,107 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Lightbulb, BarChart3, Linkedin } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
+
+const MockPaper: React.FC = () => {
+  // Sample mock questions
+  const questions = [
+    {
+      id: 1,
+      question: 'What is the value of sin(45°) + cos(45°)?',
+      options: ['1', '√2', '√3', '2'],
+      correctAnswer: '√2',
+    },
+    {
+      id: 2,
+      question: 'If x² - 5x + 6 = 0, what are the roots of the equation?',
+      options: ['2 and 3', '-2 and -3', '5 and -1', 'None of these'],
+      correctAnswer: '2 and 3',
+    },
+    {
+      id: 3,
+      question: 'What is the derivative of e^x?',
+      options: ['e^x', 'x * e^(x-1)', 'ln(x)', 'None of these'],
+      correctAnswer: 'e^x',
+    },
+    {
+      id: 4,
+      question: 'What is the value of ∫(0 to π) sin(x) dx?',
+      options: ['0', '1', '-1', '2'],
+      correctAnswer: '2',
+    },
+  ];
+
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState('');
+  const [score, setScore] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+
+  const handleOptionSelect = (option: string) => {
+    setSelectedOption(option);
+  };
+
+  const handleNextQuestion = () => {
+    if (selectedOption === questions[currentQuestionIndex].correctAnswer) {
+      setScore(score + 1);
+    }
+    setSelectedOption('');
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      setShowResults(true);
+    }
+  };
+
+  return (
+    <div className="container max-w-4xl mx-auto px-4 py-10">
+      {!showResults ? (
+        <div className="mock-paper">
+          <h2 className="text-2xl font-bold mb-4">
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </h2>
+          <p className="text-lg mb-6">{questions[currentQuestionIndex].question}</p>
+          <div className="options grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            {questions[currentQuestionIndex].options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleOptionSelect(option)}
+                className={`p-4 border rounded-md ${
+                  selectedOption === option ? 'bg-primary text-white' : ''
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+          <Button
+            size="lg"
+            onClick={handleNextQuestion}
+            disabled={!selectedOption}
+            className="gap-2"
+          >
+            Next Question
+            <ArrowRight size={16} />
+          </Button>
+        </div>
+      ) : (
+        <div className="results text-center">
+          <h2 className="text-3xl font-bold mb-4">Your Results</h2>
+          <p className="text-lg">
+            You scored {score} out of {questions.length}.
+          </p>
+          <Button size="lg" onClick={() => window.location.reload()} className="mt-6 gap-2">
+            Try Again
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
@@ -18,14 +114,16 @@ const Index: React.FC = () => {
     { label: 'Students Helped', value: '10k+' },
   ];
   
+  const [showMockPaper, setShowMockPaper] = useState(false);
+
   const handleNavigate = (path: string) => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (path === '/papers' && !isLoggedIn) {
       toast.info("Please sign in to browse papers");
       navigate('/signin');
     } else if (path === '/practice') {
-      // Navigate to sample paper
-      navigate('/practice/jee2022-1');
+      // Show mock paper instead of navigating
+      setShowMockPaper(true);
     } else {
       navigate(path);
     }
@@ -34,6 +132,7 @@ const Index: React.FC = () => {
   return (
     <>
       <NavBar />
+      {!showMockPaper ? (
       <main>
         <Hero />
         
@@ -133,7 +232,7 @@ const Index: React.FC = () => {
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
               Start practicing with our comprehensive collection of past papers and take your preparation to the next level.
             </p>
-            <Button size="lg" className="gap-2" onClick={() => handleNavigate('/papers')}>
+            <Button size="lg" className="gap-2" onClick={() => handleNavigate('/practice')}>
               Get Started Now
               <ArrowRight size={16} />
             </Button>
@@ -161,6 +260,10 @@ const Index: React.FC = () => {
           </div>
         </section>
       </main>
+      ) : (
+        // Render Mock Paper Component
+        <MockPaper />
+      )}
     </>
   );
 };
