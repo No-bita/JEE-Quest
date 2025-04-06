@@ -26,7 +26,7 @@ const Practice: React.FC = () => {
     
     // If no paperId is provided, redirect to sample paper
     if (!paperId) {
-      navigate('/practice/jee2022-1');
+      navigate('/practice/');
       return;
     }
     

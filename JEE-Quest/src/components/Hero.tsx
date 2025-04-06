@@ -11,7 +11,7 @@ const Hero: React.FC = () => {
   
   const handlePracticeClick = () => {
     // Navigate to a sample paper to show how the exam interface looks
-    navigate('/practice/jee2022-1');
+    navigate('/practice');
   };
   
   const handleBrowsePapers = () => {
