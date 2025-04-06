@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 
 // Define API types for better type safety
 interface LoginResponse {
-token?: string;
+  token?: string;
   user?: {
     id: string;
     name: string;
@@ -45,7 +45,6 @@ const loginUser = async (email: string, password: string): Promise<LoginResponse
   }
 };
 
-
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -53,9 +52,22 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// Witty loading messages
+const loadingMessages = [
+  "Brewing your digital identity...",
+  "Convincing the server you're awesome...",
+  "Patience is a virtue. Loading is a necessity.",
+  "Warming up the welcome committee...",
+  "Time flies when you're watching loading spinners...",
+  "Making digital magic happen...",
+  "Your request is important to us. No, really!",
+  "Connecting the dots and crossing the t's...",
+];
+
 const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -67,6 +79,8 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
+    // Set a random witty message
+    setLoadingMessage(loadingMessages[Math.floor(Math.random() * loadingMessages.length)]);
     
     try {
       const response = await loginUser(values.email, values.password);
@@ -91,7 +105,6 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
           localStorage.setItem('isAdmin', 'false');
         }
         
-
         navigate("/papers");   
       } else {
         toast.error(response.error || 'Failed to sign in. Please check your credentials.');
@@ -153,7 +166,7 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                   {isLoading ? (
                     <span className="flex items-center justify-center">
                       <span className="animate-spin mr-2 h-4 w-4 border-b-2 border-white rounded-full" />
-                      Signing In...
+                      <span>{loadingMessage}</span>
                     </span>
                   ) : (
                     'Sign In'
@@ -163,13 +176,6 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
             </Form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
-            {process.env.NODE_ENV !== 'production' && (
-              <div className="text-sm text-center text-muted-foreground">
-                <div>Demo credentials:</div>
-                <div>Admin: admin@example.com / admin123</div>
-                <div>User: user@example.com / user123</div>
-              </div>
-            )}
             <div className="text-sm text-center">
               Don't have an account?{' '}
               <Link to="/register" className="text-primary hover:underline">
