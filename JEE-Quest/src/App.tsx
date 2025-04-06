@@ -49,7 +49,7 @@ const App = () => {
             
             {/* Protected routes - redirect to landing if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
-            <Route path="/practice/:paperId?" element={<Practice />} />
+            {/* <Route path="/practice/:paperId?" element={<Practice />} /> */}
             <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/signin" />} />
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
             
