@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Lightbulb, BarChart3, Linkedin } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
 
+// Separate MockPaper component (unchanged)
 const MockPaper: React.FC = () => {
   // Sample mock questions
   const questions = [
@@ -103,7 +103,8 @@ const MockPaper: React.FC = () => {
   );
 };
 
-const Index: React.FC = () => {
+// Home page component (the main content from the original Index component)
+const HomePage: React.FC = () => {
   const navigate = useNavigate();
   
   // Sample stats
@@ -113,26 +114,20 @@ const Index: React.FC = () => {
     { label: 'Detailed Solutions', value: '100%' },
     { label: 'Students Helped', value: '10k+' },
   ];
-  
-  const [showMockPaper, setShowMockPaper] = useState(false);
 
   const handleNavigate = (path: string) => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (path === '/papers' && !isLoggedIn) {
       toast.info("Please sign in to browse papers");
       navigate('/signin');
-    } else if (path === '/practice') {
-      // Show mock paper instead of navigating
-      setShowMockPaper(true);
     } else {
+      // Always use navigate for proper routing
       navigate(path);
     }
   };
 
   return (
     <>
-      <NavBar />
-      {!showMockPaper ? (
       <main>
         <Hero />
         
@@ -260,10 +255,20 @@ const Index: React.FC = () => {
           </div>
         </section>
       </main>
-      ) : (
-        // Render Mock Paper Component
-        <MockPaper />
-      )}
+    </>
+  );
+};
+
+// Main Index component with routing setup
+const Index: React.FC = () => {
+  return (
+    <>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/practice" element={<MockPaper />} />
+        {/* Add other routes as needed */}
+      </Routes>
     </>
   );
 };
