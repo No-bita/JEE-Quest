@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://jee-quest.vercel.app/sitemap.xml

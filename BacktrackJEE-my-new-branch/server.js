@@ -1,8 +1,10 @@
 import express from "express";
-import mongoose from "mongoose";
+// import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js"; // ✅ Import database connection
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
 // ✅ Load environment variables
@@ -32,10 +34,13 @@ app.use(cors({
     credentials: true,
 }));
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ✅ Security headers
 app.use((req, res, next) => {
@@ -61,10 +66,15 @@ app.use("/api/results", resultsRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/userstats", userstatsRouter);
 
-// ✅ Test Route
-app.get("/api/test", (req, res) => {
-    res.json({ message: "Hello from the server!" });
-});
+// Serve robots.txt and sitemap.xml
+app.get('/robots.txt', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+  });
+  
+  app.get('/sitemap.xml', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+  });
+  
 
 // ✅ Error Handling Middleware
 app.use((err, req, res, next) => {
