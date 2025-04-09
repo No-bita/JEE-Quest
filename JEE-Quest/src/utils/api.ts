@@ -317,14 +317,6 @@ export const userApi = {
     return await api.put('/user/profile', profileData);
   },
   
-  getFreeTestsRemaining: async () => {
-    return await api.get('/user/free-tests-remaining');
-  },
-  
-  getPurchasedPapers: async () => {
-    return await api.get('/user/purchased-papers');
-  },
-  
   changePassword: async (currentPassword: string, newPassword: string) => {
     return await api.put('/user/change-password', { currentPassword, newPassword });
   }

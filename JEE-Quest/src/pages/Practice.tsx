@@ -42,48 +42,7 @@ const Practice: React.FC = () => {
         }
         
         setHasAccess(true);
-        // const userResponse = await userApi.getUserProfile();
         
-        // if (!userResponse.success) {
-        //   toast.error("Failed to load user information");
-        //   navigate('/signin');
-        //   return;
-        // }
-        
-        // // TypeScript narrowing: We know response is successful at this point
-        // // so we can safely access the data property
-        // const paperData = paperResponse.success ? paperResponse.data : null;
-        
-        // if (!paperData) {
-        //   toast.error("Failed to load paper data");
-        //   navigate('/papers');
-        //   return;
-        // }
-        
-        // const userProfile = userResponse.success ? userResponse.data : null;
-        
-        // if (!userProfile) {
-        //   toast.error("Failed to load user profile");
-        //   navigate('/signin');
-        //   return;
-        // }
-        
-        // const { subscription, purchasedPapers, freeTestsRemaining } = userProfile;
-        
-        // if (
-        //   subscription?.active || 
-        //   paperData.isFree || 
-        //   freeTestsRemaining > 0
-        // ) {
-        //   setHasAccess(true);
-        // } else {
-        //   if (freeTestsRemaining <= 0) {
-        //     toast.error("You've used your free test. Please purchase to continue.");
-        //   } else {
-        //     toast.error("You need to purchase this paper to access it");
-        //   }
-        //   navigate(`/pricing?paperId=${paperId}&title=${paperData.title}`);
-        // }
       } catch (error) {
         console.error("Error checking access:", error);
         toast.error("Failed to check access permissions");

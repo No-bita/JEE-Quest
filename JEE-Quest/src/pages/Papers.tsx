@@ -455,12 +455,6 @@ interface Question {
   subject: string;
 }
 
-// Mock recent activity data
-const recentActivity = [
-  { id: 1, type: 'Test Completed', paper: 'JEE 2023 Session 1', score: '78/100', date: '2 days ago' },
-  { id: 2, type: 'Test Started', paper: 'JEE 2024 Session 1', progress: '45%', date: '1 week ago' },
-  { id: 3, type: 'Test Purchased', paper: 'JEE 2025 Session 1', date: '2 weeks ago' },
-];
 
 const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -553,7 +547,7 @@ const Dashboard: React.FC = () => {
   const isPaperPremium = (paperId: string) => {
     // For demo purposes, let's make 2025 and 2024 papers premium, others free
     const year = parseInt(paperId.split('-')[0].replace('jee', ''));
-    return year >= 2024;
+    return year >= 2021;
   };
   
 
@@ -725,34 +719,6 @@ const Dashboard: React.FC = () => {
                 ))}
               </Tabs>
             )}
-          </CardContent>
-        </Card>
-        
-        {/* Recent Activity */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <History className="h-5 w-5 mr-2" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableBody>
-                {recentActivity.map(activity => (
-                  <TableRow key={activity.id}>
-                    <TableCell>
-                      <div className="font-medium">{activity.type}</div>
-                      <div className="text-sm text-muted-foreground">{activity.paper}</div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div>{activity.score || activity.progress || ''}</div>
-                      <div className="text-sm text-muted-foreground">{activity.date}</div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
           </CardContent>
         </Card>
       </div>

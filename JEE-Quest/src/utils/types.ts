@@ -68,7 +68,4 @@ export interface UserProfile {
   name: string;
   email: string;
   subscription?: UserSubscription;
-  purchasedPapers: PaperPurchase[];
-  freeTestsUsed: number;
-  freeTestsRemaining: number;
 }
