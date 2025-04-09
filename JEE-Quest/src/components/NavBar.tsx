@@ -51,9 +51,7 @@ const NavBar: React.FC = () => {
   };
 
   const handleSignOutClick = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('isAdmin');
-    localStorage.removeItem('userEmail');
+    localStorage.clear();
     
     // Dispatch storage event to notify components
     window.dispatchEvent(new Event('storage'));

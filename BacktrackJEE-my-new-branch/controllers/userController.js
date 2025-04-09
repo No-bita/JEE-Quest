@@ -8,9 +8,9 @@ dotenv.config(); // Load environment variables
 // ✅ Generate JWT Token
 const generateToken = (user) => {
     return jwt.sign(
-        { id: user._id, email: user.email, role: user.role },
+        { id: user._id, email: user.email, role: user.role, paid: user.paid },
         process.env.JWT_SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "4h" }
     );
 };
 
@@ -48,7 +48,8 @@ const userController = {
                     id: user._id,
                     name: user.name,
                     email: user.email,
-                    role: user.role
+                    role: user.role,
+                    paid: user.paid
                 }
             });
         } catch (error) {

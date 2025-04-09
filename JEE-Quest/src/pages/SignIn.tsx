@@ -18,6 +18,7 @@ interface LoginResponse {
     name: string;
     email: string;
     role: string;
+    paid: boolean;
   };
   error?: string;
 }
@@ -103,6 +104,12 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
         } else {
           toast.success('Logged in successfully');
           localStorage.setItem('isAdmin', 'false');
+        }
+
+        if (response.user.paid) {
+          localStorage.setItem('hasSubscription', 'true');
+        } else {
+          localStorage.setItem('hasSubscription', 'false');
         }
         
         navigate("/papers");   
