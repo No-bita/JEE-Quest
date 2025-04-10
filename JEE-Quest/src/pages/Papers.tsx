@@ -730,7 +730,7 @@ const Dashboard: React.FC = () => {
       {/* Add the Banner component */}
       <Banner 
         text="🚀 We’re Hiring a Growth Intern! Click to Apply 🚀" 
-        linkUrl="https://forms.gle/your-google-form-link"
+        linkUrl="https://forms.gle/fKCit1Kih2wbZGu9A"
       />
     </>
   );
