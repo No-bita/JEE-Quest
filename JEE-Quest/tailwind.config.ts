@@ -92,6 +92,10 @@ export default {
 						height: '0'
 					}
 				},
+				marquee: { // Add marquee keyframe
+					from: { transform: "translateX(100%)" }, // Start off-screen to the right
+					to: { transform: "translateX(-100%)" }, // End off-screen to the left
+				},
 				'fade-in': {
 					from: {
 						opacity: '0'
@@ -135,7 +139,8 @@ export default {
 				'fade-in': 'fade-in 0.5s ease-out',
 				'fade-out': 'fade-out 0.5s ease-out',
 				'slide-up': 'slide-up 0.5s ease-out',
-				'scale-in': 'scale-in 0.3s ease-out'
+				'scale-in': 'scale-in 0.3s ease-out',
+				marquee: 'marquee 10s linear infinite',
 			}
 		}
 	},
