@@ -140,7 +140,7 @@ export default {
 				'fade-out': 'fade-out 0.5s ease-out',
 				'slide-up': 'slide-up 0.5s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
-				marquee: 'marquee 10s linear infinite',
+				marquee: 'marquee 30s linear infinite',
 			}
 		}
 	},
