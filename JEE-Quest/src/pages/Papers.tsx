@@ -10,8 +10,10 @@ import { Search, CalendarRange, LogIn, BarChart2, BookOpen, History, Trophy } fr
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@radix-ui/react-tooltip';
+import clsx from 'clsx';
 
-
+const cn = clsx;
 
 // Mock papers data
 const mockPapers = [
@@ -430,19 +432,19 @@ const mockPapers = [
   {
     id: 'jee2020-1',
     year: 2020,
-    session: 'Session 1',
+    session: 'Session 2',
     shift: 'Shift 1',
-    date: 'To be added',
-    questionCount: 90,
+    date: 'Sept 06, 2020',
+    questionCount: 75,
     duration: 180,
   },
   {
     id: 'jee2020-2',
     year: 2020,
-    session: 'Session 1',
+    session: 'Session 2',
     shift: 'Shift 2',
-    date: 'To be added',
-    questionCount: 90,
+    date: 'Sept 02, 2020',
+    questionCount: 75,
     duration: 180,
   },
 ];
@@ -546,7 +548,6 @@ const Dashboard: React.FC = () => {
   
   
   const isPaperPremium = (paperId: string) => {
-    // For demo purposes, let's make 2025 and 2024 papers premium, others free
     const year = parseInt(paperId.split('-')[0].replace('jee', ''));
     return year >= 2021;
   };
@@ -691,13 +692,31 @@ const Dashboard: React.FC = () => {
             ) : (
               // Show papers organized by year in tabs
               <Tabs defaultValue={years[0]} className="w-full">
-                <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6">
-                  {years.map(year => (
-                    <TabsTrigger key={year} value={year}>
-                      {year}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+              <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6">
+                {years.map((year) => (
+                  <Tooltip key={year}>
+                    <TooltipTrigger asChild>
+                      <TabsTrigger
+                        key={year}
+                        value={year}
+                        className={cn(
+                          "text-sm font-medium rounded-md px-4 py-2 transition-all",
+                          year === "2020" // Highlight 2020 tab
+                            ? "bg-blue-100 text-blue-600 border border-blue-500 shadow-md animate-pulse"
+                            : "hover:bg-gray-100 hover:text-gray-800"
+                        )}
+                      >
+                        {year}
+                      </TabsTrigger>
+                    </TooltipTrigger>
+                    {year === "2020" && (
+                      <TooltipContent side="top">
+                        <p className="text-xs font-medium">Take a free test for 2020!</p>
+                      </TooltipContent>
+                    )}
+                    </Tooltip>
+                ))}
+              </TabsList>
                 
                 {years.map(year => (
                   <TabsContent key={year} value={year}>
