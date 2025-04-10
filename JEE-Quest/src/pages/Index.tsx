@@ -6,7 +6,7 @@ import { useNavigate, Routes, Route } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
 
-// Separate MockPaper component (unchanged)
+// Separate MockPaper component
 const MockPaper: React.FC = () => {
   // Sample mock questions
   const questions = [
