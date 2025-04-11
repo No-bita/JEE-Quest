@@ -1,18 +1,28 @@
+import React, { useState } from "react";
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
-import { Check, CreditCard, Package, Lock, Info } from 'lucide-react';
-
+import { Check, CreditCard, Package, Lock } from 'lucide-react';
+import PaymentModal from "@/components/PaymentModal";
 
 const Pricing: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const paperId = searchParams.get('paperId');
   const paperTitle = searchParams.get('title') || 'JEE Papers';
-  
-  localStorage.setItem('hasSubscription', 'true');
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
   
+  const handlePayNowClick = (type: "single" | "subscription") => {
+    if (type === "single") {
+      setQrCodeUrl("/images/GooglePay_QR.png");
+    } else {
+      setQrCodeUrl("/images/GooglePay_QR.png");
+    }
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       <NavBar />
@@ -65,8 +75,16 @@ const Pricing: React.FC = () => {
                   <span>Performance tracking for this paper</span>
                 </div>
               </div>
+
+              <Button 
+                variant="default" 
+                className="w-full"
+                onClick={() => handlePayNowClick("single")}
+              >
+                Pay Now
+              </Button>
             </div>
-            
+
             {/* Subscription Plan */}
             <div className="glass-card p-8 rounded-xl border-2 border-primary hover:shadow-lg transition-all relative">
               <div className="absolute -top-4 -right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
@@ -112,6 +130,14 @@ const Pricing: React.FC = () => {
                   <span>Access to all future papers as they're added</span>
                 </div>
               </div>
+
+              <Button 
+                variant="default" 
+                className="w-full"
+                onClick={() => handlePayNowClick("subscription")}
+              >
+                Pay Now
+              </Button>
             </div>
           </div>
           
@@ -125,6 +151,12 @@ const Pricing: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <PaymentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        qrCodeUrl={qrCodeUrl}
+      />
     </>
   );
 };
