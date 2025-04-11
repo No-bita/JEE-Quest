@@ -24,7 +24,6 @@ interface LoginResponse {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const [showPassword, setShowPassword] = useState(false);
 
 const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   try {
@@ -152,7 +151,6 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="password"
@@ -160,20 +158,7 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <Input 
-                            type={showPassword ? "text" : "password"} 
-                            placeholder="••••••••"
-                            {...field} 
-                          />
-                          <button
-                            type="button"
-                            className="absolute inset-y-0 right-0 px-3 text-gray-500"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? 'Hide' : 'Show'}
-                          </button>
-                        </div>
+                        <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
