@@ -46,20 +46,20 @@ const App = () => {
           <Routes>
             {/* Redirect from landing page to dashboard if logged in */}
             <Route path="/" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
-            
+
             {/* Protected routes - redirect to landing if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
-            <Route path="/practice/:paperId?" element={<Practice />} />
             <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/signin" />} />
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
-            
+
+            {/* Public routes */}
+            <Route path="/practice/:paperId?" element={<Practice />} /> {/* Allow public access */}
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="*" element={<NotFound />} />
+
             {/* Auth routes - redirect to dashboard if already logged in */}
             <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/papers" /> : <Register />} />
-            
-            {/* Public routes */}
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
         <Analytics />
