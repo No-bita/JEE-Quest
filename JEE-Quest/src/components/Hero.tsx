@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, BookOpen, Clock, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,7 @@ const Hero: React.FC = () => {
   const navigate = useNavigate();
   
   const handlePracticeClick = () => {
-    navigate('/practice/:jee2020-1');
+    navigate('/practice/jee2020-1');
   };
   
   const handleBrowsePapers = () => {

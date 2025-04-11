@@ -10,13 +10,10 @@ import { Analytics } from "@vercel/analytics/react"
 // Import pages
 import Index from "./pages/Index";
 import Dashboard from "./pages/Papers";
-import Practice from "./pages/Practice";
-import Analysis from "./pages/Analysis";
 import SignIn from "./pages/SignIn";
 import Register from "./pages/Register";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
-import Results from "./pages/Results";
 
 const queryClient = new QueryClient();
 
