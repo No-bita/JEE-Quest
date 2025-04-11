@@ -10,7 +10,7 @@ const Hero: React.FC = () => {
   const navigate = useNavigate();
   
   const handlePracticeClick = () => {
-    navigate('/practice/jee2020-1');
+    navigate('/papers/jee2020-2/questions');
   };
   
   const handleBrowsePapers = () => {

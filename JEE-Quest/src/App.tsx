@@ -17,6 +17,7 @@ import Register from "./pages/Register";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 import Results from "./pages/Results";
+import PracticeInterface from "./components/PracticeInterface";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +54,7 @@ const App = () => {
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
 
             {/* Public routes */}
-            <Route path="/practice/:paperId?" element={<Practice />} /> {/* Allow public access */}
+            <Route path="/papers/:paperId/questions" element={<Practice />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="*" element={<NotFound />} />
 
