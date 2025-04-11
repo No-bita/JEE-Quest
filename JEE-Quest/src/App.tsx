@@ -10,10 +10,13 @@ import { Analytics } from "@vercel/analytics/react"
 // Import pages
 import Index from "./pages/Index";
 import Dashboard from "./pages/Papers";
+import Practice from "./pages/Practice";
+import Analysis from "./pages/Analysis";
 import SignIn from "./pages/SignIn";
 import Register from "./pages/Register";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
+import Results from "./pages/Results";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +49,9 @@ const App = () => {
             
             {/* Protected routes - redirect to landing if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
+            <Route path="/practice/:paperId?" element={<Practice />} />
+            <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/signin" />} />
+            <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
             
             {/* Auth routes - redirect to dashboard if already logged in */}
             <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn setIsLoggedIn={setIsLoggedIn} />} />
