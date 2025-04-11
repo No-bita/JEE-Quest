@@ -10,8 +10,7 @@ const Hero: React.FC = () => {
   const navigate = useNavigate();
   
   const handlePracticeClick = () => {
-    // Navigate to a sample paper to show how the exam interface looks
-    navigate('/practice');
+    navigate('/practice/:jee2020-1');
   };
   
   const handleBrowsePapers = () => {

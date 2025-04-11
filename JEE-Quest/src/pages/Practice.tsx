@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import PracticeInterface from '@/components/PracticeInterface';
 import { toast } from 'sonner';
-import { FREE_TEST_LIMIT } from '@/utils/types';
 import { papersApi } from '@/utils/api';
 
 const Practice: React.FC = () => {
@@ -23,12 +22,7 @@ const Practice: React.FC = () => {
       navigate('/signin');
       return;
     }
-    
-    // If no paperId is provided, redirect to sample paper
-    if (!paperId) {
-      navigate('/practice/');
-      return;
-    }
+
     
     // Check if user has access to this paper
     const checkAccess = async () => {
