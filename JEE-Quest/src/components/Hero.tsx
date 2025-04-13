@@ -36,16 +36,17 @@ const Hero: React.FC = () => {
           
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 animate-fade-in">
             Master JEE Mains with 
-            <span className="text-primary ml-2">Past Papers</span>
+            <br />
+            <span className="text-primary">Past Papers</span>
           </h1>
+
           
           <p className="text-lg md:text-xl text-muted-foreground mb-8 animate-fade-in delay-75">
-            Comprehensive collection of JEE Mains past year papers with detailed solutions and 
-            advanced practice tools to help you excel in your exams.
+            Access JEE Mains PYQs with detailed solutions and smart AI tools for effective exam preparation.
           </p>
           
           <p className="text-sm text-primary italic mb-8 animate-fade-in delay-75">
-            By IITians who've been in your shoes, for aspiring IITians like you
+            Crafted by IITians, for future IITians
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in delay-100">
@@ -76,7 +77,7 @@ const Hero: React.FC = () => {
             </div>
             <h3 className="font-semibold text-lg mb-2">Complete Library</h3>
             <p className="text-sm text-muted-foreground">
-              Access all JEE Mains papers from 2020-2025, organized by year and shift.
+              Access JEE Mains papers (2020-2025), sorted by year and shift for easy navigation.
             </p>
           </div>
           
@@ -88,7 +89,7 @@ const Hero: React.FC = () => {
             </div>
             <h3 className="font-semibold text-lg mb-2">Detailed Solutions</h3>
             <p className="text-sm text-muted-foreground">
-              Step-by-step explanations for every question to build deep understanding.
+              Step-by-step answers to every question for better understanding and exam readiness.
             </p>
           </div>
           
@@ -100,7 +101,7 @@ const Hero: React.FC = () => {
             </div>
             <h3 className="font-semibold text-lg mb-2">Timed Practice</h3>
             <p className="text-sm text-muted-foreground">
-              Simulate real exam conditions with our timed practice mode and analytics.
+              Simulate real exam conditions with timed practice and performance analytics.
             </p>
           </div>
         </div>

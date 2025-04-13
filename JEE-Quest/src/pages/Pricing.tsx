@@ -103,7 +103,7 @@ const Pricing: React.FC = () => {
               
               <div className="mb-6">
                 <div className="text-3xl font-bold">
-                  ₹499
+                  ₹999
                   <span className="text-sm font-normal text-muted-foreground ml-1">/ year</span>
                 </div>
               </div>

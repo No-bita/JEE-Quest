@@ -424,7 +424,7 @@ const mockPapers = [
     year: 2021,
     session: 'Session 1',
     shift: 'Shift 2',
-    date: 'Feb 25, 2021',
+    date: 'To be added',
     questionCount: 90,
     duration: 180,
   },
@@ -684,8 +684,20 @@ const Dashboard: React.FC = () => {
               <Tabs defaultValue={years[0]} className="w-full">
                 <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6">
                   {years.map(year => (
-                    <TabsTrigger key={year} value={year}>
+                    <TabsTrigger
+                      key={year}
+                      value={year}
+                      className={cn(
+                        "relative px-4 py-2 rounded-md text-center",
+                        year === "2020" ? "bg-blue-50 border border-blue-500 text-blue-600 font-bold" : ""
+                      )}
+                    >
                       {year}
+                      {year === "2020" && (
+                        <span className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-[1px] rounded-md">
+                          Free trial
+                        </span>
+                      )}
                     </TabsTrigger>
                   ))}
                 </TabsList>

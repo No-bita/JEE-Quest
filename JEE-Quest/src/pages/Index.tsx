@@ -112,7 +112,7 @@ const HomePage: React.FC = () => {
     { label: 'Past Papers', value: '25+' },
     { label: 'Questions', value: '1000+' },
     { label: 'Detailed Solutions', value: '100%' },
-    { label: 'Students Helped', value: '10k+' },
+    { label: 'Students helped', value: '10k+' },
   ];
 
   const handleNavigate = (path: string) => {
@@ -153,7 +153,7 @@ const HomePage: React.FC = () => {
                 Why JEE Quest?
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                We've designed the most comprehensive platform to help you ace your JEE Mains with focused practice and analysis.
+                The ultimate platform to ace JEE Mains with focused practice and in-depth analysis.
               </p>
             </div>
             
@@ -166,7 +166,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Organized Library</h3>
                 <p className="text-muted-foreground mb-4">
-                  Every paper is carefully organized by year and shift, making it easy to find exactly what you need.
+                  Find JEE Mains papers effortlessly, sorted by year and shift.
                 </p>
                 <Button 
                   variant="link" 
@@ -185,7 +185,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Smart Practice</h3>
                 <p className="text-muted-foreground mb-4">
-                  Our practice mode lets you simulate real exam conditions with timed sessions and question tracking.
+                  Simulate real exam conditions with timed sessions and question tracking.
                 </p>
                 <Button 
                   variant="link" 
@@ -204,7 +204,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Detailed Analysis</h3>
                 <p className="text-muted-foreground mb-4">
-                  Get insights into your performance with subject-wise and topic-wise analysis to focus your preparation.
+                  Gain actionable insights with subject-wise and topic-wise performance reports.
                 </p>
                 <Button 
                   variant="link" 
@@ -222,10 +222,10 @@ const HomePage: React.FC = () => {
         <section className="py-20 bg-gradient-to-b from-background to-secondary/30">
           <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to ace your JEE Mains?
+              Ready to ace JEE Mains?
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
-              Start practicing with our comprehensive collection of past papers and take your preparation to the next level.
+              Start your journey with PYQs and smart tools designed to elevate your preparation.
             </p>
             <Button size="lg" className="gap-2" onClick={() => handleNavigate('/practice')}>
               Get Started Now
@@ -238,10 +238,10 @@ const HomePage: React.FC = () => {
         <section className="py-16 bg-secondary/20">
           <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center">
             <p className="text-lg text-muted-foreground italic mb-4">
-              "Created by IITians for today's JEE aspirants and tomorrow's IITians"
+              "By IITians, for aspiring IITians"
             </p>
             <p className="text-sm text-muted-foreground mb-6">
-              Need guidance? Reach out for personalized advice on your JEE preparation journey.
+              Need personalized guidance? Connect with us for expert advice on your JEE preparation.
             </p>
             <a 
               href="https://www.linkedin.com/in/your-linkedin-profile" 
