@@ -5,6 +5,7 @@ import { ArrowRight, BookOpen, Clock, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { Helmet } from 'react-helmet';
 
 const Hero: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +26,10 @@ const Hero: React.FC = () => {
   
   return (
     <div className="relative overflow-hidden">
+      <Helmet>
+        <title>JEE Quest - Master JEE Mains with Past Papers</title>
+        <meta name="description" content="Access JEE Mains PYQs with detailed solutions and smart AI tools for effective exam preparation." />
+      </Helmet>
       {/* Background pattern */}
       <div className="absolute inset-0 bg-grid-gray-200/50 [mask-imageUrl:radial-gradient(ellipse_at_center,transparent_20%,white)]" />
       

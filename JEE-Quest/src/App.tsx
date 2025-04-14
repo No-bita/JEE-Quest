@@ -46,7 +46,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             {/* Redirect from landing page to dashboard if logged in */}
-            <Route path="/" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
+            <Route path="*" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
 
             {/* Protected routes - redirect to landing if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
