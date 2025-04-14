@@ -35,7 +35,6 @@ const Hero: React.FC = () => {
         <meta property="og:title" content="JEE Quest - Master JEE Mains with Past Papers" />
         <meta property="og:description" content="Practice JEE Mains PYQs with detailed solutions and smart AI tools for effective exam preparation." />
         <meta property="og:url" content="https://jee-quest.vercel.app" />
-        <meta property="og:image" content="/path-to-image.jpg" />
 
         {/* Twitter Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />
