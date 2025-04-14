@@ -18,6 +18,7 @@ import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 import Results from "./pages/Results";
 import PracticeInterface from "./components/PracticeInterface";
+import AboutUs from './pages/AboutUs';
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => {
             {/* Public routes */}
             <Route path="/papers/:paperId/questions" element={<Practice />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path='/about' element={<AboutUs />} />
             <Route path="*" element={<NotFound />} />
 
             {/* Auth routes - redirect to dashboard if already logged in */}

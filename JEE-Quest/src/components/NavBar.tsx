@@ -41,9 +41,9 @@ const NavBar: React.FC = () => {
   };
 
   const navLinks = [
-    { name: 'Papers', path: '/papers', icon: BookOpen },
     { name: 'Practice', path: '/practice', icon: PencilRuler },
     { name: 'Analysis', path: '/analysis', icon: BarChart3 },
+    { name: 'About us', path: '/about', icon: BookOpen },
   ];
 
   const handleSignInClick = () => {
