@@ -14,8 +14,9 @@ const Hero: React.FC = () => {
     navigate('/papers/jee2020-2/questions');
   };
   
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
   const handleBrowsePapers = () => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (!isLoggedIn) {
       toast.info("Please sign in to browse papers");
       navigate('/signin');
@@ -28,14 +29,25 @@ const Hero: React.FC = () => {
     <div className="relative overflow-hidden">
       <Helmet>
         <title>JEE Quest - Master JEE Mains with Past Papers</title>
-        <meta name="description" content="Access JEE Mains PYQs with detailed solutions and smart AI tools for effective exam preparation." />
+        <meta name="description" content="Practice JEE Mains previous year questions (PYQs) with detailed solutions and smart AI tools for effective exam preparation." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href="https://jee-quest.vercel.app" />
+        <meta property="og:title" content="JEE Quest - Master JEE Mains with Past Papers" />
+        <meta property="og:description" content="Practice JEE Mains PYQs with detailed solutions and smart AI tools for effective exam preparation." />
+        <meta property="og:url" content="https://jee-quest.vercel.app" />
+        <meta property="og:image" content="/path-to-image.jpg" />
+
+        {/* Twitter Meta Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="JEE Quest - Master JEE Mains with Past Papers" />
+        <meta name="twitter:description" content="Practice JEE Mains PYQs with detailed solutions and smart AI tools for effective exam preparation." />
       </Helmet>
       {/* Background pattern */}
       <div className="absolute inset-0 bg-grid-gray-200/50 [mask-imageUrl:radial-gradient(ellipse_at_center,transparent_20%,white)]" />
       
       <div className="relative pt-32 pb-20 md:pt-40 md:pb-24 page-container">
         <div className="text-center max-w-4xl mx-auto">
-          <Badge variant="outline" className="mb-4 py-1.5 px-4 text-sm animate-fade-in">
+          <Badge variant="outline" className="mb-4 py-1.5 px-4 text-sm animate-fade-in min-h-[32px]">
             JEE Mains 2020-2025
           </Badge>
           
@@ -76,8 +88,8 @@ const Hero: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 max-w-5xl mx-auto animate-slide-up delay-200">
           <div className="glass-card rounded-xl p-6 text-center">
             <div className="flex justify-center mb-4">
-              <div className="bg-primary/10 text-primary rounded-full p-3">
-                <BookOpen size={24} />
+              <div className="bg-primary/10 text-primary rounded-full w-12 h-12 flex items-center justify-center">
+                <BookOpen size={24} className="w-6 h-6" />
               </div>
             </div>
             <h3 className="font-semibold text-lg mb-2">Complete Library</h3>
