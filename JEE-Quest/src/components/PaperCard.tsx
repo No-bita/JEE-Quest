@@ -15,7 +15,7 @@ interface PaperCardProps {
   isPremium?: boolean;
   isAdmin?: boolean;
   onEditPaper?: (paperId: string) => void;
-  freeTrialYears?: number[]; // Configurable list of free trial years
+  freeTrialPaperIds?: string[]; // Configurable list of free trial paper ids
 }
 
 const PaperCard: React.FC<PaperCardProps> = ({
@@ -29,7 +29,7 @@ const PaperCard: React.FC<PaperCardProps> = ({
   isPremium = true, // All papers are premium by default
   isAdmin = false,
   onEditPaper,
-  freeTrialYears = [2020] // Default to 2020 if not provided
+  freeTrialPaperIds = ['jee2020-1']
 }) => {
   const navigate = useNavigate();
 
@@ -39,7 +39,7 @@ const PaperCard: React.FC<PaperCardProps> = ({
   };
 
   // Determine if this paper is a free trial paper
-  const isFreeTrialPaper = freeTrialYears.includes(year);
+  const isFreeTrialPaper = freeTrialPaperIds.includes(id);
 
   const handlePracticeClick = (e: React.MouseEvent) => {
     e.preventDefault();
