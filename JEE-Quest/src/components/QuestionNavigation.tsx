@@ -26,12 +26,13 @@ const QuestionNavigation: React.FC<QuestionNavigationProps> = ({
       case 'attempted':
         return <CheckCircle size={16} />;
       case 'marked-unattempted':
-        return <Flag size={16} />;
+        return <Flag size={16} className="text-purple-600" />;
       case 'marked-attempted':
         return (
           <div className="relative">
-            <Flag size={16} />
-            <CheckCircle size={10} className="absolute -bottom-1 -right-1 text-status-attempted" />
+            <Flag size={16} className="text-purple-600" />
+            {/* Tick on top-right */}
+            <CheckCircle size={10} className="absolute -top-1 -right-1 text-green-600 bg-white rounded-full" />
           </div>
         );
       case 'unattempted':
@@ -51,9 +52,9 @@ const QuestionNavigation: React.FC<QuestionNavigationProps> = ({
       case 'attempted':
         return cn(baseClasses, 'question-btn-attempted');
       case 'marked-unattempted':
-        return cn(baseClasses, 'question-btn-marked-unattempted');
+        return cn(baseClasses, 'bg-purple-100 border-purple-400 text-purple-700');
       case 'marked-attempted':
-        return cn(baseClasses, 'question-btn-marked-attempted');
+        return cn(baseClasses, 'bg-purple-100 border-purple-400 text-purple-700');
       case 'unattempted':
       default:
         return cn(baseClasses, 'question-btn-unattempted');
@@ -78,41 +79,6 @@ const QuestionNavigation: React.FC<QuestionNavigationProps> = ({
             {question.id}
           </button>
         ))}
-      </div>
-      
-      <Separator className="my-4" />
-      
-      <div className="space-y-2">
-        <div className="text-sm font-medium mb-2">Legend</div>
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <div className="question-btn question-btn-unattempted flex-shrink-0 w-6 h-6">
-              <HelpCircle size={14} />
-            </div>
-            <span className="text-sm">Unattempted</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="question-btn question-btn-attempted flex-shrink-0 w-6 h-6">
-              <CheckCircle size={14} />
-            </div>
-            <span className="text-sm">Attempted</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="question-btn question-btn-marked-unattempted flex-shrink-0 w-6 h-6">
-              <Flag size={14} />
-            </div>
-            <span className="text-sm">Unattempted & Marked for Review</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="question-btn question-btn-marked-attempted flex-shrink-0 w-6 h-6">
-              <div className="relative">
-                <Flag size={14} />
-                <CheckCircle size={8} className="absolute -bottom-1 -right-1 text-status-attempted" />
-              </div>
-            </div>
-            <span className="text-sm">Attempted & Marked for Review</span>
-          </div>
-        </div>
       </div>
     </div>
   );
