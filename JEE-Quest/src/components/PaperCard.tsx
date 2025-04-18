@@ -71,11 +71,6 @@ const PaperCard: React.FC<PaperCardProps> = ({
                 <Calendar size={14} className="mr-1" /> {session}
               </div>
             )}
-            {isFreeTrialPaper && (
-              <Badge variant="outline" className="text-blue-500 border-blue-200 bg-blue-50 flex items-center gap-1">
-                Free Trial
-              </Badge>
-            )}
           </div>
           {/* Badge for Premium Papers */}
           {isPremium && !hasSubscription() ? (
