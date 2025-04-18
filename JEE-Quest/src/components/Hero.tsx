@@ -11,7 +11,7 @@ const Hero: React.FC = () => {
   const navigate = useNavigate();
   
   const handlePracticeClick = () => {
-    navigate('/papers/jee2020-2/questions');
+    navigate('/practice/jee2020-2');
   };
   
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';

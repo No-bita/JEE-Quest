@@ -6,8 +6,6 @@ import { useNavigate, Routes, Route } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
 
-
-// Home page component (the main content from the original Index component)
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   
@@ -25,7 +23,6 @@ const HomePage: React.FC = () => {
       toast.info("Please sign in to browse papers");
       navigate('/signin');
     } else {
-      // Always use navigate for proper routing
       navigate(path);
     }
   };
@@ -170,7 +167,6 @@ const Index: React.FC = () => {
       <NavBar />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        {/* Add other routes as needed */}
       </Routes>
     </>
   );
