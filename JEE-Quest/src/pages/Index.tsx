@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import Hero from '@/components/Hero';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Lightbulb, BarChart3, Linkedin } from 'lucide-react';
 import { useNavigate, Routes, Route } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
 
+
+// Home page component (the main content from the original Index component)
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   
@@ -22,6 +25,7 @@ const HomePage: React.FC = () => {
       toast.info("Please sign in to browse papers");
       navigate('/signin');
     } else {
+      // Always use navigate for proper routing
       navigate(path);
     }
   };
@@ -29,6 +33,7 @@ const HomePage: React.FC = () => {
   return (
     <>
       <main>
+        <Hero />
         
         {/* Stats Section */}
         <section className="py-20 bg-secondary/50">
@@ -105,22 +110,52 @@ const HomePage: React.FC = () => {
                 <p className="text-muted-foreground mb-4">
                   Gain actionable insights with subject-wise and topic-wise performance reports.
                 </p>
+                <Button 
+                  variant="link" 
+                  className="text-primary gap-1" 
+                  onClick={() => handleNavigate('/analysis')}
+                >
+                  See Analysis <ArrowRight size={14} />
+                </Button>
               </div>
             </div>
-            <div className="text-center mt-10">
-              <p className="text-sm text-muted-foreground mb-6">
-                Need personalized guidance? Connect with us for expert advice on your JEE preparation.
-              </p>
-              <a 
-                href="https://www.linkedin.com/in/your-linkedin-profile" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:underline"
-              >
-                <Linkedin size={20} />
-                Connect on LinkedIn
-              </a>
-            </div>
+          </div>
+        </section>
+        
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-b from-background to-secondary/30">
+          <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Ready to ace JEE Mains?
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
+              Start your journey with PYQs and smart tools designed to elevate your preparation.
+            </p>
+            <Button size="lg" className="gap-2" onClick={() => handleNavigate('/practice')}>
+              Get Started Now
+              <ArrowRight size={16} />
+            </Button>
+          </div>
+        </section>
+        
+        {/* Social Proof Section */}
+        <section className="py-16 bg-secondary/20">
+          <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center">
+            <p className="text-lg text-muted-foreground italic mb-4">
+              "By IITians, for aspiring IITians"
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              Need personalized guidance? Connect with us for expert advice on your JEE preparation.
+            </p>
+            <a 
+              href="https://www.linkedin.com/in/your-linkedin-profile" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              <Linkedin size={20} />
+              Connect on LinkedIn
+            </a>
           </div>
         </section>
       </main>
@@ -135,6 +170,8 @@ const Index: React.FC = () => {
       <NavBar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/practice" element={<MockPaper />} />
+        {/* Add other routes as needed */}
       </Routes>
     </>
   );
