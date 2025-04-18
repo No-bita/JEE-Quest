@@ -1,6 +1,5 @@
-import { ResultsData, Question } from './types';
+import { ResultsData } from './types';
 
-// Base API URL - replace with your actual backend URL when deployed
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Enhanced error handler to parse JSON error responses when available

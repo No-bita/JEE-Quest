@@ -56,10 +56,9 @@ const AppContent = () => {
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
 
             {/* Public routes */}
-            <Route path="/papers/:paperId/questions" element={<Practice />} />
+            <Route path="/practice/:paperId" element={<Practice />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path='/about' element={<AboutUs />} />
-            <Route path="*" element={<NotFound />} />
 
             {/* Auth routes - redirect to dashboard if already logged in */}
             <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn setIsLoggedIn={setIsLoggedIn} />} />
