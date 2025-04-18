@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Lightbulb, BarChart3, Linkedin } from 'lucide-react';
-import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
+import { useNavigate, Routes, Route, Navigate, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
 
@@ -158,6 +158,17 @@ const HomePage: React.FC = () => {
           </div>
         </section>
       </main>
+      {/* Footer */}
+      <footer className="w-full border-t bg-background py-6 mt-8">
+        <div className="container max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground gap-2">
+          <span>&copy; {new Date().getFullYear()} JEEQuest. All rights reserved.</span>
+          <div className="flex gap-4">
+            <Link to="/privacy-policy" className="hover:underline">Privacy Policy</Link>
+            <span>|</span>
+            <Link to="/terms-of-service" className="hover:underline">Terms of Service</Link>
+          </div>
+        </div>
+      </footer>
     </>
   );
 };
