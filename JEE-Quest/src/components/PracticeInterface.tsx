@@ -311,18 +311,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Badge variant="secondary">{currentQuestion.subject}</Badge>
-            
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="ml-auto"
-              onClick={() => handleMarkForReview(currentQuestion.id)}
-            >
-              <Flag 
-                size={18} 
-                className={questionStatus[currentQuestion.id]?.includes('marked') ? 'text-purple-500 fill-purple-200' : ''} 
-              />
-            </Button>
           </div>
           
           <div className="text-lg font-medium mb-6">
@@ -365,75 +353,85 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
         
         <Separator className="my-6" />
         
-        <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={handlePrevQuestion}
-            disabled={currentQuestionIndex === 0}
-            className="gap-2"
-          >
-            <ChevronLeft size={16} />
-            Previous
-          </Button>
-          
-          <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
-            <AlertDialogTrigger asChild>
-              <Button variant="default" className="gap-2">
-                <Save size={16} />
-                Submit
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {attemptedCount < questions.length ? (
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center text-amber-600 gap-2">
-                        <AlertTriangle size={16} />
-                        <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
-                      </div>
-                      <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
-                        <p className="font-medium mb-1">Marking Scheme:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
-                        </ul>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
-                      <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
-                        <p className="font-medium mb-1">Marking Scheme:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleSubmit}>Submit Test</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          
-          <Button
-            variant="outline"
-            onClick={handleNextQuestion}
-            disabled={currentQuestionIndex === questions.length - 1}
-            className="gap-2"
-          >
-            Next
-            <ChevronRight size={16} />
-          </Button>
-        </div>
+        <div className="flex justify-between gap-2 flex-wrap">
+  <Button
+    variant="outline"
+    onClick={handlePrevQuestion}
+    disabled={currentQuestionIndex === 0}
+    className="gap-2"
+  >
+    <ChevronLeft size={16} />
+    Previous
+  </Button>
+
+  <Button
+    variant={questionStatus[currentQuestion.id]?.includes('marked') ? "secondary" : "outline"}
+    onClick={() => handleMarkForReview(currentQuestion.id)}
+    className={`gap-2 ${questionStatus[currentQuestion.id]?.includes('marked') ? 'text-purple-700 border-purple-300' : ''}`}
+  >
+    <Flag size={16} />
+    {questionStatus[currentQuestion.id]?.includes('marked') ? 'Unmark Review' : 'Mark for Review'}
+  </Button>
+
+  <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+    <AlertDialogTrigger asChild>
+      <Button variant="default" className="gap-2">
+        <Save size={16} />
+        Submit
+      </Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
+        <AlertDialogDescription>
+          {attemptedCount < questions.length ? (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center text-amber-600 gap-2">
+                <AlertTriangle size={16} />
+                <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
+              </div>
+              <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                <p className="font-medium mb-1">Marking Scheme:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                  <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                  <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
+              <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                <p className="font-medium mb-1">Marking Scheme:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                  <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                  <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogAction onClick={handleSubmit}>Submit Test</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+
+  <Button
+    variant="outline"
+    onClick={handleNextQuestion}
+    disabled={currentQuestionIndex === questions.length - 1}
+    className="gap-2"
+  >
+    Next
+    <ChevronRight size={16} />
+  </Button>
+</div>
+
       </div>
       
       <div className="col-span-1">
