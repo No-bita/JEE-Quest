@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Lightbulb, BarChart3, Linkedin } from 'lucide-react';
-import { useNavigate, Routes, Route } from 'react-router-dom';
+import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
 
@@ -25,7 +25,6 @@ const HomePage: React.FC = () => {
       toast.info("Please sign in to browse papers");
       navigate('/signin');
     } else {
-      // Always use navigate for proper routing
       navigate(path);
     }
   };
@@ -170,7 +169,7 @@ const Index: React.FC = () => {
       <NavBar />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/practice" element={<MockPaper />} />
+        <Route path="/practice" element={<Navigate to="/practice/jee2020-2" replace />} />
         {/* Add other routes as needed */}
       </Routes>
     </>
