@@ -108,7 +108,10 @@ const Results: React.FC = () => {
         if (questions.length > 0) {
           const subjectPerformance = calculateSubjectPerformance(questions, testResult.answers || {});
           setSubjectChartData(subjectPerformance);
-          saveResultsToDatabase(testResult, questions);
+          // Do not save results for open practice papers
+          if (paperId !== 'jee2020-2' && paperId !== 'jee2020-1') {
+            saveResultsToDatabase(testResult, questions);
+          }
         }
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -164,6 +167,10 @@ const Results: React.FC = () => {
   
   // Save results to database
   const saveResultsToDatabase = async (resultData: ResultsData, questionData: Question[]) => {
+    // Prevent saving for open practice papers as a safeguard
+    if (resultData.paperId === 'jee2020-2' || resultData.paperId === 'jee2020-1') {
+      return;
+    }
     if (!resultData || !questionData?.length) {
       console.error('Invalid data for saving to database');
       return;
