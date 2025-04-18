@@ -13,21 +13,22 @@ const Practice: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   
   useEffect(() => {
-    // Allow access to demo/free paper without login
     if (paperId === 'jee2020-2') {
+      // Open access: skip login and access check
+      setHasAccess(true);
+      setIsLoading(false);
       setIsLoggedIn(true);
-    } else {
-      // Check if user is logged in
-      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      setIsLoggedIn(loggedIn);
-      
-      if (!loggedIn) {
-        toast.error("Please sign in to access practice papers");
-        navigate('/signin');
-        return;
-      }
+      return;
     }
-
+    // Existing logic for other paperIds
+    // Check if user is logged in
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+    if (!loggedIn) {
+      toast.error("Please sign in to access practice papers");
+      navigate('/signin');
+      return;
+    }
     // Check if user has access to this paper
     const checkAccess = async () => {
       try {
@@ -50,10 +51,7 @@ const Practice: React.FC = () => {
       }
     };
     
-    // Simulate a small delay to check access
-    setTimeout(() => {
-      checkAccess();
-    }, 500);
+    checkAccess();
   }, [paperId, navigate ]);
   
   if (isLoading) {
