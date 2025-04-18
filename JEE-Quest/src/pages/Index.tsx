@@ -170,7 +170,6 @@ const Index: React.FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/practice" element={<Navigate to="/practice/jee2020-2" replace />} />
-        {/* Add other routes as needed */}
       </Routes>
     </>
   );
