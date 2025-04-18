@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react"
 
 // Import pages
-import Index from "./pages/Index";
 import Dashboard from "./pages/Papers";
 import Practice from "./pages/Practice";
 import Analysis from "./pages/Analysis";
@@ -48,7 +47,7 @@ const AppContent = () => {
         <BrowserRouter>
           <Routes>
             {/* Redirect from landing page to dashboard if logged in */}
-            <Route path="*" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
+            <Route path="*" element={isLoggedIn ? <Navigate to="/papers" /> : <Navigate to="/signin" />} />
 
             {/* Protected routes - redirect to landing if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
