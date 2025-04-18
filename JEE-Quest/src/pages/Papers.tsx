@@ -456,10 +456,6 @@ const Dashboard: React.FC = () => {
   const [userName, setUserName] = useState<string>('User');
   const navigate = useNavigate();
   
-  // // Check if user has a subscription
-  // const hasSubscription = () => {
-  //   return localStorage.getItem('hasSubscription') === 'true';
-  // };
 
   const [userStats, setUserStats] = useState({
     testsCompleted: 0,

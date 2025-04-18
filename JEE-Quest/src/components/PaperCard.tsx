@@ -15,6 +15,7 @@ interface PaperCardProps {
   isPremium?: boolean;
   isAdmin?: boolean;
   onEditPaper?: (paperId: string) => void;
+  freeTrialYears?: number[]; // Configurable list of free trial years
 }
 
 const PaperCard: React.FC<PaperCardProps> = ({
@@ -27,7 +28,8 @@ const PaperCard: React.FC<PaperCardProps> = ({
   duration,
   isPremium = true, // All papers are premium by default
   isAdmin = false,
-  onEditPaper
+  onEditPaper,
+  freeTrialYears = [2020] // Default to 2020 if not provided
 }) => {
   const navigate = useNavigate();
 
@@ -36,13 +38,19 @@ const PaperCard: React.FC<PaperCardProps> = ({
     return localStorage.getItem('hasSubscription') === 'true';
   };
 
+  // Determine if this paper is a free trial paper
+  const isFreeTrialPaper = freeTrialYears.includes(year);
+
   const handlePracticeClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isPremium && !hasSubscription()) {
-      // Redirect to pricing page if user doesn't have a subscription
+    if (isFreeTrialPaper) {
+      // Directly navigate to practice for the free trial paper
+      navigate(`/practice/${id}`);
+    } else if (isPremium && !hasSubscription()) {
+      // Redirect to pricing for premium papers without subscription
       navigate(`/pricing?paperId=${id}&title=JEE Mains ${year} - ${shift}`);
     } else {
-      // Navigate to practice page if user has access
+      // Navigate to practice for accessible papers
       navigate(`/practice/${id}`);
     }
   };
@@ -58,9 +66,16 @@ const PaperCard: React.FC<PaperCardProps> = ({
             <h3 className="text-lg font-semibold mb-1">
               {titleDisplay}
             </h3>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Calendar size={14} className="mr-1" /> {session}
-            </div>
+            {session && (
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Calendar size={14} className="mr-1" /> {session}
+              </div>
+            )}
+            {isFreeTrialPaper && (
+              <Badge variant="outline" className="text-blue-500 border-blue-200 bg-blue-50 flex items-center gap-1">
+                Free Trial
+              </Badge>
+            )}
           </div>
           {/* Badge for Premium Papers */}
           {isPremium && !hasSubscription() ? (
