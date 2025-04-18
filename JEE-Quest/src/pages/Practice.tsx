@@ -31,10 +31,8 @@ const Practice: React.FC = () => {
     // Check if user has access to this paper
     const checkAccess = async () => {
       try {
-        console.log('[DEBUG] Checking access for paperId:', paperId);
         const paperResponse = await papersApi.getPaperQuestions(paperId);
-        console.log('[DEBUG] paperResponse:', paperResponse);
-        
+
         if (!paperResponse.success) {
           toast.error("Failed to load paper information");
           navigate('/papers');

@@ -284,7 +284,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
         <img 
           src={currentQuestion.imageUrl} 
           alt={`Question ${currentQuestionIndex + 1}`} 
-          className="mt-4 w-full max-w-lg mx-auto rounded-lg shadow"
+          className="mt-4 w-full max-w-xl mx-auto rounded-lg shadow"
         />
       );
     } else if (currentQuestion.text.includes('$') || currentQuestion.text.includes('\\')) {
