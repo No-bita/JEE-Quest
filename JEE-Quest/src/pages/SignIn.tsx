@@ -184,6 +184,7 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
               </form>
             </Form>
           </CardContent>
+          {/*
           <div className="my-4 flex items-center">
             <hr className="flex-1 border-gray-300" />
             <span className="mx-2 text-gray-500">or</span>
@@ -222,6 +223,7 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
               width="100%"
             />
           </div>
+          */}
           <CardFooter className="flex flex-col space-y-2">
             <div className="text-sm text-center">
               Don't have an account?{' '}
