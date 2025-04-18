@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,7 +21,9 @@ import AboutUs from './pages/AboutUs';
 
 const queryClient = new QueryClient();
 
-const App = () => {
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+const AppContent = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     return localStorage.getItem("isLoggedIn") === "true";
   });
@@ -70,5 +71,13 @@ const App = () => {
     </QueryClientProvider>
   );
 };
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+const App = () => (
+  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <AppContent />
+  </GoogleOAuthProvider>
+);
 
 export default App;

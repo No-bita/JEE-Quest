@@ -27,7 +27,9 @@ const Practice: React.FC = () => {
     // Check if user has access to this paper
     const checkAccess = async () => {
       try {
+        console.log('[DEBUG] Checking access for paperId:', paperId);
         const paperResponse = await papersApi.getPaperQuestions(paperId);
+        console.log('[DEBUG] paperResponse:', paperResponse);
         
         if (!paperResponse.success) {
           toast.error("Failed to load paper information");
@@ -38,7 +40,7 @@ const Practice: React.FC = () => {
         setHasAccess(true);
         
       } catch (error) {
-        console.error("Error checking access:", error);
+        console.error("[DEBUG] Error checking access:", error);
         toast.error("Failed to check access permissions");
         navigate('/papers');
       } finally {
