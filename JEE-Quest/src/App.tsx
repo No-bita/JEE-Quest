@@ -18,6 +18,8 @@ import NotFound from "./pages/NotFound";
 import Results from "./pages/Results";
 import PracticeInterface from "./components/PracticeInterface";
 import AboutUs from './pages/AboutUs';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import TermsOfService from '@/pages/TermsOfService';
 
 const queryClient = new QueryClient();
 
@@ -59,6 +61,8 @@ const AppContent = () => {
             <Route path="/practice/:paperId" element={<Practice />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path='/about' element={<AboutUs />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
 
             {/* Auth routes - redirect to dashboard if already logged in */}
             <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn setIsLoggedIn={setIsLoggedIn} />} />
