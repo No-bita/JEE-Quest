@@ -57,6 +57,19 @@ const Results: React.FC = () => {
       navigate('/papers');
       return;
     }
+    // BYPASS: Allow open access for specific practice papers
+    if (paperId === 'jee2020-2' || paperId === 'jee2020-1') {
+      // Do not check login or restrict access
+      // (rest of the logic continues as normal)
+    } else {
+      // If you have login/access checks elsewhere, keep them here
+      // e.g., check if user is logged in, else navigate('/signin')
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      if (!isLoggedIn) {
+        navigate('/signin');
+        return;
+      }
+    }
 
     const testResult = JSON.parse(localStorage.getItem('testResults') || 'null');
     if (!testResult) {

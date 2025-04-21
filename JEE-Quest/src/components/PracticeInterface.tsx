@@ -43,6 +43,8 @@ interface ScoreReport {
 const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [visitedQuestions, setVisitedQuestions] = useState<Set<number>>(new Set([0])); // Start with first question visited
+
   const [questionStatus, setQuestionStatus] = useState<Record<number, QuestionStatus>>({});
   const [timeLeft, setTimeLeft] = useState(10800);
   const [isActive, setIsActive] = useState(true);
@@ -165,10 +167,12 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  // Handles both MCQ (string) and Numeric (number) answers robustly
   const handleAnswerChange = (questionId: number, answer: string) => {
-    const numericAnswer = Number(answer);
-    setAnswers(prev => ({ ...prev, [questionId]: numericAnswer }));
-    
+    // For MCQ, answer is option.id as string; for Numeric, it's the input value
+    const isNumeric = currentQuestion?.type === 'NUMERIC';
+    const value = isNumeric ? Number(answer) : Number(answer); // Always store as number
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
     setQuestionStatus(prev => {
       const currentStatus = prev[questionId];
       if (currentStatus === 'unattempted') return { ...prev, [questionId]: 'attempted' };
@@ -176,6 +180,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
       return prev;
     });
   };
+
 
   const handleMarkForReview = (questionId: number) => {
     setQuestionStatus(prev => {
@@ -186,22 +191,47 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
         'attempted': 'marked-attempted',
         'unattempted': 'marked-unattempted'
       };
-      return { ...prev, [questionId]: statusMap[currentStatus] || 'unattempted' };
+      const newStatus = statusMap[currentStatus] || 'unattempted';
+      toast.info(
+        newStatus.includes('marked') ? 'Question marked for review' : 'Question unmarked from review'
+      );
+      return { ...prev, [questionId]: newStatus };
     });
   };
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const navigatorQuestions = questions.map(q => ({ id: q.id, status: questionStatus[q.id] || 'unattempted' }));
+  // Defensive: handle out-of-bounds index
+  const currentQuestion = questions[currentQuestionIndex] || null;
+
+  // Mark question as visited on index change
+  React.useEffect(() => {
+    setVisitedQuestions(prev => {
+      if (questions[currentQuestionIndex]) {
+        const newSet = new Set(prev);
+        newSet.add(currentQuestionIndex);
+        return newSet;
+      }
+      return prev;
+    });
+  }, [currentQuestionIndex, questions]);
+
+  // Pass index and visited info for navigation
+  const navigatorQuestions = questions.map((q, idx) => ({
+    id: q.id,
+    status: questionStatus[q.id] || 'unattempted',
+    idx,
+    visited: visitedQuestions.has(idx)
+  }));
   const attemptedCount = Object.keys(answers).length;
-  const progress = (attemptedCount / questions.length) * 100;
+  const progress = questions.length > 0 ? (attemptedCount / questions.length) * 100 : 0;
 
   const renderQuestionContent = () => {
+    if (!currentQuestion) return null;
     if (currentQuestion.imageUrl) {
       return (
         <img 
           src={currentQuestion.imageUrl} 
           alt={`Question ${currentQuestionIndex + 1}`} 
-          className="mt-4 w-full max-w-2xl mx-auto rounded-lg shadow"
+          className="mt-4 w-full max-w-4xl h-auto object-contain mx-auto rounded-lg shadow"
         />
       );
     }
@@ -214,12 +244,12 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   if (isLoading) {
     return (
       <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" aria-label="Loading" />
       </div>
     );
   }
 
-  if (questions.length === 0) {
+  if (!questions.length || !currentQuestion) {
     return (
       <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
         <div className="text-center">
@@ -258,8 +288,8 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
           </div>
 
           {currentQuestion.type === 'MCQ' ? (
-            <RadioGroup 
-              value={answers[currentQuestion.id]?.toString()}
+            <RadioGroup
+              value={answers[currentQuestion.id]?.toString() ?? ''}
               onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
               className="space-y-4"
             >
@@ -274,104 +304,154 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
               ))}
             </RadioGroup>
           ) : (
-            <Input 
-              type="number" 
-              value={answers[currentQuestion.id] || ''} 
+            <Input
+              type="number"
+              value={answers[currentQuestion.id]?.toString() ?? ''}
               onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
               className="w-full p-3 rounded-lg border"
               placeholder="Enter your answer"
+              min={0}
             />
           )}
         </div>
         
         <Separator className="my-6" />
         
-        <div className="flex justify-between gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
-            disabled={currentQuestionIndex === 0}
-            className="gap-2"
-          >
-            <ChevronLeft size={16} />
-            Previous
-          </Button>
-
-          <Button
-            variant={questionStatus[currentQuestion.id]?.includes('marked') ? "secondary" : "outline"}
-            onClick={() => handleMarkForReview(currentQuestion.id)}
-            className={`gap-2 ${questionStatus[currentQuestion.id]?.includes('marked') ? 'text-purple-700 border-purple-300' : ''}`}
-          >
-            <Flag size={16} />
-            {questionStatus[currentQuestion.id]?.includes('marked') ? 'Unmark Review' : 'Mark for Review'}
-          </Button>
-
-          <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
-            <AlertDialogTrigger asChild>
-              <Button variant="default" className="gap-2">
-                <Save size={16} />
-                Submit
+        <div className="flex flex-col gap-6 mt-6">
+          {/* Top row: Action buttons */}
+          <div className="flex flex-wrap justify-center gap-4 w-full">
+            <Button
+              variant="default"
+              className="font-bold min-w-[140px] h-12 bg-green-500 hover:bg-green-600 text-white border-green-600"
+              onClick={() => {
+                // Save answer (if any) and go to next
+                if (currentQuestionIndex < questions.length - 1) setCurrentQuestionIndex(currentQuestionIndex + 1);
+              }}
+            >
+              SAVE & NEXT
+            </Button>
+            <Button
+              variant="outline"
+              className="font-bold min-w-[110px] h-12 border-gray-400 text-black"
+              onClick={() => {
+                // Clear answer for this question
+                setAnswers(prev => {
+                  const newAnswers = { ...prev };
+                  delete newAnswers[currentQuestion.id];
+                  return newAnswers;
+                });
+                setQuestionStatus(prev => ({ ...prev, [currentQuestion.id]: 'unattempted' }));
+              }}
+            >
+              CLEAR
+            </Button>
+            <Button
+              className="font-bold min-w-[220px] h-12 bg-orange-400 hover:bg-orange-500 text-white border-orange-600"
+              onClick={() => {
+                // Save answer (if any), mark for review, stay on current
+                setQuestionStatus(prev => {
+                  const currentStatus = prev[currentQuestion.id];
+                  return {
+                    ...prev,
+                    [currentQuestion.id]: currentStatus === 'attempted' ? 'marked-attempted' : 'marked-unattempted',
+                  };
+                });
+              }}
+            >
+              SAVE & MARK FOR REVIEW
+            </Button>
+            <Button
+              className="font-bold min-w-[260px] h-12 bg-blue-600 hover:bg-blue-700 text-white border-blue-800"
+              onClick={() => {
+                // Mark for review (no save/clear), go to next
+                setQuestionStatus(prev => {
+                  const currentStatus = prev[currentQuestion.id];
+                  return {
+                    ...prev,
+                    [currentQuestion.id]: currentStatus === 'attempted' ? 'marked-attempted' : 'marked-unattempted',
+                  };
+                });
+                if (currentQuestionIndex < questions.length - 1) setCurrentQuestionIndex(currentQuestionIndex + 1);
+              }}
+            >
+              MARK FOR REVIEW & NEXT
+            </Button>
+          </div>
+          {/* Bottom row: Navigation and Submit */}
+          <div className="flex flex-row w-full justify-between items-center gap-4">
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
+                disabled={currentQuestionIndex === 0}
+                className="font-bold min-w-[120px] h-12"
+              >
+                {'<< BACK'}
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {attemptedCount < questions.length ? (
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center text-amber-600 gap-2">
-                        <AlertTriangle size={16} />
-                        <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
+                disabled={currentQuestionIndex === questions.length - 1}
+                className="font-bold min-w-[120px] h-12"
+              >
+                {'NEXT >>'}
+              </Button>
+            </div>
+            <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+              <AlertDialogTrigger asChild>
+                <Button className="font-bold min-w-[140px] h-12 bg-green-500 hover:bg-green-600 text-white border-green-600" aria-label="Submit Test">
+                  SUBMIT
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {attemptedCount < questions.length ? (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center text-amber-600 gap-2">
+                          <AlertTriangle size={16} />
+                          <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
+                        </div>
+                        <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                          <p className="font-medium mb-1">Marking Scheme:</p>
+                          <ul className="list-disc pl-5 space-y-1">
+                            <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                            <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                            <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                          </ul>
+                        </div>
                       </div>
-                      <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
-                        <p className="font-medium mb-1">Marking Scheme:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
-                        </ul>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
+                        <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                          <p className="font-medium mb-1">Marking Scheme:</p>
+                          <ul className="list-disc pl-5 space-y-1">
+                            <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                            <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                            <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                          </ul>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
-                      <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
-                        <p className="font-medium mb-1">Marking Scheme:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleSubmit}>Submit Test</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <Button
-            variant="outline"
-            onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-            disabled={currentQuestionIndex === questions.length - 1}
-            className="gap-2"
-          >
-            Next
-            <ChevronRight size={16} />
-          </Button>
+                    )}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleSubmit}>Submit Test</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </div>
       
       <div className="col-span-1">
         <QuestionNavigation
           questions={navigatorQuestions}
-          currentQuestion={currentQuestion.id}
-          onSelectQuestion={setCurrentQuestionIndex}
-        />
+          currentQuestionIndex={currentQuestionIndex}
+          onSelectQuestion={(idx: number) => setCurrentQuestionIndex(Math.max(0, Math.min(questions.length - 1, idx)))}        />
       </div>
     </div>
   );
