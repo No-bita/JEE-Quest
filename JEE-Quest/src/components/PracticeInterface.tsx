@@ -42,6 +42,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [questionTimes, setQuestionTimes] = useState<Record<number, number>>({});
   const navigate = useNavigate();
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -93,6 +94,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
       paperId,
       answers,
       questionStatus,
+      questionTimes, // <-- Add questionTimes to results
       timeSpent: 10800 - timeLeft,
       date: new Date().toISOString(),
     };
@@ -104,7 +106,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     setTimeout(() => {
       navigate(`/results/${paperId}`);
     }, 1000);
-  }, [paperId, answers, questionStatus, timeLeft, questions, navigate, calculateScore]);
+  }, [paperId, answers, questionStatus, timeLeft, questions, navigate, calculateScore, questionTimes]);
 
   // Load questions effect
   useEffect(() => {
@@ -164,6 +166,15 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft(prevTime => prevTime - 1);
+        // Track time spent for the current question
+        setQuestionTimes(prev => {
+          const qid = questions[currentQuestionIndex]?.id;
+          if (!qid) return prev;
+          return {
+            ...prev,
+            [qid]: (prev[qid] || 0) + 1
+          };
+        });
       }, 1000);
     } else if (timeLeft === 0) {
       toast.warning("Time's up! Your answers will be submitted automatically.");
@@ -173,7 +184,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, timeLeft, handleSubmit]); // Added handleSubmit to dependencies
+  }, [isActive, timeLeft, handleSubmit, currentQuestionIndex, questions]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);

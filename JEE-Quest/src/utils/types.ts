@@ -8,6 +8,7 @@ export interface ResultsData {
   correctOptions: Record<number, string>;
   totalScore?: number;
   maxPossibleScore?: number;
+  questionTimes?: Record<number, number>; // Time spent per question in seconds
 }
 
 export interface Question {
