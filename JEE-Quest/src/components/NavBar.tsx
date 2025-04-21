@@ -42,9 +42,11 @@ const NavBar: React.FC = () => {
 
   const navLinks = [
     { name: 'Practice', path: '/practice', icon: PencilRuler },
-    { name: 'Analysis', path: '/analysis', icon: BarChart3 },
     { name: 'Resources', path: '/about', icon: BookOpen },
+    { name: 'Analytics', path: '/analytics', icon: BarChart3 },
   ];
+
+  
 
   const handleSignInClick = () => {
     navigate('/signin');
@@ -102,21 +104,22 @@ const NavBar: React.FC = () => {
                 </Link>
               );
             })}
+
           </div>
 
           {/* Sign In Button */}
           <div className="hidden md:flex items-center">
             {/* Hide Sign Out on /practice routes */}
-{isLoggedIn && !location.pathname.startsWith('/practice') ? (
-  <Button variant="ghost" size="sm" onClick={handleSignOutClick}>
-    Sign Out
-  </Button>
-) : !isLoggedIn ? (
-  <Button variant="default" size="sm" onClick={handleSignInClick} className="gap-2">
-    <LogIn size={16} />
-    Sign In
-  </Button>
-) : null}
+            {isLoggedIn && !location.pathname.startsWith('/practice') ? (
+              <Button variant="ghost" size="sm" onClick={handleSignOutClick}>
+                Sign Out
+              </Button>
+            ) : !isLoggedIn ? (
+              <Button variant="default" size="sm" onClick={handleSignInClick} className="gap-2">
+                <LogIn size={16} />
+                Sign In
+              </Button>
+            ) : null}
           </div>
 
           {/* Mobile Menu Button */}
@@ -149,31 +152,32 @@ const NavBar: React.FC = () => {
                   </Link>
                 );
               })}
+
               {/* Hide Sign Out on /practice routes in mobile menu */}
-{isLoggedIn && !location.pathname.startsWith('/practice') ? (
-  <Button
-    variant="ghost"
-    className="w-full justify-start text-left flex items-center gap-2"
-    onClick={() => {
-      handleSignOutClick();
-      setIsMobileMenuOpen(false);
-    }}
-  >
-    Sign Out
-  </Button>
-) : !isLoggedIn ? (
-  <Button
-    variant="default"
-    className="w-full justify-start text-left flex items-center gap-2"
-    onClick={() => {
-      navigate('/signin');
-      setIsMobileMenuOpen(false);
-    }}
-  >
-    <LogIn size={18} />
-    <span>Sign In</span>
-  </Button>
-) : null}
+              {isLoggedIn && !location.pathname.startsWith('/practice') ? (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left flex items-center gap-2"
+                  onClick={() => {
+                    handleSignOutClick();
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Sign Out
+                </Button>
+              ) : !isLoggedIn ? (
+                <Button
+                  variant="default"
+                  className="w-full justify-start text-left flex items-center gap-2"
+                  onClick={() => {
+                    navigate('/signin');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <LogIn size={18} />
+                  <span>Sign In</span>
+                </Button>
+              ) : null}
             </div>
           </div>
         )}
