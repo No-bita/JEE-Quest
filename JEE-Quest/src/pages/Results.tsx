@@ -114,15 +114,15 @@ const Results: React.FC = () => {
   }, [paperId, navigate]);
 
   // Helper: Subject performance
-  const calculateSubjectPerformance = (questions: Question[], answers: Record<string, string>) => {
+  const calculateSubjectPerformance = (questions: Question[], answers: Record<number, number>) => {
     if (!questions || !answers) return [];
     const subjectData = questions.reduce((acc: Record<string, {correct: number; incorrect: number; unattempted: number}>, q) => {
       if (!q || !q.subject || !q.id) return acc;
       const subjectKey = q.subject.trim();
       if (!acc[subjectKey]) acc[subjectKey] = { correct: 0, incorrect: 0, unattempted: 0 };
-      const userAnswer = Number(answers[q.id]);
+      const userAnswer = answers[q.id];
       if (!userAnswer) acc[subjectKey].unattempted += 1;
-      else if (userAnswer === Number(q.correctOption)) acc[subjectKey].correct += 1;
+      else if (userAnswer === q.correctOption) acc[subjectKey].correct += 1;
       else acc[subjectKey].incorrect += 1;
       return acc;
     }, {});

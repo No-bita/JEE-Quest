@@ -5,7 +5,7 @@ export interface ResultsData {
   timeSpent: number;
   answers: Record<number, string>;
   questionStatus: Record<number, string>;
-  correctOptions: Record<number, string>;
+  correctOptions: Record<number, number>;
   totalScore?: number;
   maxPossibleScore?: number;
   questionTimes?: Record<number, number>; // Time spent per question in seconds
@@ -15,8 +15,8 @@ export interface Question {
   id: number;
   text: string;
   imageUrl?: string;
-  options: Array<{id: string, text: string}>;
-  correctOption: string;
+  options: Array<{id: number, text: string}>;
+  correctOption: number;
   subject: string;
   type: string;
 }

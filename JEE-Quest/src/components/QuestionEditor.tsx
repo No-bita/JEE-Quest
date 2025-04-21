@@ -38,12 +38,12 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         text: '',
         imageUrl: '',
         options: [
-          { id: 'A', text: '' },
-          { id: 'B', text: '' },
-          { id: 'C', text: '' },
-          { id: 'D', text: '' }
+          { id: 1, text: '' },
+          { id: 2, text: '' },
+          { id: 3, text: '' },
+          { id: 4, text: '' }
         ],
-        correctOption: 'A',
+        correctOption: 1,
         subject: 'Physics',
         type: 'MCQ'
       }]);
@@ -55,14 +55,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
   const currentQuestion = questions[currentQuestionIndex] || questions[0];
   
 
-  
   const handleQuestionChange = (field: keyof Question, value: any) => {
     setQuestions(questions.map((q, i) => 
       i === currentQuestionIndex ? { ...q, [field]: value } : q
     ));
   };
-  
-  const handleOptionChange = (optionId: string, field: 'text' | 'imageUrl', value: string) => {
+
+  const handleOptionChange = (optionId: number, field: 'text' | 'imageUrl', value: string) => {
     setQuestions(questions.map((q, i) => 
       i === currentQuestionIndex ? {
         ...q,
@@ -72,7 +71,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
       } : q
     ));
   };
-  
+
   const addNewQuestion = () => {
     const newId = Math.max(0, ...questions.map(q => q.id)) + 1;
     const newQuestion: Question = {
@@ -80,12 +79,12 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
       text: '',
       imageUrl: '',
       options: [
-        { id: 'A', text: '' },
-        { id: 'B', text: '' },
-        { id: 'C', text: '' },
-        { id: 'D', text: '' }
+        { id: 1, text: '' },
+        { id: 2, text: '' },
+        { id: 3, text: '' },
+        { id: 4, text: '' }
       ],
-      correctOption: 'A',
+      correctOption: 1,
       subject: 'Physics',
       type: 'MCQ'
     };
@@ -93,7 +92,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
     setQuestions([...questions, newQuestion]);
     setCurrentQuestionIndex(questions.length);
   };
-  
+
   const removeCurrentQuestion = () => {
     if (questions.length <= 1) {
       toast.error("Cannot remove the only question");
@@ -104,7 +103,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
     setQuestions(newQuestions);
     setCurrentQuestionIndex(Math.min(currentQuestionIndex, newQuestions.length - 1));
   };
-  
+
   const handleSave = () => {
     const invalidQuestions = questions.filter(
       q => !q.text || q.options.some(opt => !opt.text)
@@ -120,8 +119,6 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
     onOpenChange(false);
   };
 
-
-  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -229,13 +226,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
             <div className="space-y-2">
               <Label>Correct Option</Label>
               <RadioGroup 
-                value={currentQuestion?.correctOption || 'A'}
-                onValueChange={v => handleQuestionChange('correctOption', v)}
+                value={(currentQuestion?.correctOption || 1).toString()}
+                onValueChange={v => handleQuestionChange('correctOption', Number(v))}
                 className="flex space-x-4"
               >
                 {currentQuestion?.options.map(option => (
                   <div key={option.id} className="flex items-center space-x-2">
-                    <RadioGroupItem value={option.id} id={`correctOption-${option.id}`} />
+                    <RadioGroupItem value={option.id.toString()} id={`correctOption-${option.id}`} />
                     <Label htmlFor={`correctOption-${option.id}`}>{option.id}</Label>
                   </div>
                 ))}

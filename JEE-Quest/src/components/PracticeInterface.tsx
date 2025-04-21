@@ -35,7 +35,7 @@ interface PracticeInterfaceProps {
 
 const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   const [questionStatus, setQuestionStatus] = useState<Record<number, QuestionStatus>>({});
   const [timeLeft, setTimeLeft] = useState(10800); // 3 hours in seconds
   const [isActive, setIsActive] = useState(true);
@@ -131,10 +131,10 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
           text: '', // No text, using imageUrl instead
           imageUrl: q.imageUrl,
           options: q.type.toUpperCase() === 'MCQ' ? q.options.map(opt => ({
-            id: opt.id.toString(),
+            id: Number(opt.id),
             text: opt.text || '',
           })) : [],
-          correctOption: q.correctOption.toString(), 
+          correctOption: Number(q.correctOption), 
           subject: q.subject || 'Unknown',
           type: q.type.toUpperCase() || 'MCQ',
         }));
@@ -194,7 +194,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handleAnswerChange = (questionId: number, answer: string) => {
+  const handleAnswerChange = (questionId: number, answer: number) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer
@@ -333,7 +333,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
           {currentQuestion.type === 'MCQ' ? (
             <RadioGroup 
-              value={answers[currentQuestion.id] || ''}
+              value={answers[currentQuestion.id]}
               onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
               className="space-y-4"
             >
@@ -342,11 +342,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
                   <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} />
                   <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">
                     <span className="font-medium mr-2">({option.id})</span>
-                    {option.text ? (
-                      option.text.includes('$') || option.text.includes('\\') ? 
-                        <MathRenderer math={option.text} /> : 
-                        option.text
-                    ) : null}
+                    {option.text ? option.text : null}
                   </Label>
                 </div>
               ))}
