@@ -24,7 +24,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// Scoring constants
 const CORRECT_MARKS = 4;
 const INCORRECT_MARKS = -1;
 const UNATTEMPTED_MARKS = 0;
@@ -33,30 +32,27 @@ interface PracticeInterfaceProps {
   paperId: string;
 }
 
+interface ScoreReport {
+  totalScore: number;
+  maxPossibleScore: number;
+  correctQuestions: number;
+  incorrectQuestions: number;
+  unattemptedQuestions: number;
+}
+
 const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [questionStatus, setQuestionStatus] = useState<Record<number, QuestionStatus>>({});
-  const [timeLeft, setTimeLeft] = useState(10800); // 3 hours in seconds
+  const [timeLeft, setTimeLeft] = useState(10800);
   const [isActive, setIsActive] = useState(true);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [questionTimes, setQuestionTimes] = useState<Record<number, number>>({});
   const navigate = useNavigate();
-
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  
 
-  interface ScoreReport {
-    totalScore: number;
-    maxPossibleScore: number;
-    correctQuestions: number;
-    incorrectQuestions: number;
-    unattemptedQuestions: number;
-  }
-
-  // Calculate score based on current answers
   const calculateScore = useCallback((): ScoreReport => {
     const report: ScoreReport = {
       totalScore: 0,
@@ -82,11 +78,9 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
     return report;
   }, [questions, answers]);
-  
-  // Handle submission with useCallback to avoid dependency issues
+
   const handleSubmit = useCallback(() => {
     setIsActive(false);
-    
     const scoreReport = calculateScore();
     
     const results = {
@@ -94,41 +88,30 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
       paperId,
       answers,
       questionStatus,
-      questionTimes, // <-- Add questionTimes to results
+      questionTimes,
       timeSpent: 10800 - timeLeft,
       date: new Date().toISOString(),
     };
     
     localStorage.setItem('testResults', JSON.stringify(results));
-    
     toast.success("Your responses have been submitted successfully!");
     
-    setTimeout(() => {
-      navigate(`/results/${paperId}`);
-    }, 1000);
+    setTimeout(() => navigate(`/results/${paperId}`), 1000);
   }, [paperId, answers, questionStatus, timeLeft, questions, navigate, calculateScore, questionTimes]);
 
-  // Load questions effect
   useEffect(() => {
     const loadQuestions = async () => {
       setIsLoading(true);
       try {        
         const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch questions: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Failed to fetch questions: ${response.status}`);
         
         const result = await response.json();
-      
-        if (!result.success || !result.data) {
-          throw new Error('Invalid response format from API');
-        }
+        if (!result.success || !result.data) throw new Error('Invalid response format');
         
-        // Map the API response to match our component's expected format
         const paperQuestions = result.data.map(q => ({
           id: q.id,
-          text: '', // No text, using imageUrl instead
+          text: q.text || '',
           imageUrl: q.imageUrl,
           options: q.type.toUpperCase() === 'MCQ' ? q.options.map(opt => ({
             id: Number(opt.id),
@@ -141,11 +124,8 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
         setQuestions(paperQuestions);
         
-        // Initialize question status
         const initialStatus: Record<number, QuestionStatus> = {};
-        paperQuestions.forEach(q => {
-          initialStatus[q.id] = 'unattempted';
-        });
+        paperQuestions.forEach(q => initialStatus[q.id] = 'unattempted');
         setQuestionStatus(initialStatus);
         
         setIsLoading(false);
@@ -159,21 +139,15 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     loadQuestions();
   }, [paperId, API_BASE_URL]);
 
-  // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft(prevTime => prevTime - 1);
-        // Track time spent for the current question
+        setTimeLeft(prev => prev - 1);
         setQuestionTimes(prev => {
           const qid = questions[currentQuestionIndex]?.id;
-          if (!qid) return prev;
-          return {
-            ...prev,
-            [qid]: (prev[qid] || 0) + 1
-          };
+          return qid ? { ...prev, [qid]: (prev[qid] || 0) + 1 } : prev;
         });
       }, 1000);
     } else if (timeLeft === 0) {
@@ -181,34 +155,24 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
       handleSubmit();
     }
     
-    return () => {
-      if (interval) clearInterval(interval);
-    };
+    return () => interval && clearInterval(interval);
   }, [isActive, timeLeft, handleSubmit, currentQuestionIndex, questions]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handleAnswerChange = (questionId: number, answer: number) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answer
-    }));
+  const handleAnswerChange = (questionId: number, answer: string) => {
+    const numericAnswer = Number(answer);
+    setAnswers(prev => ({ ...prev, [questionId]: numericAnswer }));
     
     setQuestionStatus(prev => {
       const currentStatus = prev[questionId];
-      
-      if (currentStatus === 'unattempted') {
-        return { ...prev, [questionId]: 'attempted' };
-      } else if (currentStatus === 'marked-unattempted') {
-        return { ...prev, [questionId]: 'marked-attempted' };
-      }
-      
+      if (currentStatus === 'unattempted') return { ...prev, [questionId]: 'attempted' };
+      if (currentStatus === 'marked-unattempted') return { ...prev, [questionId]: 'marked-attempted' };
       return prev;
     });
   };
@@ -216,48 +180,35 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const handleMarkForReview = (questionId: number) => {
     setQuestionStatus(prev => {
       const currentStatus = prev[questionId];
-      let newStatus: QuestionStatus;
-      
-      if (currentStatus === 'marked-unattempted') {
-        newStatus = 'unattempted';
-      } else if (currentStatus === 'marked-attempted') {
-        newStatus = 'attempted';
-      } else if (currentStatus === 'attempted') {
-        newStatus = 'marked-attempted';
-      } else {
-        newStatus = 'marked-unattempted';
-      }
-      
-      return {
-        ...prev,
-        [questionId]: newStatus
+      const statusMap: Record<string, QuestionStatus> = {
+        'marked-unattempted': 'unattempted',
+        'marked-attempted': 'attempted',
+        'attempted': 'marked-attempted',
+        'unattempted': 'marked-unattempted'
       };
+      return { ...prev, [questionId]: statusMap[currentStatus] || 'unattempted' };
     });
-    
-    toast.info(
-      questionStatus[questionId]?.includes('marked') 
-        ? "Question unmarked from review" 
-        : "Question marked for review"
-    );
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
+  const currentQuestion = questions[currentQuestionIndex];
+  const navigatorQuestions = questions.map(q => ({ id: q.id, status: questionStatus[q.id] || 'unattempted' }));
+  const attemptedCount = Object.keys(answers).length;
+  const progress = (attemptedCount / questions.length) * 100;
 
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+  const renderQuestionContent = () => {
+    if (currentQuestion.imageUrl) {
+      return (
+        <img 
+          src={currentQuestion.imageUrl} 
+          alt={`Question ${currentQuestionIndex + 1}`} 
+          className="mt-4 w-full max-w-2xl mx-auto rounded-lg shadow"
+        />
+      );
     }
-  };
-
-  const handleSelectQuestion = (questionId: number) => {
-    const index = questions.findIndex(q => q.id === questionId);
-    if (index !== -1) {
-      setCurrentQuestionIndex(index);
+    if (currentQuestion.text && (currentQuestion.text.includes('$') || currentQuestion.text.includes('\\'))) {
+      return <MathRenderer math={currentQuestion.text} />;
     }
+    return currentQuestion.text;
   };
 
   if (isLoading) {
@@ -280,31 +231,6 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const navigatorQuestions = questions.map(q => ({
-    id: q.id,
-    status: questionStatus[q.id] || 'unattempted'
-  }));
-
-  const attemptedCount = Object.keys(answers).length;
-  const progress = (attemptedCount / questions.length) * 100;
-  
-  const renderQuestionContent = () => {
-    if (currentQuestion.imageUrl) {
-      return (
-        <img 
-          src={currentQuestion.imageUrl} 
-          alt={`Question ${currentQuestionIndex + 1}`} 
-          className="mt-4 w-full max-w-2xl mx-auto rounded-lg shadow"
-        />
-      );
-    } else if (currentQuestion.text.includes('$') || currentQuestion.text.includes('\\')) {
-      return <MathRenderer math={currentQuestion.text} />;
-    } else {
-      return currentQuestion.text;
-    }
-  };
-  
   return (
     <div className="page-container grid grid-cols-1 lg:grid-cols-4 gap-6 pt-24">
       <div className="col-span-1 lg:col-span-3 glass-card rounded-xl p-6">
@@ -333,7 +259,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
           {currentQuestion.type === 'MCQ' ? (
             <RadioGroup 
-              value={answers[currentQuestion.id]}
+              value={answers[currentQuestion.id]?.toString()}
               onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
               className="space-y-4"
             >
@@ -342,7 +268,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
                   <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} />
                   <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">
                     <span className="font-medium mr-2">({option.id})</span>
-                    {option.text ? option.text : null}
+                    {option.text}
                   </Label>
                 </div>
               ))}
@@ -361,91 +287,90 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
         <Separator className="my-6" />
         
         <div className="flex justify-between gap-2 flex-wrap">
-  <Button
-    variant="outline"
-    onClick={handlePrevQuestion}
-    disabled={currentQuestionIndex === 0}
-    className="gap-2"
-  >
-    <ChevronLeft size={16} />
-    Previous
-  </Button>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
+            disabled={currentQuestionIndex === 0}
+            className="gap-2"
+          >
+            <ChevronLeft size={16} />
+            Previous
+          </Button>
 
-  <Button
-    variant={questionStatus[currentQuestion.id]?.includes('marked') ? "secondary" : "outline"}
-    onClick={() => handleMarkForReview(currentQuestion.id)}
-    className={`gap-2 ${questionStatus[currentQuestion.id]?.includes('marked') ? 'text-purple-700 border-purple-300' : ''}`}
-  >
-    <Flag size={16} />
-    {questionStatus[currentQuestion.id]?.includes('marked') ? 'Unmark Review' : 'Mark for Review'}
-  </Button>
+          <Button
+            variant={questionStatus[currentQuestion.id]?.includes('marked') ? "secondary" : "outline"}
+            onClick={() => handleMarkForReview(currentQuestion.id)}
+            className={`gap-2 ${questionStatus[currentQuestion.id]?.includes('marked') ? 'text-purple-700 border-purple-300' : ''}`}
+          >
+            <Flag size={16} />
+            {questionStatus[currentQuestion.id]?.includes('marked') ? 'Unmark Review' : 'Mark for Review'}
+          </Button>
 
-  <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
-    <AlertDialogTrigger asChild>
-      <Button variant="default" className="gap-2">
-        <Save size={16} />
-        Submit
-      </Button>
-    </AlertDialogTrigger>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
-        <AlertDialogDescription>
-          {attemptedCount < questions.length ? (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center text-amber-600 gap-2">
-                <AlertTriangle size={16} />
-                <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
-              </div>
-              <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
-                <p className="font-medium mb-1">Marking Scheme:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-                  <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                  <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
-                </ul>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
-              <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
-                <p className="font-medium mb-1">Marking Scheme:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-                  <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                  <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
-                </ul>
-              </div>
-            </div>
-          )}
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction onClick={handleSubmit}>Submit Test</AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+          <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+            <AlertDialogTrigger asChild>
+              <Button variant="default" className="gap-2">
+                <Save size={16} />
+                Submit
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {attemptedCount < questions.length ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center text-amber-600 gap-2">
+                        <AlertTriangle size={16} />
+                        <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
+                      </div>
+                      <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                        <p className="font-medium mb-1">Marking Scheme:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
+                      <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                        <p className="font-medium mb-1">Marking Scheme:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                          <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                          <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleSubmit}>Submit Test</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
-  <Button
-    variant="outline"
-    onClick={handleNextQuestion}
-    disabled={currentQuestionIndex === questions.length - 1}
-    className="gap-2"
-  >
-    Next
-    <ChevronRight size={16} />
-  </Button>
-</div>
-
+          <Button
+            variant="outline"
+            onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
+            disabled={currentQuestionIndex === questions.length - 1}
+            className="gap-2"
+          >
+            Next
+            <ChevronRight size={16} />
+          </Button>
+        </div>
       </div>
       
       <div className="col-span-1">
         <QuestionNavigation
           questions={navigatorQuestions}
           currentQuestion={currentQuestion.id}
-          onSelectQuestion={handleSelectQuestion}
+          onSelectQuestion={setCurrentQuestionIndex}
         />
       </div>
     </div>
