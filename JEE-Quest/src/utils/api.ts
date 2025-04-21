@@ -57,6 +57,16 @@ const tokenService = {
 // HTTP methods wrapper with authorization header
 const api = {
   get: async (endpoint: string) => {
+    // Token expiry and refresh logic
+    if (tokenService.isTokenExpired()) {
+      const refreshResponse = await authApi.refreshToken();
+      if (refreshResponse.success && refreshResponse.data?.token) {
+        tokenService.setToken(refreshResponse.data.token);
+      } else {
+        userSession.clearUserData();
+        return { success: false, error: 'Session expired. Please sign in again.' } as const;
+      }
+    }
     try {
       const token = tokenService.getToken();
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -65,18 +75,25 @@ const api = {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
       });
-      
       if (!response.ok) {
         return await handleApiError(response);
       }
-      
       return { success: true, data: await response.json(), status: response.status } as const;
     } catch (error) {
       return handleNetworkError(error);
     }
   },
-  
+
   post: async (endpoint: string, data: any) => {
+    if (tokenService.isTokenExpired()) {
+      const refreshResponse = await authApi.refreshToken();
+      if (refreshResponse.success && refreshResponse.data?.token) {
+        tokenService.setToken(refreshResponse.data.token);
+      } else {
+        userSession.clearUserData();
+        return { success: false, error: 'Session expired. Please sign in again.' } as const;
+      }
+    }
     try {
       const token = tokenService.getToken();
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -87,18 +104,25 @@ const api = {
         },
         body: JSON.stringify(data),
       });
-      
       if (!response.ok) {
         return await handleApiError(response);
       }
-      
       return { success: true, data: await response.json(), status: response.status } as const;
     } catch (error) {
       return handleNetworkError(error);
     }
   },
-  
+
   put: async (endpoint: string, data: any) => {
+    if (tokenService.isTokenExpired()) {
+      const refreshResponse = await authApi.refreshToken();
+      if (refreshResponse.success && refreshResponse.data?.token) {
+        tokenService.setToken(refreshResponse.data.token);
+      } else {
+        userSession.clearUserData();
+        return { success: false, error: 'Session expired. Please sign in again.' } as const;
+      }
+    }
     try {
       const token = tokenService.getToken();
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -109,11 +133,9 @@ const api = {
         },
         body: JSON.stringify(data),
       });
-      
       if (!response.ok) {
         return await handleApiError(response);
       }
-      
       return { success: true, data: await response.json(), status: response.status } as const;
     } catch (error) {
       return handleNetworkError(error);
@@ -121,6 +143,15 @@ const api = {
   },
   
   delete: async (endpoint: string) => {
+    if (tokenService.isTokenExpired()) {
+      const refreshResponse = await authApi.refreshToken();
+      if (refreshResponse.success && refreshResponse.data?.token) {
+        tokenService.setToken(refreshResponse.data.token);
+      } else {
+        userSession.clearUserData();
+        return { success: false, error: 'Session expired. Please sign in again.' } as const;
+      }
+    }
     try {
       const token = tokenService.getToken();
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -130,11 +161,9 @@ const api = {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
       });
-      
       if (!response.ok) {
         return await handleApiError(response);
       }
-      
       // Some DELETE endpoints might not return content
       const data = response.status !== 204 ? await response.json() : null;
       return { success: true, data, status: response.status } as const;

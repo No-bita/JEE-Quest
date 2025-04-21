@@ -67,7 +67,10 @@ const loadingMessages = [
   "Connecting the dots and crossing the t's...",
 ];
 
-const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setIsLoggedIn }) => {
+import { useAuth } from '@/context/AuthContext';
+
+const SignIn: React.FC = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -89,32 +92,11 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
       const response = await loginUser(values.email, values.password);
       
       if (response.token && response.user) {
-        // Store user data in localStorage
-        localStorage.setItem('isLoggedIn', 'true');
-        setIsLoggedIn(true);
-        localStorage.setItem('userName', response.user.name);
-        localStorage.setItem('userEmail', response.user.email);
-        localStorage.setItem('userId', response.user.id);
-        
-        if (response.token) {
-          localStorage.setItem('authToken', response.token);
-        }
-        
-        if (response.user.role === 'admin') {
-          toast.success('Logged in as admin');
-          localStorage.setItem('isAdmin', 'true');
-        } else {
-          toast.success('Logged in successfully');
-          localStorage.setItem('isAdmin', 'false');
-        }
-
-        if (response.user.paid) {
-          localStorage.setItem('hasSubscription', 'true');
-        } else {
-          localStorage.setItem('hasSubscription', 'false');
-        }
-        
-        navigate("/papers");   
+        login(response.token);
+        toast.success(
+          response.user.role === 'admin' ? 'Logged in as admin' : 'Logged in successfully'
+        );
+        navigate("/papers");
       } else {
         toast.error(response.error || 'Failed to sign in. Please check your credentials.');
       }

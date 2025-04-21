@@ -9,19 +9,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { X, Plus, Save, FileText } from 'lucide-react';
-import imageUrlUploader from './imageUrlUploader';
-import MathRenderer from './MathRenderer';
 
-// Question interface
-interface Question {
-  id: number;
-  text: string;
-  imageUrl: string;
-  options: { id: string; text: string; }[];
-  correctOption: string;
-  subject: string;
-  latex?: string;
-}
+import type { Question } from '@/utils/types';
 
 interface QuestionEditorProps {
   open: boolean;
@@ -40,7 +29,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
 }) => {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [latexPreview, setLatexPreview] = useState<string>('');
+
   
   useEffect(() => {
     if (initialQuestions.length === 0) {
@@ -56,22 +45,16 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
         ],
         correctOption: 'A',
         subject: 'Physics',
-        latex: ''
+        type: 'MCQ'
       }]);
     } else {
-      setQuestions(initialQuestions);
+      setQuestions(initialQuestions.map(question => ({ ...question, type: question.type || 'MCQ' })));
     }
   }, [initialQuestions]);
   
   const currentQuestion = questions[currentQuestionIndex] || questions[0];
   
-  useEffect(() => {
-    if (currentQuestion?.latex) {
-      setLatexPreview(currentQuestion.latex);
-    } else {
-      setLatexPreview('');
-    }
-  }, [currentQuestionIndex, currentQuestion?.latex]);
+
   
   const handleQuestionChange = (field: keyof Question, value: any) => {
     setQuestions(questions.map((q, i) => 
@@ -104,7 +87,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
       ],
       correctOption: 'A',
       subject: 'Physics',
-      latex: ''
+      type: 'MCQ'
     };
     
     setQuestions([...questions, newQuestion]);
@@ -137,11 +120,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
     onOpenChange(false);
   };
 
-  const handleLatexChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const latex = e.target.value;
-    setLatexPreview(latex);
-    handleQuestionChange('latex', latex);
-  };
+
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -191,12 +170,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
               <FileText size={16} />
               Content
             </TabsTrigger>
-            <TabsTrigger value="latex" className="flex items-center gap-2">
-              <span className="font-serif italic">TeX</span>
-              LaTeX
-            </TabsTrigger>
           </TabsList>
-          
           <TabsContent value="content" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="question-text">Question Text</Label>
@@ -212,10 +186,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
             <div className="space-y-2">
               <Label>Question Image (Optional)</Label>
               <div className="border rounded-md p-2">
-                <imageUrlUploader 
-                  initialimageUrl={currentQuestion?.imageUrl}
-                  onimageUrlSelected={(url) => handleQuestionChange('imageUrl', url)}
-                />
+                
               </div>
             </div>
             
@@ -272,47 +243,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
             </div>
           </TabsContent>
           
-          <TabsContent value="latex" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="latex-editor">LaTeX Equation</Label>
-                <Textarea
-                  id="latex-editor"
-                  value={currentQuestion?.latex || ''}
-                  onChange={handleLatexChange}
-                  className="min-h-[200px] font-mono"
-                  placeholder="Enter LaTeX equation, e.g., E = mc^2"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Use LaTeX syntax for equations. The preview will update as you type.
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Equation Preview</Label>
-                <div className="border rounded-md p-4 min-h-[200px] flex items-center justify-center bg-slate-50">
-                  {latexPreview ? (
-                    <MathRenderer math={latexPreview} display={true} />
-                  ) : (
-                    <p className="text-muted-foreground italic">
-                      Enter LaTeX to see preview
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>LaTeX Tips</Label>
-              <div className="text-sm space-y-1 p-3 bg-slate-50 rounded-md">
-                <p>• Fractions: \frac{"{numerator}"}{"{denominator}"}</p>
-                <p>• Powers: x^2, x^{"{a+b}"}</p>
-                <p>• Square roots: \sqrt{"{x}"}, \sqrt[n]{"{x}"}</p>
-                <p>• Greek letters: \alpha, \beta, \gamma, \Delta</p>
-                <p>• Subscripts: x_i, x_{"{i,j}"}</p>
-              </div>
-            </div>
-          </TabsContent>
+
         </Tabs>
         
         <DialogFooter>
