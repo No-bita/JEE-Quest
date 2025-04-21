@@ -111,7 +111,6 @@ const Results: React.FC = () => {
     };
 
     fetchPaperData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paperId, navigate]);
 
   // Helper: Subject performance
@@ -121,9 +120,9 @@ const Results: React.FC = () => {
       if (!q || !q.subject || !q.id) return acc;
       const subjectKey = q.subject.trim();
       if (!acc[subjectKey]) acc[subjectKey] = { correct: 0, incorrect: 0, unattempted: 0 };
-      const userAnswer = answers[q.id];
+      const userAnswer = Number(answers[q.id]);
       if (!userAnswer) acc[subjectKey].unattempted += 1;
-      else if (userAnswer === q.correctOption) acc[subjectKey].correct += 1;
+      else if (userAnswer === Number(q.correctOption)) acc[subjectKey].correct += 1;
       else acc[subjectKey].incorrect += 1;
       return acc;
     }, {});
@@ -381,7 +380,7 @@ const Results: React.FC = () => {
                             >
                               <span className="font-medium mr-2">{option.id}.</span>
                               {option.text}
-                              {option.id === question.correctOption && (
+                              {Number(option.id) === Number(question.correctOption) && (
                                 <span className="text-green-600 text-xs ml-2">
                                   (Correct answer)
                                 </span>
