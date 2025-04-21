@@ -3,8 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react"
-import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Import pages
 import Index from "./pages/Index";
@@ -14,7 +14,9 @@ import Analysis from "./pages/Analysis";
 import SignIn from "./pages/SignIn";
 import Register from "./pages/Register";
 import Pricing from "./pages/Pricing";
+import NotFound from "./pages/NotFound";
 import Results from "./pages/Results";
+import PracticeInterface from "./components/PracticeInterface";
 import AboutUs from './pages/AboutUs';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfService from '@/pages/TermsOfService';
@@ -24,7 +26,22 @@ const queryClient = new QueryClient();
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const AppContent = () => {
-  const { isAuthenticated } = useAuth();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem("isLoggedIn") === "true";
+  });
+  useEffect(() => {
+    // Check login status from localStorage
+    const checkLoginStatus = () => {
+      setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+    };
+    
+    // Check on initial load
+    checkLoginStatus();
+    
+    window.addEventListener('storage', checkLoginStatus);
+    return () => window.removeEventListener('storage', checkLoginStatus);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -33,12 +50,12 @@ const AppContent = () => {
         <BrowserRouter>
           <Routes>
             {/* Redirect from landing page to dashboard if logged in */}
-            <Route path="*" element={isAuthenticated ? <Navigate to="/papers" /> : <Index />} />
+            <Route path="*" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
 
             {/* Protected routes - redirect to landing if not logged in */}
-            <Route path="/papers" element={isAuthenticated ? <Dashboard /> : <Navigate to="/signin" />} />
-            <Route path="/analysis" element={isAuthenticated ? <Analysis /> : <Navigate to="/signin" />} />
-            <Route path="/results/:paperId?" element={isAuthenticated ? <Results /> : <Navigate to="/signin" />} />
+            <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
+            <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/signin" />} />
+            <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
 
             {/* Public routes */}
             <Route path="/practice/:paperId" element={<Practice />} />
@@ -48,8 +65,8 @@ const AppContent = () => {
             <Route path="/terms-of-service" element={<TermsOfService />} />
 
             {/* Auth routes - redirect to dashboard if already logged in */}
-            <Route path="/signin" element={isAuthenticated ? <Navigate to="/papers" /> : <SignIn />} />
-            <Route path="/register" element={isAuthenticated ? <Navigate to="/papers" /> : <Register />} />
+            <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/register" element={isLoggedIn ? <Navigate to="/papers" /> : <Register />} />
           </Routes>
         </BrowserRouter>
         <Analytics />
@@ -60,14 +77,10 @@ const AppContent = () => {
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-const App = () => {
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AuthProvider>
-        <AppContent />
-        <Analytics />
-      </AuthProvider>
-    </GoogleOAuthProvider>
-  );
-};
+const App = () => (
+  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <AppContent />
+  </GoogleOAuthProvider>
+);
+
 export default App;
