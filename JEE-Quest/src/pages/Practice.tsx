@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import PracticeInterface from '@/components/PracticeInterface';
+import InstructionsModal from '@/components/InstructionsModal';
 import { toast } from 'sonner';
 import { papersApi } from '@/utils/api';
 
 const Practice: React.FC = () => {
+  const [showInstructions, setShowInstructions] = useState(true);
   const { paperId } = useParams<{ paperId: string }>();
   const navigate = useNavigate();
   const [hasAccess, setHasAccess] = useState<boolean>(false);
@@ -65,6 +67,14 @@ const Practice: React.FC = () => {
     );
   }
   
+  if (showInstructions) {
+    return (
+      <>
+        <NavBar />
+        <InstructionsModal open={showInstructions} onProceed={() => setShowInstructions(false)} />
+      </>
+    );
+  }
   return (
     <>
       <NavBar />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import InstructionsModal from './InstructionsModal';
 import { Flag, ChevronLeft, ChevronRight, Timer, Save, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -41,6 +42,7 @@ interface ScoreReport {
 }
 
 const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
+  const [showInstructions, setShowInstructions] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [visitedQuestions, setVisitedQuestions] = useState<Set<number>>(new Set([0])); // Start with first question visited
