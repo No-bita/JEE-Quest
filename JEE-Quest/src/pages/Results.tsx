@@ -325,7 +325,7 @@ const Results: React.FC = () => {
               {questions.map((question, index) => {
                 if (!question?.id) return null;
                 const answers = results?.answers || {};
-                const userAnswer = answers[question.id];
+                const userAnswer = Number(answers[question.id]);
                 const isCorrect = Number(userAnswer) === Number(question.correctOption);
                 const answerStatus = !userAnswer ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';
                 const questionMarks = !userAnswer ? 
@@ -372,9 +372,9 @@ const Results: React.FC = () => {
                             <div 
                               key={option.id} 
                               className={`p-2 rounded ${
-                                option.id === question.correctOption 
+                                Number(option.id) === Number(question.correctOption) 
                                   ? 'bg-green-50 border border-green-200' 
-                                  : option.id === userAnswer && option.id !== question.correctOption 
+                                  : Number(option.id) === Number(userAnswer) && Number(option.id) !== Number(question.correctOption) 
                                   ? 'bg-red-50 border border-red-200'
                                   : 'bg-gray-50 border border-gray-200'
                               }`}
