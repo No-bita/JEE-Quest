@@ -326,7 +326,7 @@ const Results: React.FC = () => {
                 if (!question?.id) return null;
                 const answers = results?.answers || {};
                 const userAnswer = answers[question.id];
-                const isCorrect = userAnswer === question.correctOption;
+                const isCorrect = Number(userAnswer) === Number(question.correctOption);
                 const answerStatus = !userAnswer ? 'Not Attempted' : isCorrect ? 'Correct' : 'Incorrect';
                 const questionMarks = !userAnswer ? 
                   UNATTEMPTED_MARKS : 
