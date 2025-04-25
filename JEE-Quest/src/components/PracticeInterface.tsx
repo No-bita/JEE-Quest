@@ -54,6 +54,12 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [questionTimes, setQuestionTimes] = useState<Record<number, number>>({});
+  // Track per-question timing and answeredAt
+  const [questionTimingMeta, setQuestionTimingMeta] = useState<{
+    [questionId: number]: { timeSpent: number; answeredAt?: string }
+  }>({});
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
+
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -83,6 +89,18 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     return report;
   }, [questions, answers]);
 
+  // Build questionTimings array for backend
+  const buildQuestionTimings = () => {
+    return questions.map(q => {
+      const meta = questionTimingMeta[q.id] || { timeSpent: 0 };
+      return {
+        questionId: q.id,
+        timeSpent: meta.timeSpent,
+        answeredAt: meta.answeredAt || null
+      };
+    });
+  };
+
   const handleSubmit = useCallback(() => {
     setIsActive(false);
     const scoreReport = calculateScore();
@@ -95,6 +113,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
       questionTimes,
       timeSpent: 10800 - timeLeft,
       date: new Date().toISOString(),
+      questionTimings: buildQuestionTimings(),
     };
     
     localStorage.setItem('testResults', JSON.stringify(results));
@@ -171,6 +190,14 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
   // Handles both MCQ (string) and Numeric (number) answers robustly
   const handleAnswerChange = (questionId: number, answer: string) => {
+    // Record answeredAt and add to timing meta
+    setQuestionTimingMeta(prev => ({
+      ...prev,
+      [questionId]: {
+        ...(prev[questionId] || { timeSpent: 0 }),
+        answeredAt: new Date().toISOString(),
+      }
+    }));
     // For MCQ, answer is option.id as string; for Numeric, it's the input value
     const isNumeric = currentQuestion?.type === 'NUMERIC';
     const value = isNumeric ? Number(answer) : Number(answer); // Always store as number
@@ -203,6 +230,32 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
 
   // Defensive: handle out-of-bounds index
   const currentQuestion = questions[currentQuestionIndex] || null;
+
+  // Track time spent on each question when navigating
+  useEffect(() => {
+    if (!questions.length) return;
+    const prevQuestionId = questions[currentQuestionIndex]?.id;
+    const prevStart = questionStartTime;
+    return () => {
+      if (prevQuestionId != null) {
+        const now = Date.now();
+        const delta = Math.floor((now - prevStart) / 1000);
+        setQuestionTimingMeta(prev => ({
+          ...prev,
+          [prevQuestionId]: {
+            ...(prev[prevQuestionId] || { timeSpent: 0 }),
+            timeSpent: (prev[prevQuestionId]?.timeSpent || 0) + delta,
+          }
+        }));
+      }
+    };
+    // eslint-disable-next-line
+  }, [currentQuestionIndex]);
+
+  // Update questionStartTime whenever currentQuestionIndex changes
+  useEffect(() => {
+    setQuestionStartTime(Date.now());
+  }, [currentQuestionIndex]);
 
   // Mark question as visited on index change
   React.useEffect(() => {

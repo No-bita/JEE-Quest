@@ -10,11 +10,9 @@ import { Analytics } from "@vercel/analytics/react"
 import Index from "./pages/Index";
 import Dashboard from "./pages/Papers";
 import Practice from "./pages/Practice";
-import Analysis from "./pages/Analysis";
 import SignIn from "./pages/SignIn";
 import Register from "./pages/Register";
 import Pricing from "./pages/Pricing";
-import NotFound from "./pages/NotFound";
 import Results from "./pages/Results";
 import PracticeInterface from "./components/PracticeInterface";
 import AboutUs from './pages/AboutUs';
@@ -55,7 +53,6 @@ const AppContent = () => {
 
             {/* Protected routes - redirect to landing if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
-            <Route path="/analysis" element={isLoggedIn ? <Analysis /> : <Navigate to="/signin" />} />
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
 
             {/* Public routes */}

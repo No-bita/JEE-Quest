@@ -14,6 +14,7 @@ const Results: React.FC = () => {
   const navigate = useNavigate();
   const [results, setResults] = useState<ResultsData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [paperNote, setPaperNote] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [scoreData, setScoreData] = useState<{
@@ -86,8 +87,17 @@ const Results: React.FC = () => {
         if (!response.ok) throw new Error('Failed to fetch questions');
         const data = await response.json();
         if (!data?.data) throw new Error('Invalid questions data received from API');
-        const questionsArr = Array.isArray(data.data) ? data.data : data.data.questions || [];
+        let questionsArr: Question[] = [];
+        let note: string | null = null;
+        if (Array.isArray(data.data)) {
+          questionsArr = data.data;
+          note = data.data[0]?.note || null;
+        } else {
+          questionsArr = data.data.questions || [];
+          note = data.data.note || null;
+        }
         setQuestions(questionsArr);
+        setPaperNote(note);
 
         setScoreData({
           totalScore: testResult.totalScore || 0,
@@ -211,6 +221,11 @@ const Results: React.FC = () => {
     <>
       <NavBar />
       <div className="page-container pt-24 max-w-5xl mx-auto px-2 md:px-6">
+        {paperNote && (
+          <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-300 text-blue-900 text-center text-base font-medium">
+            <span className="font-semibold">Note:</span> {paperNote}
+          </div>
+        )}
         <Button
           variant="ghost"
           className="mb-4 flex items-center gap-1 text-muted-foreground"
