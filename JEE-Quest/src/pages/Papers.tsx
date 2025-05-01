@@ -483,6 +483,33 @@ const mockNotifications = [
 ];
 
 const Dashboard: React.FC = () => {
+  // --- User Profile Dropdown State and Refs ---
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileBtnRef = React.useRef<HTMLButtonElement>(null);
+  const profileDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target as Node) &&
+        profileBtnRef.current &&
+        !profileBtnRef.current.contains(event.target as Node)
+      ) {
+        setProfileDropdownOpen(false);
+      }
+    }
+    if (profileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileDropdownOpen]);
+
   const [notifOpen, setNotifOpen] = useState(false);
   const notifBtnRef = React.useRef<HTMLButtonElement>(null);
   const notifDropdownRef = React.useRef<HTMLDivElement>(null);
@@ -643,17 +670,33 @@ const Dashboard: React.FC = () => {
     )}
   </div>
   {/* User Profile Section */}
-  <button className="flex items-center gap-3 pl-2 rounded-xl bg-[#FAFAFA] p-2 shadow-sm border border-[#F0F0F0] hover:bg-[#F3F3F3] transition">
-  <img
-    src={localStorage.getItem('userAvatar') || 'https://randomuser.me/api/portraits/men/32.jpg'}
-    alt={userName}
-    className="h-10 w-10 rounded-full object-cover bg-gray-200"
-    onError={(e) => { (e.target as HTMLImageElement).src = 'https://randomuser.me/api/portraits/men/32.jpg'; }}
-  />
-  <div className="flex flex-col items-start">
-    <span className="font-bold text-lg leading-5">{userName}</span>
+  <div className="relative">
+    <button
+      className="flex items-center gap-3 pl-2 rounded-xl bg-[#FAFAFA] p-2 shadow-sm border border-[#F0F0F0] hover:bg-[#F3F3F3] transition"
+      onClick={() => setProfileDropdownOpen((open) => !open)}
+      ref={profileBtnRef}
+      aria-label="User menu"
+    >
+      <img
+        src={localStorage.getItem('userAvatar') || 'https://randomuser.me/api/portraits/men/32.jpg'}
+        alt={userName}
+        className="h-10 w-10 rounded-full object-cover bg-gray-200"
+        onError={(e) => { (e.target as HTMLImageElement).src = 'https://randomuser.me/api/portraits/men/32.jpg'; }}
+      />
+      <div className="flex flex-col items-start">
+        <span className="font-bold text-lg leading-5">{userName}</span>
+      </div>
+    </button>
+    {profileDropdownOpen && (
+      <div ref={profileDropdownRef} className="absolute right-0 mt-2 w-48 bg-white border border-[#E3E9E2] shadow-xl rounded-xl z-50 animate-fade-in">
+        <ul className="divide-y divide-[#F0F0F0]">
+          <li className="px-4 py-3 hover:bg-[#FAFBF6] cursor-pointer">Profile</li>
+          <li className="px-4 py-3 hover:bg-[#FAFBF6] cursor-pointer">Settings</li>
+          <li className="px-4 py-3 hover:bg-[#FAFBF6] cursor-pointer text-red-500">Logout</li>
+        </ul>
+      </div>
+    )}
   </div>
-</button>
 </div>
           </div>
           

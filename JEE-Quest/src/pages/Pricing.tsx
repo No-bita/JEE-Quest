@@ -51,7 +51,26 @@ const Pricing: React.FC = () => {
               {/* Show user what paper they are buying */}
               <div className="mb-4 p-4 rounded-lg border border-primary bg-[#F5F3FF] text-center">
                 <div className="text-base text-muted-foreground">You are about to buy:</div>
-                <div className="text-lg font-semibold text-primary mt-1">{paperTitle}</div>
+                <div className="text-lg font-semibold text-primary mt-1">
+                  {(() => {
+                    // Try to parse the paperTitle for year, date, and shift
+                    // Accepts formats like 'JEE Mains 2025 - Morning Shift' or 'JEE Mains 2025 - Morning Shift (Jan 22, 2025)'
+                    const regex = /(JEE Mains|JEE Main|JEE)\s*(\d{4})\s*-\s*([A-Za-z ]+)(?:\s*\(([^)]+)\))?/;
+                    const match = regex.exec(paperTitle);
+                    if (match) {
+                      const [, exam, year, shift, dateFromTitle] = match;
+                      // Prefer date from title if present, else fallback to search param
+                      const date = dateFromTitle || (searchParams.get('date'));
+                      if (date) {
+                        return `${exam} ${date} - ${shift.trim()}`;
+                      } else {
+                        return `${exam} ${year} - ${shift.trim()}`;
+                      }
+                    }
+                    // Fallback to original title
+                    return paperTitle;
+                  })()}
+                </div>
               </div>
               <div className="flex items-center gap-4 mb-2">
                 <div className="bg-[#D6CCFF] rounded-full p-3 flex items-center justify-center">

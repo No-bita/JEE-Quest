@@ -174,7 +174,7 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                   {isLoading ? (
                     <span className="flex items-center justify-center">
                       <span className="animate-spin mr-2 h-4 w-4 border-b-2 border-white rounded-full" />
-                      <span>{loadingMessage}</span>
+                      <span className="text-sm">{loadingMessage}</span>
                     </span>
                   ) : (
                     'Sign In'
@@ -183,46 +183,7 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
               </form>
             </Form>
           </CardContent>
-          {/*
-          <div className="my-4 flex items-center">
-            <hr className="flex-1 border-gray-300" />
-            <span className="mx-2 text-gray-500">or</span>
-            <hr className="flex-1 border-gray-300" />
-          </div>
-          <div className="flex justify-center">
-            <GoogleLogin
-              onSuccess={async (credentialResponse) => {
-                if (!credentialResponse.credential) {
-                  toast.error('Google sign-in failed: No credential');
-                  return;
-                }
-                try {
-                  const response = await fetch(`${API_BASE_URL}/auth/google`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: credentialResponse.credential })
-                  });
-                  const data = await response.json();
-                  if (response.ok && data.token) {
-                    toast.success('Signed in with Google!');
-                    // Save token, update login state, and redirect as needed
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('isLoggedIn', 'true');
-                    navigate('/dashboard');
-                  } else {
-                    toast.error(data.error || 'Google sign-in failed');
-                  }
-                } catch (err) {
-                  toast.error('Google sign-in failed: Network error');
-                }
-              }}
-              onError={() => {
-                toast.error('Google sign-in was unsuccessful. Try again!');
-              }}
-              width="100%"
-            />
-          </div>
-          */}
+          
           <CardFooter className="flex flex-col space-y-2 mt-4 border-t border-[#E3E9E2] pt-4">
             <div className="text-sm text-center">
               Don't have an account?{' '}
