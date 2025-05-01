@@ -16,9 +16,8 @@ const Pricing: React.FC = () => {
   const [showPaidButton, setShowPaidButton] = useState(false);
 
   const handlePayNowClick = (type: "single") => {
-    setQrCodeUrl("/images/GooglePay_QR.png");
-    setShowPaidButton(true);
-    setIsModalOpen(true);
+    // TODO: Replace this placeholder with your real payment URL
+    window.location.href = "https://razorpay.me/@jeequest?amount=c9yvgMVo3UALiywjEnuNsQ%3D%3D";
   };
 
   // Grant access to single paper (local logic, can be extended to backend)
