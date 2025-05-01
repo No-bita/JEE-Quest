@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import NavBar from '@/components/NavBar';
+import Sidebar from '@/components/Sidebar';
 import { Button } from '@/components/ui/button';
 import { 
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend 
 } from 'recharts';
+import CountUp from 'react-countup';
 import { ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { CORRECT_MARKS, INCORRECT_MARKS, UNATTEMPTED_MARKS, ResultsData, Question } from '@/utils/types';
 import { toast } from '@/components/ui/use-toast';
@@ -200,12 +201,12 @@ const Results: React.FC = () => {
 
   if (isLoading || !scoreData) {
     return (
-      <>
-        <NavBar />
-        <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
+      <div className="flex min-h-screen" style={{ backgroundColor: '#FAFBF6' }}>
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center h-[60vh]">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -218,63 +219,45 @@ const Results: React.FC = () => {
   } = scoreData;
 
   return (
-    <>
-      <NavBar />
-      <div className="page-container pt-24 max-w-5xl mx-auto px-2 md:px-6">
+    <div className="flex min-h-screen" style={{ backgroundColor: '#FAFBF6' }}>
+      <Sidebar />
+      <div className="flex-1 page-container pt-24 max-w-5xl mx-auto px-2 md:px-6">
         {paperNote && (
           <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-300 text-blue-900 text-center text-base font-medium">
             <span className="font-semibold">Note:</span> {paperNote}
           </div>
         )}
-        <Button
-          variant="ghost"
-          className="mb-4 flex items-center gap-1 text-muted-foreground"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft size={18} /> Back
-        </Button>
-        <div className="flex flex-col items-center justify-center mt-4 md:mt-0 bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
-          <div className="text-2xl font-semibold mb-1">{totalScore}/{maxPossibleScore}</div>
+
+        {/* Score Highlight */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="bg-white shadow-lg rounded-2xl px-8 py-6 mb-2">
+            <div className="text-4xl font-extrabold text-primary">
+              <CountUp end={totalScore} duration={3} />/{maxPossibleScore}
+            </div>
+            <div className="text-base text-muted-foreground text-center">Your Score</div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-green-100 text-green-600 rounded-full p-3">
-              <CheckCircle size={24} />
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Correct</div>
-              <div className="text-xl font-semibold">{correctQuestions}</div>
-            </div>
+        {/* Stat Cards Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+          <div className="flex flex-col items-center rounded-xl shadow p-4" style={{ backgroundColor: '#D6CCFF' }}>
+            <CheckCircle size={28} className="mb-2" color="#7C3AED" />
+            <div className="text-sm text-gray-700">Correct</div>
+            <div className="text-2xl font-bold text-black">{correctQuestions}</div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="bg-red-100 text-red-600 rounded-full p-3">
-              <XCircle size={24} />
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Incorrect</div>
-              <div className="text-xl font-semibold">{incorrectQuestions}</div>
-            </div>
+          <div className="flex flex-col items-center rounded-xl shadow p-4" style={{ backgroundColor: '#FFCFC7' }}>
+            <XCircle size={28} className="mb-2" color="#FF6B6B" />
+            <div className="text-sm text-gray-700">Incorrect</div>
+            <div className="text-2xl font-bold text-black">{incorrectQuestions}</div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="bg-gray-100 text-gray-600 rounded-full p-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="12" x2="12" y2="12"></line>
-              </svg>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Unattempted</div>
-              <div className="text-xl font-semibold">{unattemptedQuestions}</div>
-            </div>
+          <div className="flex flex-col items-center rounded-xl shadow p-4" style={{ backgroundColor: '#FFE3AC' }}>
+            <svg className="mb-2" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFB300" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="12" x2="12" y2="12"></line></svg>
+            <div className="text-sm text-gray-700">Unattempted</div>
+            <div className="text-2xl font-bold text-black">{unattemptedQuestions}</div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 text-primary rounded-full p-3">
-              <Clock size={24} />
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Time Taken</div>
-              <div className="text-xl font-semibold">{formatTime(results?.timeSpent || 0)}</div>
-            </div>
+          <div className="flex flex-col items-center rounded-xl shadow p-4" style={{ backgroundColor: '#B6F7B0' }}>
+            <Clock size={28} className="mb-2" color="#22C55E" />
+            <div className="text-sm text-gray-700">Time Taken</div>
+            <div className="text-2xl font-bold text-black">{formatTime(results?.timeSpent || 0)}</div>
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
@@ -434,8 +417,8 @@ const Results: React.FC = () => {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
-};
+}
 
 export default Results;

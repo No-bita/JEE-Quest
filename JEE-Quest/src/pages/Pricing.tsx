@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
-import { Check, CreditCard, Package, Lock } from 'lucide-react';
+import { Check, CreditCard } from 'lucide-react';
 import PaymentModal from "@/components/PaymentModal";
 
 const Pricing: React.FC = () => {
@@ -13,133 +13,88 @@ const Pricing: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
-  
-  const handlePayNowClick = (type: "single" | "subscription") => {
-    if (type === "single") {
-      setQrCodeUrl("/images/GooglePay_QR.png");
-    } else {
-      setQrCodeUrl("/images/GooglePay_QR.png");
-    }
+  const [showPaidButton, setShowPaidButton] = useState(false);
+
+  const handlePayNowClick = (type: "single") => {
+    setQrCodeUrl("/images/GooglePay_QR.png");
+    setShowPaidButton(true);
     setIsModalOpen(true);
+  };
+
+  // Grant access to single paper (local logic, can be extended to backend)
+  const grantPaperAccess = async () => {
+    if (!paperId) return;
+    let paidPapers = JSON.parse(localStorage.getItem('paidPapers') || '[]');
+    if (!paidPapers.includes(paperId)) {
+      paidPapers.push(paperId);
+      localStorage.setItem('paidPapers', JSON.stringify(paidPapers));
+    }
+    setIsModalOpen(false);
+    setTimeout(() => navigate(`/practice/${paperId}`), 1000);
   };
 
   return (
     <>
       <NavBar />
-      <div className="page-container pt-32">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-4">Choose Your Study Plan</h1>
+      <div className="min-h-screen" style={{ backgroundColor: '#FAFBF6' }}>
+        <div className="max-w-2xl mx-auto pt-32 px-2 md:px-0">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-extrabold mb-3">Choose Your Study Plan</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Access premium JEE practice materials to boost your preparation and ace your exams.
             </p>
-            {paperId && (
-              <div className="mt-4 p-2 border border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-400 rounded-md inline-flex items-center gap-2">
-                <Lock size={16} />
-                <span>You're unlocking: <b>{paperTitle}</b></span>
-              </div>
-            )}
           </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
+
+          <div className="flex justify-center mb-16">
             {/* Individual Paper Plan */}
-            <div className="glass-card p-8 rounded-xl hover:shadow-lg transition-all">
-              <div className="mb-4">
-                <div className="bg-primary/10 text-primary inline-flex rounded-full p-3 mb-4">
-                  <CreditCard size={26} />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Single Paper Access</h2>
-                <p className="text-muted-foreground">
-                  Get access to individual papers of your choice.
-                </p>
+            <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md flex flex-col gap-6">
+              {/* Show user what paper they are buying */}
+              <div className="mb-4 p-4 rounded-lg border border-primary bg-[#F5F3FF] text-center">
+                <div className="text-base text-muted-foreground">You are about to buy:</div>
+                <div className="text-lg font-semibold text-primary mt-1">{paperTitle}</div>
               </div>
-              
-              <div className="mb-6">
-                <div className="text-3xl font-bold">
-                  ₹99
-                  <span className="text-sm font-normal text-muted-foreground ml-1">/ paper</span>
+              <div className="flex items-center gap-4 mb-2">
+                <div className="bg-[#D6CCFF] rounded-full p-3 flex items-center justify-center">
+                  <CreditCard size={28} color="#7C3AED" />
                 </div>
-              </div>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex items-start gap-2">
-                  <Check className="text-green-500 mt-1" size={18} />
-                  <span>Full access to the selected paper</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="text-green-500 mt-1" size={18} />
-                  <span>Detailed solutions & explanations</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="text-green-500 mt-1" size={18} />
-                  <span>Performance tracking for this paper</span>
+                <div>
+                  <h2 className="text-xl font-bold mb-1">Single Paper Access</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Get access to individual papers of your choice.
+                  </p>
                 </div>
               </div>
-
-              <Button 
-                variant="default" 
-                className="w-full"
+              <div>
+                <div className="text-3xl font-extrabold text-primary mb-1">₹21
+                  <span className="text-base font-normal text-muted-foreground ml-1">/ paper</span>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Check className="text-green-500" size={18} />
+                  <span className="text-base">Full access to the selected paper</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="text-green-500" size={18} />
+                  <span className="text-base">Detailed solutions & explanations</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="text-green-500" size={18} />
+                  <span className="text-base">Performance tracking for this paper</span>
+                </div>
+              </div>
+              <Button
+                className="w-full rounded-full bg-primary text-white font-semibold text-lg py-3 mt-2 shadow hover:bg-primary/90 transition"
                 onClick={() => handlePayNowClick("single")}
-              >
-                Pay Now
-              </Button>
-            </div>
-
-            {/* Subscription Plan */}
-            <div className="glass-card p-8 rounded-xl border-2 border-primary hover:shadow-lg transition-all relative">
-              <div className="absolute -top-4 -right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
-                RECOMMENDED
-              </div>
-              
-              <div className="mb-4">
-                <div className="bg-primary/10 text-primary inline-flex rounded-full p-3 mb-4">
-                  <Package size={26} />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Full Access Subscription</h2>
-                <p className="text-muted-foreground">
-                  Unlimited access to all papers and premium features.
-                </p>
-              </div>
-              
-              <div className="mb-6">
-                <div className="text-3xl font-bold">
-                  ₹999
-                  <span className="text-sm font-normal text-muted-foreground ml-1">/ year</span>
-                </div>
-              </div>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex items-start gap-2">
-                  <Check className="text-green-500 mt-1" size={18} />
-                  <span><b>All JEE papers</b> from 2020-2025</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="text-green-500 mt-1" size={18} />
-                  <span>Complete detailed solutions & explanations</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="text-green-500 mt-1" size={18} />
-                  <span>Comprehensive performance analytics</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="text-green-500 mt-1" size={18} />
-                  <span>Progress tracking across all papers</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="text-green-500 mt-1" size={18} />
-                  <span>Access to all future papers as they're added</span>
-                </div>
-              </div>
-
-              <Button 
-                variant="default" 
-                className="w-full"
-                onClick={() => handlePayNowClick("subscription")}
+                size="lg"
               >
                 Pay Now
               </Button>
             </div>
           </div>
+
+
+
           
           <div className="text-center mb-16">
             <Button 
@@ -151,12 +106,19 @@ const Pricing: React.FC = () => {
           </div>
         </div>
       </div>
-
       <PaymentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         qrCodeUrl={qrCodeUrl}
-      />
+      >
+        {showPaidButton && (
+          <div className="mt-4 flex justify-center">
+            <Button className="bg-primary text-white" onClick={grantPaperAccess}>
+              I've Paid
+            </Button>
+          </div>
+        )}
+      </PaymentModal>
     </>
   );
 };

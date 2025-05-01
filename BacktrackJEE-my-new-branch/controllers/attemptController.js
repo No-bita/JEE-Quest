@@ -1,181 +1,169 @@
 import Attempt from "../models/Attempt.js";
-import Exam from "../models/exam.js";
-import Question from "../models/questionss.js";
+import User from "../models/user.js";
+import getQuestionModel from "../models/Question.js";
 
-// ✅ Start a New Exam Attempt
-export const startAttempt = async (req, res) => {
-    try {
-        const { year, slot, totalQuestions, timeAlloted } = req.body;
-        const userId = req.user.id;
-
-        if (!year || !slot || !totalQuestions) {
-            return res.status(400).json({ error: "Year, slot, and totalQuestions are required." });
-        }
-
-        // ✅ Find Exam based on year & slot
-        const exam = await Exam.findOne({ year, slot });
-        if (!exam) {
-            return res.status(404).json({ error: "Exam not found." });
-        }
-
-        // ✅ Check Available Questions
-        const availableQuestions = await Question.countDocuments({ exam: exam._id });
-        if (totalQuestions > availableQuestions) {
-            return res.status(400).json({ error: `Only ${availableQuestions} questions are available.` });
-        }
-
-        // ✅ Create a New Attempt
-        const attempt = new Attempt({
-            user: userId,
-            exam: exam._id,
-            responses: questions.map(q => ({
-                question: q._id,
-                questionType: q.type
-            })),
-            totalQuestions,
-            timeAlloted,
-            startTime: new Date(),
-            status: "IN_PROGRESS"
-        });
-
-        await attempt.save();
-
-        res.status(201).json({
-            message: "✅ Attempt started successfully.",
-            attemptId: attempt._id,
-            questions
-        });
-
-    } catch (error) {
-        console.error("Error starting attempt:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+// Save a new attempt (POST /api/attempts/save)
+export const saveAttempt = async (req, res) => {
+  try {
+    const requiredFields = [
+      "paperId", "answers", "questionTimings", 
+      "timeSpent", "score", "maxPossibleScore"
+    ];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: `Missing required fields: ${missingFields.join(", ")}`
+      });
     }
+
+    const { paperId, answers, questionTimings, timeSpent, score, maxPossibleScore } = req.body;
+    const userId = req.user.id;
+    const userName = req.user.name;
+
+    // Validate existing attempt first
+    const existingAttempt = await Attempt.findOne({ userId, paperId });
+    if (existingAttempt) {
+      return res.status(409).json({ 
+        message: "Attempt already exists for this user and paper.",
+        existingId: existingAttempt._id
+      });
+    }
+
+    const newAttempt = new Attempt({
+      userId,
+      userName,
+      paperId,
+      answers: answers.map(answer => ({
+        ...answer,
+        timestamp: new Date() // Add server-side timestamp
+      })),
+      questionTimings,
+      timeSpent,
+      score,
+      maxPossibleScore,
+      date: new Date() // Server-generated date
+    });
+
+    await newAttempt.save();
+
+    return res.status(201).json({
+      success: true,
+      attemptId: newAttempt._id,
+      score: newAttempt.score
+    });
+
+  } catch (error) {
+    console.error("Save Attempt Error:", {
+      user: req.user?.id,
+      error: error.message,
+      stack: error.stack
+    });
+    return res.status(500).json({
+      error: "Failed to save attempt. Please try again later."
+    });
+  }
 };
 
-// ✅ Submit Exam
-export const submitExam = async (req, res) => {
-    try {
-        const { year, slot, correctOptions } = req.body;
-        const userId = req.user.id;
-
-        if (!year || !slot || !correctOptions || Object.keys(correctOptions).length === 0) {
-            return res.status(400).json({ error: "Year, slot, and at least one correctOption are required." });
-        }
-
-        // ✅ Find Exam
-        const exam = await Exam.findOne({ year, slot }).populate("questions");
-        if (!exam) {
-            return res.status(404).json({ error: "Exam not found." });
-        }
-
-        let totalMarks = 0, correctcorrectOptions = 0, incorrectcorrectOptions = 0, attemptedQuestions = 0;
-        let responses = [];
-
-        // ✅ Process and Evaluate correctOptions
-        exam.questions.forEach(q => {
-            const selected = correctOptions[q._id] ? Number(correctOptions[q._id]) : null;
-            let isCorrect = false, marksObtained = 0;
-
-            if (selected !== null) {
-                attemptedQuestions++;
-                const correct = selected === Number(q.correctOption);
-                marksObtained = correct ? 4 : -1;
-                totalMarks += marksObtained;
-                correct ? correctcorrectOptions++ : incorrectcorrectOptions++;
-            }
-
-            responses.push({
-                question: q._id,
-                selectedOption: selected,
-                correctOption: Number(q.correctOption),
-                isCorrect,
-                marksObtained
-            });
-        });
-
-        // ✅ Save Attempt
-        const attempt = new Attempt({
-            user: userId,
-            exam: exam._id,
-            responses,
-            totalQuestions: exam.questions.length,
-            attemptedQuestions,
-            correctcorrectOptions,
-            incorrectcorrectOptions,
-            totalMarks: Math.max(0, totalMarks), // Prevent negative marks
-            startTime: new Date(),
-            endTime: new Date(),
-            status: "COMPLETED",
-            timeAlloted: 180 // Assume 180 minutes
-        });
-
-        await attempt.save();
-
-        res.json({
-            message: "✅ Exam submitted successfully.",
-            score: attempt.totalMarks,
-            correct: attempt.correctcorrectOptions,
-            incorrect: attempt.incorrectcorrectOptions,
-            skipped: attempt.totalQuestions - attempt.attemptedQuestions,
-            attempt
-        });
-
-    } catch (error) {
-        console.error("Error submitting attempt:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+// Check existing attempt (GET /api/attempts/check?paperId=...)
+export const checkAttempt = async (req, res) => {
+  try {
+    const { paperId } = req.query;
+    if (!paperId) {
+      return res.status(400).json({
+        valid: false,
+        error: "paperId query parameter is required"
+      });
     }
+
+    const attempt = await Attempt.findOne({
+      userId: req.user.id,
+      paperId
+    }).select("_id score createdAt");
+
+    return res.json({
+      exists: !!attempt,
+      attemptDetails: attempt || null
+    });
+
+  } catch (error) {
+    console.error("Check Attempt Error:", {
+      user: req.user?.id,
+      error: error.message
+    });
+    return res.status(500).json({
+      error: "Failed to check attempt status"
+    });
+  }
 };
 
-// ✅ Fetch Exam Results
+// Get exam results (GET /api/attempts/results/:paperId)
 export const getExamResults = async (req, res) => {
-    try {
-        const { user_id, year, slot } = req.query.user_id ? req.query : req.body;
+  try {
+    const { paperId } = req.params;
+    const userId = req.user.id;
 
-        if (!user_id || !year || !slot) {
-            return res.status(400).json({ error: "Missing required fields." });
-        }
+    const attempt = await Attempt.findOne({ userId, paperId })
+      .populate("responses.question", "question_text correctOption")
+      .lean();
 
-        // ✅ Find Exam
-        const exam = await Exam.findOne({ year, slot });
-        if (!exam) {
-            return res.status(404).json({ error: "Exam not found." });
-        }
-
-        // ✅ Fetch Attempt
-        const attempt = await Attempt.findOne({ user: user_id, exam: exam._id }).populate("responses.question");
-
-        if (!attempt) {
-            return res.status(404).json({ error: "No attempt found for this exam." });
-        }
-
-        // ✅ Calculate Time Taken
-        const timeTaken = attempt.endTime
-            ? Math.round((attempt.endTime - attempt.startTime) / (1000 * 60))
-            : 0;
-
-        // ✅ Format Review Data
-        const reviewData = attempt.responses.map(resp => ({
-            question_text: resp.question.question_text,
-            your_correctOption: resp.selectedOption || "⏺ Skipped",
-            correct_correctOption: resp.correctOption,
-            status: resp.isCorrect ? "✅ Correct" : resp.selectedOption ? "❌ Incorrect" : "⚪ Skipped",
-            marksObtained: resp.marksObtained
-        }));
-
-        // ✅ Send Final Results
-        res.status(200).json({
-            totalMarks: attempt.totalMarks,
-            attemptedQuestions: attempt.attemptedQuestions,
-            correctcorrectOptions: attempt.correctcorrectOptions,
-            incorrectcorrectOptions: attempt.incorrectcorrectOptions,
-            skipped: attempt.totalQuestions - attempt.attemptedQuestions,
-            timeTaken,
-            status: attempt.status,
-            review: reviewData
-        });
-
-    } catch (error) {
-        console.error("Error fetching exam results:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+    if (!attempt) {
+      return res.status(404).json({ 
+        error: "No attempt found for this exam",
+        solution: "Complete the exam first or check the paper ID"
+      });
     }
+
+    // Calculate time metrics
+    const timeTaken = attempt.endTime && attempt.startTime
+      ? Math.round((attempt.endTime - attempt.startTime) / (1000 * 60))
+      : 0;
+
+    // Format review data
+    const reviewData = attempt.responses.map(response => ({
+      questionId: response.question._id,
+      questionText: response.question.question_text,
+      userAnswer: response.selectedOption || "⏺ Skipped",
+      correctAnswer: response.question.correctOption,
+      resultStatus: response.isCorrect 
+        ? "✅ Correct" 
+        : response.selectedOption 
+          ? "❌ Incorrect" 
+          : "⚪ Skipped",
+      marksEarned: response.marksObtained,
+      timeSpent: response.timeSpent
+    }));
+
+    // Compile performance summary
+    const performanceSummary = {
+      totalMarks: attempt.totalMarks,
+      questionsAttempted: attempt.attemptedQuestions,
+      correctAnswers: attempt.correctAnswers,
+      incorrectAnswers: attempt.incorrectAnswers,
+      skippedQuestions: attempt.totalQuestions - attempt.attemptedQuestions,
+      timeTakenMinutes: timeTaken,
+      accuracyPercentage: ((attempt.correctAnswers / attempt.attemptedQuestions) * 100).toFixed(1),
+      attemptStatus: attempt.status
+    };
+
+    return res.status(200).json({
+      meta: {
+        paperId: attempt.paperId,
+        attemptDate: attempt.date,
+        userId: attempt.userId
+      },
+      performanceSummary,
+      detailedReview: reviewData
+    });
+
+  } catch (error) {
+    console.error("Results Fetch Error:", {
+      user: req.user?.id,
+      paperId: req.params?.paperId,
+      error: error.message
+    });
+    return res.status(500).json({
+      error: "Failed to retrieve exam results. Please try again later."
+    });
+  }
 };

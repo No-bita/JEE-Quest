@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Discussions from './pages/Discussions';
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react"
 
@@ -54,6 +55,7 @@ const AppContent = () => {
             {/* Protected routes - redirect to landing if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
+            <Route path="/discussions" element={isLoggedIn ? <Discussions /> : <Navigate to="/signin" />} />
 
             {/* Public routes */}
             <Route path="/practice/:paperId" element={<Practice />} />

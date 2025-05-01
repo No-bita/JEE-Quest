@@ -5,9 +5,10 @@ interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   qrCodeUrl: string; // URL to your QR code image
+  children?: React.ReactNode;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, qrCodeUrl }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, qrCodeUrl, children }) => {
   if (!isOpen) return null;
 
   return (

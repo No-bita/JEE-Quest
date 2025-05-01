@@ -128,11 +128,11 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
   return (
     <>
       <NavBar />
-      <div className="flex items-center justify-center min-h-screen px-4 py-12">
-        <Card className="w-full max-w-md">
+      <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-[#FAFBF6]">
+        <Card className="w-full max-w-md bg-white rounded-2xl border border-[#E3E9E2] shadow-sm hover:shadow-md px-6 md:px-8 py-8 md:py-10">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-3xl md:text-4xl font-bold text-center text-[#384B47]">Sign In</CardTitle>
+            <CardDescription className="text-center text-gray-600">
               Enter your credentials to sign in to your account
             </CardDescription>
           </CardHeader>
@@ -144,9 +144,9 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className="text-[#384B47] font-medium">Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="you@example.com" {...field} />
+                        <Input placeholder="you@example.com" {...field} className="rounded-lg border border-[#E3E9E2] bg-[#F7FAF7] text-[#1A2B2E] placeholder-gray-400 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -157,20 +157,20 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel className="text-[#384B47] font-medium">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} className="rounded-lg border border-[#E3E9E2] bg-[#F7FAF7] text-[#1A2B2E] placeholder-gray-400 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <div className="flex justify-end">
-                  <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                  <Link to="/forgot-password" className="text-sm text-[#5BB98C] hover:underline font-medium">
                     Forgot password?
                   </Link>
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-[#5BB98C] text-white rounded-lg hover:bg-[#4CA97A] font-semibold text-lg py-3 transition" disabled={isLoading}>
                   {isLoading ? (
                     <span className="flex items-center justify-center">
                       <span className="animate-spin mr-2 h-4 w-4 border-b-2 border-white rounded-full" />
@@ -223,10 +223,10 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
             />
           </div>
           */}
-          <CardFooter className="flex flex-col space-y-2">
+          <CardFooter className="flex flex-col space-y-2 mt-4 border-t border-[#E3E9E2] pt-4">
             <div className="text-sm text-center">
               Don't have an account?{' '}
-              <Link to="/register" className="text-primary hover:underline">
+              <Link to="/register" className="text-[#5BB98C] hover:underline font-medium">
                 Register
               </Link>
             </div>

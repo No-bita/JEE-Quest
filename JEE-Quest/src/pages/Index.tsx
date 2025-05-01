@@ -31,22 +31,25 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      <main>
+      <main className="bg-[#FCFDF7]">
         <Hero />
         
         {/* Stats Section */}
-        <section className="py-20 bg-secondary/50">
-          <div className="container max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                  <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <section className="py-16" style={{ background: '#FCFDF7' }}>
+  <div className="container max-w-7xl mx-auto px-4">
+    <div className="flex flex-col md:flex-row gap-6 w-full items-stretch">
+      {stats.map((stat, index) => (
+        <div
+          key={index}
+          className="bg-[#FCFDF7] rounded-2xl border border-[#D1D5DB] flex flex-col items-center justify-center py-8 px-6 text-center flex-1"
+        >
+          <div className="text-4xl text-[#26322C] mb-3">{stat.value}</div>
+          <div className="uppercase text-xs tracking-wider text-[#26322Cb3] mt-2">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
         
         {/* About Section */}
         <section className="py-20">
@@ -61,61 +64,58 @@ const HomePage: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              <div className="glass-card rounded-xl p-8 text-center animate-fade-in">
-                <div className="flex justify-center mb-6">
-                  <div className="bg-primary/10 text-primary rounded-full p-4">
-                    <BookOpen size={32} />
+              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex justify-center mb-8">
+                  <div className="bg-white rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
+                    <BookOpen size={32} className="text-[#E86A33]" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Organized Library</h3>
-                <p className="text-muted-foreground mb-4">
-                  Find JEE Mains papers effortlessly, sorted by year and shift.
+                <h3 className="text-2xl font-bold text-[#1A1A1A] mb-6">Organized Library</h3>
+                <p className="text-base text-[#5B4636] mb-6 leading-relaxed px-2">
+                  Access the complete library of JEE Mains papers (2020-2025), sorted by year and shift for effortless navigation.
                 </p>
-                <Button 
-                  variant="link" 
-                  className="text-primary gap-1" 
+                <button
                   onClick={() => handleNavigate('/papers')}
+                  className="w-full rounded-full bg-[#FFD6C2] hover:bg-[#F3BFA7] text-[#E86A33] font-bold py-3 flex items-center justify-center gap-2 transition-colors duration-150 shadow-sm mt-2"
                 >
-                  View Papers <ArrowRight size={14} />
-                </Button>
+                  View Papers <ArrowRight size={16} />
+                </button>
               </div>
               
-              <div className="glass-card rounded-xl p-8 text-center animate-fade-in" style={{ animationDelay: '100ms' }}>
-                <div className="flex justify-center mb-6">
-                  <div className="bg-primary/10 text-primary rounded-full p-4">
-                    <Lightbulb size={32} />
+              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1" style={{ animationDelay: '100ms' }}>
+                <div className="flex justify-center mb-8">
+                  <div className="bg-white rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
+                    <Lightbulb size={32} className="text-[#E86A33]" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Smart Practice</h3>
-                <p className="text-muted-foreground mb-4">
-                  Simulate real exam conditions with timed sessions and question tracking.
+                <h3 className="text-2xl font-bold text-[#1A1A1A] mb-6">Smart Practice</h3>
+                <p className="text-base text-[#5B4636] mb-6 leading-relaxed px-2">
+                  Simulate real exam conditions with timed practice sessions, and question tracking to boost your readiness.
                 </p>
-                <Button 
-                  variant="link" 
-                  className="text-primary gap-1" 
+                <button
                   onClick={() => handleNavigate('/practice')}
+                  className="w-full rounded-full bg-[#FFD6C2] hover:bg-[#F3BFA7] text-[#E86A33] font-bold py-3 flex items-center justify-center gap-2 transition-colors duration-150 shadow-sm mt-2"
                 >
-                  Try Practice Mode <ArrowRight size={14} />
-                </Button>
+                  Try Practice Mode <ArrowRight size={16} />
+                </button>
               </div>
               
-              <div className="glass-card rounded-xl p-8 text-center animate-fade-in" style={{ animationDelay: '200ms' }}>
-                <div className="flex justify-center mb-6">
-                  <div className="bg-primary/10 text-primary rounded-full p-4">
-                    <BarChart3 size={32} />
+              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1" style={{ animationDelay: '200ms' }}>
+                <div className="flex justify-center mb-8">
+                  <div className="bg-white rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
+                    <BarChart3 size={32} className="text-[#E86A33]" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Detailed Analysis</h3>
-                <p className="text-muted-foreground mb-4">
-                  Gain actionable insights with subject-wise and topic-wise performance reports.
+                <h3 className="text-2xl font-bold text-[#1A1A1A] mb-6">Detailed Analysis</h3>
+                <p className="text-base text-[#5B4636] mb-6 leading-relaxed px-2">
+                  Gain actionable insights with subject-wise performance reports for thorough exam preparation.
                 </p>
-                <Button 
-                  variant="link" 
-                  className="text-primary gap-1" 
+                <button
                   onClick={() => handleNavigate('/analysis')}
+                  className="w-full rounded-full bg-[#F5D0C5] hover:bg-[#F3BFA7] text-[#E86A33] font-bold py-2 flex items-center justify-center gap-2 transition-colors duration-150 shadow-sm mt-2"
                 >
-                  See Analysis <ArrowRight size={14} />
-                </Button>
+                  See Analysis <ArrowRight size={16} />
+                </button>
               </div>
             </div>
           </div>
@@ -130,10 +130,17 @@ const HomePage: React.FC = () => {
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
               Start your journey with PYQs and smart tools designed to elevate your preparation.
             </p>
-            <Button size="lg" className="gap-2" onClick={() => handleNavigate('/practice')}>
-              Get Started Now
-              <ArrowRight size={16} />
-            </Button>
+            <div className="flex justify-center">
+  <Button
+    size="lg"
+    className="gap-2 bg-[#BCF7BC] hover:bg-[#A8E6A3] text-black rounded-full shadow-md transition-colors duration-150 flex items-center justify-center font-normal"
+    style={{ fontWeight: 400 }}
+    onClick={() => handleNavigate('/practice')}
+  >
+    Get Started Now
+    <ArrowRight size={20} />
+  </Button>
+</div>
           </div>
         </section>
         

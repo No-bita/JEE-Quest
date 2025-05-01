@@ -418,12 +418,12 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
             <Button
               className="font-bold min-w-[260px] h-12 bg-blue-600 hover:bg-blue-700 text-white border-blue-800"
               onClick={() => {
-                // Mark for review (no save/clear), go to next
+                // Mark for review: set to marked-attempted if answered, else marked-unattempted
                 setQuestionStatus(prev => {
-                  const currentStatus = prev[currentQuestion.id];
+                  const isAnswered = answers.hasOwnProperty(currentQuestion.id) && answers[currentQuestion.id] !== undefined && answers[currentQuestion.id] !== null && answers[currentQuestion.id] !== '';
                   return {
                     ...prev,
-                    [currentQuestion.id]: currentStatus === 'attempted' ? 'marked-attempted' : 'marked-unattempted',
+                    [currentQuestion.id]: isAnswered ? 'marked-attempted' : 'marked-unattempted',
                   };
                 });
                 if (currentQuestionIndex < questions.length - 1) setCurrentQuestionIndex(currentQuestionIndex + 1);

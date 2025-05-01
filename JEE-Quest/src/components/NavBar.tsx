@@ -83,7 +83,7 @@ const NavBar: React.FC = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="text-primary flex items-center gap-2">
-            <Link to="/" className="text-2xl font-bold tracking-tight" onClick={handleLogoClick}>
+            <Link to="/" className="text-2xl font-bold tracking-tight" style={{ color: '#5BB98C' }} onClick={handleLogoClick}>
               JEE Quest
             </Link>
           </div>
@@ -91,19 +91,30 @@ const NavBar: React.FC = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-1">
             {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Link key={link.name} to={link.path}>
-                  <Button
-                    variant={location.pathname === link.path ? "default" : "ghost"}
-                    className="flex items-center gap-2 px-4"
-                  >
-                    <Icon size={18} />
-                    <span>{link.name}</span>
-                  </Button>
-                </Link>
-              );
-            })}
+  const Icon = link.icon;
+  const isActive = location.pathname === link.path || (link.name === 'Resources' && location.pathname === '/about');
+  const isGreenActive =
+    (link.name === 'Practice' && location.pathname === link.path) ||
+    (link.name === 'Resources' && (location.pathname === link.path || location.pathname === '/about')) ||
+    (link.name === 'Analytics' && location.pathname === link.path);
+  return (
+    <Link key={link.name} to={link.path}>
+      <Button
+        className={
+          `flex items-center gap-2 px-6 rounded-2xl font-normal transition-colors duration-150` +
+          (isGreenActive
+            ? ' bg-[#1D9A6C] text-white shadow-none'
+            : ' bg-transparent text-black hover:bg-gray-100')
+        }
+        style={{ fontWeight: 400, boxShadow: 'none' }}
+        variant="ghost"
+      >
+        <Icon size={20} color={isGreenActive ? 'white' : 'black'} />
+        <span>{link.name}</span>
+      </Button>
+    </Link>
+  );
+})}
 
           </div>
 
@@ -115,7 +126,7 @@ const NavBar: React.FC = () => {
                 Sign Out
               </Button>
             ) : !isLoggedIn ? (
-              <Button variant="default" size="sm" onClick={handleSignInClick} className="gap-2">
+              <Button variant="default" size="sm" onClick={handleSignInClick} className="gap-2" style={{ backgroundColor: '#5BB98C', color: '#fff' }}>
                 <LogIn size={16} />
                 Sign In
               </Button>

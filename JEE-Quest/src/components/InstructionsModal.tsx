@@ -29,7 +29,7 @@ const InstructionsModal: React.FC<InstructionsModalProps> = ({ open, onProceed }
     <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
       <Card className="max-w-xl w-full shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl mb-2">Please Read the Instructions</CardTitle>
+          <CardTitle className="text-2xl mb-2">Please read the instructions</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="list-disc list-inside mb-4 text-left">
@@ -38,12 +38,17 @@ const InstructionsModal: React.FC<InstructionsModalProps> = ({ open, onProceed }
             ))}
           </ul>
           <div className="flex items-center mb-4">
-            <Checkbox id="instructions-read" checked={checked} onCheckedChange={value => setChecked(value === true)} />
+            <Checkbox id="instructions-read" checked={checked} onCheckedChange={value => setChecked(value === true)} className="rounded-sm" />
             <label htmlFor="instructions-read" className="ml-2 text-sm">
               I have read and understood the instructions.
             </label>
           </div>
-          <Button className="w-full" onClick={onProceed} disabled={!checked}>
+          <Button
+            className="w-full rounded-full bg-[#1D9A6C] text-white hover:bg-[#157856] transition-colors duration-150"
+            style={{ fontWeight: 400 }}
+            onClick={onProceed}
+            disabled={!checked}
+          >
             Start Test
           </Button>
         </CardContent>

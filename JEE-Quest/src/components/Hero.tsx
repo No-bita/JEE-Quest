@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet';
+import { AnimatedPastPapers } from './HeroAnimations';
 
 const Hero: React.FC = () => {
   const navigate = useNavigate();
@@ -50,11 +51,11 @@ const Hero: React.FC = () => {
             JEE Mains 2020-2025
           </Badge>
           
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 animate-fade-in">
-            Master JEE Mains with 
-            <br />
-            <span className="text-primary">Past Papers</span>
-          </h1>
+          <h1 className="text-4xl md:text-6xl tracking-tight mb-6 animate-fade-in font-inter font-semibold">
+  Master JEE Mains with
+  <br />
+  <AnimatedPastPapers>Past Papers</AnimatedPastPapers>
+</h1>
 
           
           <p className="text-lg md:text-xl text-muted-foreground mb-8 animate-fade-in delay-75">
@@ -66,62 +67,47 @@ const Hero: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in delay-100">
-            <Button size="lg" className="w-full sm:w-auto gap-2" onClick={handleBrowsePapers}>
-              <BookOpen size={18} />
-              Browse Papers
-              <ArrowRight size={16} className="ml-1" />
-            </Button>
+            <Button
+  size="lg"
+  className="w-full sm:w-auto gap-2 bg-[#B8F5B1] text-[#222] hover:bg-[#A7EBA0] hover:shadow-md flex items-center justify-center rounded-full"
+  onClick={handleBrowsePapers}
+>
+  <BookOpen size={18} className="text-[#222]" />
+  Browse Papers
+  <ArrowRight size={18} className="ml-1 text-[#222]" />
+</Button>
             <Button 
-              size="lg" 
-              variant="outline" 
-              className="w-full sm:w-auto gap-2"
-              onClick={handlePracticeClick}
-            >
-              <Clock size={18} />
-              Practice Mode
-            </Button>
-          </div>
-        </div>
-        
-        {/* Feature highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 max-w-5xl mx-auto animate-slide-up delay-200">
-          <div className="glass-card rounded-xl p-6 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-primary/10 text-primary rounded-full w-12 h-12 flex items-center justify-center">
-                <BookOpen size={24} className="w-6 h-6" />
-              </div>
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Complete Library</h3>
-            <p className="text-sm text-muted-foreground">
-              Access JEE Mains papers (2020-2025), sorted by year and shift for easy navigation.
-            </p>
-          </div>
-          
-          <div className="glass-card rounded-xl p-6 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-primary/10 text-primary rounded-full p-3">
-                <FileText size={24} />
-              </div>
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Detailed Solutions</h3>
-            <p className="text-sm text-muted-foreground">
-              Step-by-step answers to every question for better understanding and exam readiness.
-            </p>
-          </div>
-          
-          <div className="glass-card rounded-xl p-6 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-primary/10 text-primary rounded-full p-3">
-                <Clock size={24} />
-              </div>
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Timed Practice</h3>
-            <p className="text-sm text-muted-foreground">
-              Simulate real exam conditions with timed practice and performance analytics.
-            </p>
+  size="lg"
+  variant="outline"
+  className="w-full sm:w-auto gap-2 flex items-center justify-center rounded-full"
+  onClick={handlePracticeClick}
+>
+  <Clock size={18} />
+  Practice Mode
+</Button>
           </div>
         </div>
       </div>
+      {/* New Feature Row - Minimal, Icon+Heading+Description style
+      <div className="w-full bg-[#FAFBF6] py-10 px-2">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="rounded-2xl border border-[#C7D1C6] bg-[#FAFBF6] px-7 py-10 flex flex-col items-center text-center min-h-[200px] shadow-sm transition-transform hover:-translate-y-1">
+            <BookOpen size={40} className="mb-4 text-[#22332B]" />
+            <div className="font-semibold text-xl text-[#22332B] mb-2">Complete Library</div>
+            <div className="text-sm md:text-base text-[#384B47] opacity-80 leading-tight">Access JEE Mains papers <span className="whitespace-nowrap">(2020-2025)</span>, sorted by year and shift for easy navigation.</div>
+          </div>
+          <div className="rounded-2xl border border-[#C7D1C6] bg-[#FAFBF6] px-7 py-10 flex flex-col items-center text-center min-h-[200px] shadow-sm transition-transform hover:-translate-y-1">
+            <FileText size={40} className="mb-4 text-[#22332B]" />
+            <div className="font-semibold text-xl text-[#22332B] mb-2">Detailed Solutions</div>
+            <div className="text-base text-[#384B47] opacity-80 leading-tight">Step-by-step answers to every question for better understanding and exam readiness.</div>
+          </div>
+          <div className="rounded-2xl border border-[#C7D1C6] bg-[#FAFBF6] px-7 py-10 flex flex-col items-center text-center min-h-[200px] shadow-sm transition-transform hover:-translate-y-1">
+            <Clock size={40} className="mb-4 text-[#22332B]" />
+            <div className="font-semibold text-xl text-[#22332B] mb-2">Timed Practice</div>
+            <div className="text-base text-[#384B47] opacity-80 leading-tight">Simulate real exam conditions with timed practice and performance analytics.</div>
+          </div>
+        </div>
+      </div> */}
     </div>
   );
 };

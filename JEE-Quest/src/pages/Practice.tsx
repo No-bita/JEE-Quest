@@ -15,8 +15,8 @@ const Practice: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   
   useEffect(() => {
-    if (paperId === 'jee2020-2') {
-      // Open access: skip login and access check
+    if (paperId && paperId.startsWith('jee2020')) {
+      // Open access for all 2020 papers: skip login and access check
       setHasAccess(true);
       setIsLoading(false);
       setIsLoggedIn(true);

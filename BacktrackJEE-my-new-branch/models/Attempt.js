@@ -1,28 +1,45 @@
 import mongoose from "mongoose";
 
 const attemptSchema = new mongoose.Schema({
-  user_id: { type: String, required: true }, // ID of the user
-  user_name: { type: String, required: true }, // Name of the user
-  year: { type: String, required: true }, // Exam year
-  slot: { type: String, required: true }, // Exam slot
-  
-  // correctOptions should be an array of objects, each containing question_id and selected_correctOption
-  correctOptions: [
-    {
-      question_id: { type: Number }, // ID of the question
-      selected_correctOption: { type: Number }, // User's selected correctOption
-    },
-  ],
+  userId: { type: String, required: true }, // Reference to User._id
+  userName: { type: String, required: true }, // For quick lookup/reporting
+  paperId: { type: String, required: true }, // Reference to Paper.paperId
+  year: { type: Number, required: true },
+  session: { type: String, required: true },
+  shift: { type: String, required: true },
+  date: { type: String, required: true },
 
-  // Map of marked questions for review, stored dynamically with question_id as the key
-  markedQuestions: { 
-    type: Map, 
-    of: String, // Values like "reviewedWithcorrectOption" or "reviewedWithoutcorrectOption"
-    default: {}  // Default empty object if no questions are marked
+  // Store answers as { [questionId]: selectedOption }
+  answers: {
+    type: Object,
+    required: true
   },
 
-  // Timestamps to track when the attempt was created and last updated
+  // Per-question timing analytics
+  questionTimings: [
+    {
+      questionId: { type: Number, required: true },
+      timeSpent: { type: Number, required: true }, // seconds
+      answeredAt: { type: Date } // optional
+    }
+  ],
+
+  // Total time spent on the paper
+  timeSpent: { type: Number, required: true },
+
+  // Scoring summary (optional, if you want to store it here)
+  score: { type: Number },
+  maxPossibleScore: { type: Number },
+
+  // Marked questions (optional, for review/flagging features)
+  markedQuestions: {
+    type: Object, // { [questionId]: "reviewed" | "flagged" | ... }
+    default: {}
+  }
 }, { timestamps: true });
+
+// Enforce one attempt per user per paper
+attemptSchema.index({ userId: 1, paperId: 1 }, { unique: true });
 
 const Attempt = mongoose.model("Attempt", attemptSchema);
 
