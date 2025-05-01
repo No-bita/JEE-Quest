@@ -85,13 +85,17 @@ const api = {
   },
 
   post: async (endpoint: string, data: any) => {
-    if (tokenService.isTokenExpired()) {
-      const refreshResponse = await authApi.refreshToken();
-      if (refreshResponse.success && refreshResponse.data?.token) {
-        tokenService.setToken(refreshResponse.data.token);
-      } else {
-        userSession.clearUserData();
-        return { success: false, error: 'Session expired. Please sign in again.' } as const;
+    // Skip token expiry and refresh for public auth endpoints
+    const publicEndpoints = ['/auth/register', '/auth/login'];
+    if (!publicEndpoints.includes(endpoint)) {
+      if (tokenService.isTokenExpired()) {
+        const refreshResponse = await authApi.refreshToken();
+        if (refreshResponse.success && refreshResponse.data?.token) {
+          tokenService.setToken(refreshResponse.data.token);
+        } else {
+          userSession.clearUserData();
+          return { success: false, error: 'Session expired. Please sign in again.' } as const;
+        }
       }
     }
     try {
