@@ -707,6 +707,24 @@ const Dashboard: React.FC = () => {
     <span className="text-md text-gray-500">Tests Completed</span>
     <span className="text-3xl font-bold text-black">{userStats.testsCompleted}</span>
   </div>
+  {userStats.testsCompleted === 0 && (
+    <div className="w-full flex flex-col items-center mt-2">
+      {(() => {
+        // Check if any 2020 paper is unlocked (free trial)
+        const paidPapers = JSON.parse(localStorage.getItem('paidPapers') || '[]');
+        const hasUnlocked2020 = paidPapers.some((id: string) => id.startsWith('jee2020'));
+        if (!hasUnlocked2020) {
+          return (
+            <span className="text-xs text-[#5BB98C] mt-1">Start your journey with a <b>free trial</b> paper from 2020!</span>
+          );
+        } else {
+          return (
+            <span className="text-xs text-[#C77D2E] mt-1">Ready for more? <b>Purchase a paper</b> to unlock practice!</span>
+          );
+        }
+      })()}
+    </div>
+  )}
   {/* Average Score */}
   <div className="rounded-3xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#FFCFC7' }}>
     <span className="text-md text-gray-500">Average Score</span>
