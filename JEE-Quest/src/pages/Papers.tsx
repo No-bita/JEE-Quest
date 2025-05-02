@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Sidebar from '@/components/Sidebar';
 import PaperCard from '@/components/PaperCard';
 import Banner from '@/components/Banner';
@@ -13,6 +14,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import clsx from 'clsx';
 
 const cn = clsx;
+
 
 // Mock papers data
 const mockPapers = [
@@ -483,6 +485,27 @@ const mockNotifications = [
 ];
 
 const Dashboard: React.FC = () => {
+  // --- User Stats State ---
+  const [userStats, setUserStats] = useState({
+    testsCompleted: 0,
+    averageScore: 0,
+    topSubject: 'None',
+    studyHours: 0
+  });
+  // --- Nudge Modal State and Logic ---
+  const [showNudgeModal, setShowNudgeModal] = useState(false);
+  const [hasUnlocked2020, setHasUnlocked2020] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && userStats?.testsCompleted === 0) {
+      const paidPapers = JSON.parse(localStorage.getItem('paidPapers') || '[]');
+      setHasUnlocked2020(paidPapers.some((id: string) => id.startsWith('jee2020')));
+      setShowNudgeModal(true);
+    } else {
+      setShowNudgeModal(false);
+    }
+    // Only run when userStats.testsCompleted changes
+  }, [userStats?.testsCompleted]);
+  // --- End Nudge Modal State and Logic ---
   // --- User Profile Dropdown State and Refs ---
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const profileBtnRef = React.useRef<HTMLButtonElement>(null);
@@ -541,12 +564,6 @@ const Dashboard: React.FC = () => {
   const [userName, setUserName] = useState<string>('User');
   const navigate = useNavigate();
 
-  const [userStats, setUserStats] = useState({
-    testsCompleted: 0,
-    averageScore: 0,
-    topSubject: 'None',
-    studyHours: 0
-  });
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -707,24 +724,26 @@ const Dashboard: React.FC = () => {
     <span className="text-md text-gray-500">Tests Completed</span>
     <span className="text-3xl font-bold text-black">{userStats.testsCompleted}</span>
   </div>
-  {userStats.testsCompleted === 0 && (
-    <div className="w-full flex flex-col items-center mt-2">
-      {(() => {
-        // Check if any 2020 paper is unlocked (free trial)
-        const paidPapers = JSON.parse(localStorage.getItem('paidPapers') || '[]');
-        const hasUnlocked2020 = paidPapers.some((id: string) => id.startsWith('jee2020'));
-        if (!hasUnlocked2020) {
-          return (
-            <span className="text-xs text-[#5BB98C] mt-1">Start your journey with a <b>free trial</b> paper from 2020!</span>
-          );
-        } else {
-          return (
-            <span className="text-xs text-[#C77D2E] mt-1">Ready for more? <b>Purchase a paper</b> to unlock practice!</span>
-          );
-        }
-      })()}
-    </div>
-  )}
+  {/* Modal for nudge when no tests completed */}
+  <Dialog open={showNudgeModal} onOpenChange={setShowNudgeModal}>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Welcome to JEE Quest!</DialogTitle>
+        <DialogDescription>
+          {hasUnlocked2020
+            ? 'Ready for more? Purchase a paper to unlock more practice!'
+            : 'Start your journey with a free trial paper from 2020!'}
+        </DialogDescription>
+      </DialogHeader>
+      <div className="flex justify-center mt-4">
+        {hasUnlocked2020 ? (
+          <Button onClick={() => navigate('/pricing')}>Go to Pricing</Button>
+        ) : (
+          <Button onClick={() => navigate('/practice/jee2020-2')}>Start Free Trial</Button>
+        )}
+      </div>
+    </DialogContent>
+  </Dialog>
   {/* Average Score */}
   <div className="rounded-3xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#FFCFC7' }}>
     <span className="text-md text-gray-500">Average Score</span>
