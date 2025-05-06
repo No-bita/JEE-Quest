@@ -30,16 +30,18 @@ router.get("/:paperId/questions", authenticateUser, async (req, res) => {
     const papers = await db.collection(collectionName).find({}).toArray();
     console.log(`Found ${papers.length} papers`);
 
-    // Extract questions from the first paper
-    const questions = papers[0]?.questions || [];
+    // Extract questions and note from the first paper
+    const paperObj = papers[0] || {};
+    const questions = paperObj.questions || [];
+    const note = paperObj.note || null;
     console.log(`Found ${questions.length} questions`);
     
     if (!questions.length) {
       return res.status(404).json({ success: false, message: "No questions found for this paper." });
     }
     
-    // Return the questions with success flag for frontend
-    return res.json({ success: true, data: questions });
+    // Return the questions and note with success flag for frontend
+    return res.json({ success: true, data: { questions, note } });
     
   } catch (error) {
     console.error("❌ Internal Server Error:", error);

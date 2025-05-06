@@ -484,6 +484,13 @@ const mockNotifications = [
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  // Defensive check for authentication
+  React.useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) {
+      navigate('/signin', { replace: true });
+    }
+  }, [navigate]);
   // Handler for logging out
   const handleLogout = () => {
     localStorage.clear();
@@ -746,7 +753,7 @@ const Dashboard: React.FC = () => {
           {/* Quick Stats Modern Dashboard */}
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 items-stretch">
   {/* Tests Completed */}
-  <div className="rounded-3xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#D6CCFF' }}>
+  <div className="rounded-xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#D6CCFF' }}>
     <span className="text-md text-gray-500">Tests Completed</span>
     <span className="text-3xl font-bold text-black">{userStats.testsCompleted}</span>
   </div>
@@ -771,17 +778,17 @@ const Dashboard: React.FC = () => {
     </DialogContent>
   </Dialog>
   {/* Average Score */}
-  <div className="rounded-3xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#FFCFC7' }}>
+  <div className="rounded-xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#FFCFC7' }}>
     <span className="text-md text-gray-500">Average Score</span>
     <span className="text-3xl font-bold text-black">{userStats.averageScore}%</span>
   </div>
   {/* Top Subject */}
-  <div className="rounded-3xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#FFE3AC' }}>
+  <div className="rounded-xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#FFE3AC' }}>
     <span className="text-md text-gray-500">Top Subject</span>
     <span className="text-3xl font-bold text-black">{userStats.topSubject}</span>
   </div>
   {/* Study Hours */}
-  <div className="rounded-3xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#B6F7B0' }}>
+  <div className="rounded-xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#B6F7B0' }}>
     <span className="text-md text-gray-500">Study Hours</span>
     <span className="text-3xl font-bold text-black">{Math.floor(userStats.studyHours)} hrs</span>
   </div>
@@ -791,7 +798,7 @@ const Dashboard: React.FC = () => {
           <Card className="mb-8">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
-                <CardTitle className="text-xl">Practice Papers</CardTitle>
+                <CardTitle className="text-3xl mb-1">Practice Papers</CardTitle>
                 <CardDescription>Browse JEE test papers by year</CardDescription>
               </div>
               
@@ -872,13 +879,13 @@ const Dashboard: React.FC = () => {
                         key={year}
                         value={year}
                         className={cn(
-                          "relative px-4 py-2 rounded-md text-center",
+                          "relative px-4 py-2 rounded-xl text-center",
                           year === "2020" ? "bg-blue-50 border border-blue-500 text-blue-600 font-bold" : ""
                         )}
                       >
                         {year}
                         {year === "2020" && (
-                          <span className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-[1px] rounded-md">
+                          <span className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-[1px] rounded-xl">
                             Free trial
                           </span>
                         )}

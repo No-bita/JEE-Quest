@@ -96,12 +96,12 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
         let questionsArr: Question[] = [];
         let note: string | null = null;
         if (Array.isArray(data.data)) {
-          questionsArr = data.data;
-          note = data.data[0]?.note || null;
-        } else {
-          questionsArr = data.data.questions || [];
-          note = data.data.note || null;
-        }
+  questionsArr = data.data;
+  note = data.note || null;
+} else {
+  questionsArr = data.data.questions || [];
+  note = data.data.note || null;
+}
         setQuestions(questionsArr);
         setPaperNote(note);
 

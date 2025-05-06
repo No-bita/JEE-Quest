@@ -56,7 +56,7 @@ const PaperCard: React.FC<PaperCardProps> = ({
   const titleDisplay = `${date} - ${shift}`;
 
   return (
-    <div className="glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl animate-scale-in">
+    <div className="rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl animate-scale-in bg-[#FAFBF6] border border-gray-200">
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -102,7 +102,7 @@ const PaperCard: React.FC<PaperCardProps> = ({
             </Button>
           )}
           <Button 
-            className="w-full flex items-center justify-center"
+            className={`w-full flex items-center justify-center ${isPremium && !hasAccess ? '' : 'bg-primary text-white hover:bg-primary/90'}`}
             variant={isPremium && !hasAccess ? "outline" : "default"}
             onClick={handlePracticeClick}
           >
