@@ -15,8 +15,6 @@ import clsx from 'clsx';
 
 const cn = clsx;
 
-
-// Mock papers data
 const mockPapers = [
   {
     id: 'jee2025-1',
@@ -575,12 +573,7 @@ const Dashboard: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>('User');
 
-
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-  // Access to premium papers is now determined by purchasedPapers (from dashboard API) or localStorage.paidPapers.
-// Remove legacy effect for checking paper access on mount.
-
 
   const fetchDashboardData = async () => {
     try {
@@ -670,8 +663,7 @@ const Dashboard: React.FC = () => {
               <h1 className="text-3xl sm:text-4xl font-bold">Welcome back, {userName}</h1>
             </div>
             <div className="flex items-center gap-3">
-  {/* Search Icon */}
-  {/* Notification Bell with Dot */}
+
   <div className="relative">
     <button
       className="rounded-xl bg-[#FAFAFA] p-2 shadow-sm border border-[#F0F0F0] hover:bg-[#F3F3F3] transition"

@@ -84,7 +84,12 @@ const Results: React.FC = () => {
     const fetchPaperData = async () => {
       try {
         const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-        const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`);
+        const token = localStorage.getItem('authToken');
+const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
         if (!response.ok) throw new Error('Failed to fetch questions');
         const data = await response.json();
         if (!data?.data) throw new Error('Invalid questions data received from API');

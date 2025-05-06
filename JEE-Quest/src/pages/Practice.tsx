@@ -22,7 +22,7 @@ const Practice: React.FC = () => {
       setIsLoggedIn(true);
       return;
     }
-    // Existing logic for other paperIds
+    
     // Check if user is logged in
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
     setIsLoggedIn(loggedIn);

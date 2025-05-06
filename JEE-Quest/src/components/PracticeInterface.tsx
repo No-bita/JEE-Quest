@@ -126,7 +126,12 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
     const loadQuestions = async () => {
       setIsLoading(true);
       try {        
-        const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`);
+        const token = localStorage.getItem('authToken');
+const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
         if (!response.ok) throw new Error(`Failed to fetch questions: ${response.status}`);
         
         const result = await response.json();
