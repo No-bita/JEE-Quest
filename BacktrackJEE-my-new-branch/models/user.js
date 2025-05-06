@@ -22,15 +22,6 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    role: {
-        type: String,
-        enum: ['admin', 'user'],
-        default: 'user'
-    },
-    paid: {
-        type: Boolean,
-        default: false
-    },
     purchasedPapers: [{
         type: String, // paperId
         default: []

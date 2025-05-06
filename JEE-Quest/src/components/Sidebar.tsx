@@ -46,9 +46,12 @@ const Sidebar: React.FC = () => {
               </a>
             </li>
             <li>
-              <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100">
+              <Link
+                to="/leaderboard"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/leaderboard' ? 'bg-[#1D9A6C] text-white' : 'hover:bg-gray-100'}`}
+              >
                 <FaTrophy /> Leaderboard
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>

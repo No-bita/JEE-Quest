@@ -100,7 +100,7 @@ router.post(
                     name: user.name,
                     email: user.email,
                     role: user.role,
-                    paid: user.paid
+
                 }
             });
         } catch (error) {

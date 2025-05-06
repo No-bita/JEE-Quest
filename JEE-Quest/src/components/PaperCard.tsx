@@ -16,6 +16,7 @@ interface PaperCardProps {
   isAdmin?: boolean;
   onEditPaper?: (paperId: string) => void;
   freeTrialPaperIds?: string[]; // Configurable list of free trial paper ids
+  hasAccess?: boolean; // Whether the user has access to this paper
 }
 
 const PaperCard: React.FC<PaperCardProps> = ({
@@ -29,14 +30,10 @@ const PaperCard: React.FC<PaperCardProps> = ({
   isPremium = true, // All papers are premium by default
   isAdmin = false,
   onEditPaper,
-  freeTrialPaperIds = ['jee2020-1']
+  freeTrialPaperIds = ['jee2020-1'],
+  hasAccess,
 }) => {
   const navigate = useNavigate();
-
-  // Function to determine if user has a subscription
-  const hasSubscription = () => {
-    return localStorage.getItem('hasSubscription') === 'true';
-  };
 
   // Determine if this paper is a free trial paper
   const isFreeTrialPaper = freeTrialPaperIds.includes(id);
@@ -46,8 +43,8 @@ const PaperCard: React.FC<PaperCardProps> = ({
     if (isFreeTrialPaper) {
       // Directly navigate to practice for the free trial paper
       navigate(`/practice/${id}`);
-    } else if (isPremium && !hasSubscription()) {
-      // Redirect to pricing for premium papers without subscription
+    } else if (isPremium && !hasAccess) {
+      // Redirect to pricing for premium papers without access
       navigate(`/pricing?paperId=${id}&title=JEE Mains ${year} - ${shift}`);
     } else {
       // Navigate to practice for accessible papers
@@ -73,13 +70,13 @@ const PaperCard: React.FC<PaperCardProps> = ({
             )}
           </div>
           {/* Badge for Premium Papers */}
-          {isPremium && !hasSubscription() ? (
+          {isPremium && !hasAccess ? (
             <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50 flex items-center gap-1">
               <Lock size={12} />
               Premium
             </Badge>
           ) : (
-            isPremium && (
+            isPremium && hasAccess && (
               <Badge variant="outline" className="text-green-500 border-green-200 bg-green-50 flex items-center gap-1">
                 <CheckCircle size={12} />
               </Badge>
@@ -104,16 +101,19 @@ const PaperCard: React.FC<PaperCardProps> = ({
               Edit Questions
             </Button>
           )}
-          
           <Button 
             className="w-full flex items-center justify-center"
-            variant={isPremium && !hasSubscription() ? "outline" : "default"}
+            variant={isPremium && !hasAccess ? "outline" : "default"}
             onClick={handlePracticeClick}
           >
-            {isPremium && !hasSubscription() ? (
-              <>Unlock Practice <Lock size={14} className="ml-2" /></>
+            {isPremium && !hasAccess ? (
+              <>
+                Unlock Practice <Lock size={14} className="ml-2" />
+              </>
             ) : (
-              <>Practice <ArrowRight size={16} className="ml-2" /></>
+              <>
+                Start Practice <ArrowRight size={16} className="ml-2" />
+              </>
             )}
           </Button>
         </div>

@@ -15,7 +15,7 @@ router.get("/:paperId/questions", authenticateUser, async (req, res) => {
     const user = req.user;
     if (
       user.role !== 'admin' &&
-      !user.paid &&
+
       !(user.purchasedPapers && user.purchasedPapers.includes(paperId))
     ) {
       return res.status(403).json({ success: false, message: "You do not have access to this paper. Please purchase it to unlock." });

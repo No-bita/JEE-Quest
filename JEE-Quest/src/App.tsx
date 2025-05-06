@@ -20,6 +20,7 @@ import AboutUs from './pages/AboutUs';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfService from '@/pages/TermsOfService';
 import AnalyticsPage from './pages/Analytics';
+import Leaderboard from './pages/Leaderboard';
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const AppContent = () => {
             {/* Public routes */}
             <Route path="/practice/:paperId" element={<Practice />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path='/about' element={<AboutUs />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />

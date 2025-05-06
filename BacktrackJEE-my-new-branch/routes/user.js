@@ -53,7 +53,7 @@ router.get('/papers/:paperId/access', authenticateUser, async (req, res) => {
     const { paperId } = req.params;
     try {
         const user = await User.findById(req.user.id);
-        const hasAccess = user.role === 'admin' || user.paid || (user.purchasedPapers && user.purchasedPapers.includes(paperId));
+        const hasAccess = (user.purchasedPapers && user.purchasedPapers.includes(paperId));
         res.json({ success: true, access: hasAccess });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error.', error: error.message });

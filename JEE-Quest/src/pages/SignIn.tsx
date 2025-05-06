@@ -18,7 +18,7 @@ interface LoginResponse {
     name: string;
     email: string;
     role: string;
-    paid: boolean;
+
   };
   error?: string;
 }
@@ -39,7 +39,7 @@ const loginUser = async (email: string, password: string): Promise<LoginResponse
     if (response.ok) {
       return data;
     } else {
-      return { error: 'Failed to login' };
+      return { error: 'Please check your email or password' };
     }
   } catch (error) {
     console.error('Login error:', error);
@@ -107,12 +107,6 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
           localStorage.setItem('isAdmin', 'false');
         }
 
-        if (response.user.paid) {
-          localStorage.setItem('hasSubscription', 'true');
-        } else {
-          localStorage.setItem('hasSubscription', 'false');
-        }
-        
         navigate("/papers");   
       } else {
         toast.error(response.error || 'Failed to sign in. Please check your credentials.');

@@ -485,6 +485,19 @@ const mockNotifications = [
 ];
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+  // Handler for logging out
+  const handleLogout = () => {
+    localStorage.clear();
+    window.dispatchEvent(new Event('storage'));
+    navigate('/');
+  };
+  // ... other hooks and state
+
+
+  // --- Paper Access State ---
+  const [paperAccess, setPaperAccess] = useState<Record<string, boolean>>({});
+
   // --- User Stats State ---
   const [userStats, setUserStats] = useState({
     testsCompleted: 0,
@@ -562,10 +575,34 @@ const Dashboard: React.FC = () => {
   const [sessionFilter, setSessionFilter] = useState<string>('all');  
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>('User');
-  const navigate = useNavigate();
 
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Check access for all premium papers on page load
+  useEffect(() => {
+    const checkAllPaperAccess = async () => {
+      const accessResults: Record<string, boolean> = {};
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+      const premiumPapers = mockPapers.filter(p => isPaperPremium(p.id));
+      for (const paper of premiumPapers) {
+        try {
+          // Dynamically import userApi to avoid circular imports
+          const { userApi } = await import('@/utils/api');
+          const res = await userApi.checkPaperAccess(paper.id);
+          accessResults[paper.id] = res.success && res.data && res.data.access === true;
+        } catch (err) {
+          accessResults[paper.id] = false;
+        }
+      }
+      setPaperAccess(accessResults);
+    };
+    checkAllPaperAccess();
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const fetchUserStats = async (userId: string) => {
     try {
@@ -682,6 +719,16 @@ const Dashboard: React.FC = () => {
         </ul>
         <div className="border-t border-[#E3E9E2] px-4 py-2 text-center">
           <a href="#" className="text-[#5BB98C] text-sm font-medium hover:underline">See all notifications</a>
+          <div className="mt-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-red-500 justify-center"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </div>
         </div>
       </div>
     )}
@@ -816,6 +863,7 @@ const Dashboard: React.FC = () => {
                         questionCount={paper.questionCount}
                         duration={paper.duration}
                         isPremium={isPaperPremium(paper.id)}
+                        hasAccess={paperAccess[paper.id]}
                       />
                     ))}
                   </div>
@@ -864,16 +912,17 @@ const Dashboard: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {papersByYear[Number(year)].map(paper => (
                           <PaperCard
-                            key={paper.id}
-                            id={paper.id}
-                            year={paper.year}
-                            session={paper.session}
-                            shift={paper.shift}
-                            date={paper.date}
-                            questionCount={paper.questionCount}
-                            duration={paper.duration}
-                            isPremium={isPaperPremium(paper.id)}
-                          />
+  key={paper.id}
+  id={paper.id}
+  year={paper.year}
+  session={paper.session}
+  shift={paper.shift}
+  date={paper.date}
+  questionCount={paper.questionCount}
+  duration={paper.duration}
+  isPremium={isPaperPremium(paper.id)}
+  hasAccess={paperAccess[paper.id]}
+/>
                         ))}
                       </div>
                     </TabsContent>
@@ -889,7 +938,7 @@ const Dashboard: React.FC = () => {
         
         {/* Add the Banner component */}
         <Banner 
-          text="🚀 We’re Hiring a Growth Intern! Click to Apply 🚀" 
+          text="🚀 We’re hiring a Growth Intern! Click to Apply 🚀" 
           linkUrl="https://forms.gle/fKCit1Kih2wbZGu9A"
         />
       </div>

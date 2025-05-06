@@ -26,12 +26,9 @@ const PaperPaywall: React.FC<PaperPaywallProps> = ({
 
     // Simulate subscription purchase
     setTimeout(() => {
-      // Set subscription flag in localStorage
-      localStorage.setItem('hasSubscription', 'true');
-
       setIsProcessing(false);
       onOpenChange(false);
-      toast.success('Subscription purchased successfully!');
+      toast.success('Access granted successfully!');
 
       // Navigate to the practice page
       navigate(`/practice/${paperId}`);
