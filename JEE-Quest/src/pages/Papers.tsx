@@ -495,9 +495,6 @@ const Dashboard: React.FC = () => {
   // ... other hooks and state
 
 
-  // --- Paper Access State ---
-  const [paperAccess, setPaperAccess] = useState<Record<string, boolean>>({});
-
   // --- User Stats State ---
   const [userStats, setUserStats] = useState({
     testsCompleted: 0,
@@ -505,6 +502,8 @@ const Dashboard: React.FC = () => {
     topSubject: 'None',
     studyHours: 0
   });
+  // --- Purchased Papers State ---
+  const [purchasedPapers, setPurchasedPapers] = useState<string[]>([]);
   // --- Nudge Modal State and Logic ---
   const [showNudgeModal, setShowNudgeModal] = useState(false);
   const [hasUnlocked2020, setHasUnlocked2020] = useState(false);
@@ -579,44 +578,33 @@ const Dashboard: React.FC = () => {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Check access for all premium papers on page load
-  useEffect(() => {
-    const checkAllPaperAccess = async () => {
-      const accessResults: Record<string, boolean> = {};
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
-      const premiumPapers = mockPapers.filter(p => isPaperPremium(p.id));
-      for (const paper of premiumPapers) {
-        try {
-          // Dynamically import userApi to avoid circular imports
-          const { userApi } = await import('@/utils/api');
-          const res = await userApi.checkPaperAccess(paper.id);
-          accessResults[paper.id] = res.success && res.data && res.data.access === true;
-        } catch (err) {
-          accessResults[paper.id] = false;
-        }
-      }
-      setPaperAccess(accessResults);
-    };
-    checkAllPaperAccess();
-    // Only run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Access to premium papers is now determined by purchasedPapers (from dashboard API) or localStorage.paidPapers.
+// Remove legacy effect for checking paper access on mount.
 
 
-  const fetchUserStats = async (userId: string) => {
+  const fetchDashboardData = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/userstats/${userId}`);
-
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('Not authenticated');
+      const response = await fetch(`${API_BASE_URL}/dashboard-data`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
-        throw new Error('Failed to fetch user stats');
+        throw new Error('Failed to fetch dashboard data');
       }
-
-      const stats = await response.json();
-      setUserStats(stats);
+      const data = await response.json();
+      if (data.success) {
+        setUserStats(data.analytics || {});
+        setPurchasedPapers(data.purchasedPapers || []);
+        localStorage.setItem('paidPapers', JSON.stringify(data.purchasedPapers || []));
+      } else {
+        throw new Error(data.message || 'Failed to fetch dashboard data');
+      }
     } catch (error) {
-      console.error('Failed to load stats:', error);
-      toast.error('Failed to load your stats');
+      console.error('Failed to load dashboard data:', error);
+      toast.error('Failed to load your dashboard data');
     }
   }
 
@@ -633,8 +621,7 @@ const Dashboard: React.FC = () => {
     if (!loggedIn) {
       navigate('/signin');
     } else {
-      const userId = localStorage.getItem('userId');
-      fetchUserStats(userId);
+      fetchDashboardData();
     }
   }, [navigate]);
 
@@ -863,7 +850,7 @@ const Dashboard: React.FC = () => {
                         questionCount={paper.questionCount}
                         duration={paper.duration}
                         isPremium={isPaperPremium(paper.id)}
-                        hasAccess={paperAccess[paper.id]}
+                        hasAccess={(purchasedPapers?.includes(paper.id) || (JSON.parse(localStorage.getItem('paidPapers') || '[]')).includes(paper.id))}
                       />
                     ))}
                   </div>
@@ -921,7 +908,7 @@ const Dashboard: React.FC = () => {
   questionCount={paper.questionCount}
   duration={paper.duration}
   isPremium={isPaperPremium(paper.id)}
-  hasAccess={paperAccess[paper.id]}
+  hasAccess={(purchasedPapers?.includes(paper.id) || (JSON.parse(localStorage.getItem('paidPapers') || '[]')).includes(paper.id))}
 />
                         ))}
                       </div>

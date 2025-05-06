@@ -18,7 +18,7 @@ router.post('/', auth, async (req, res) => {
     }
     
     // Check if userId matches the authenticated user (or allow admin override)
-    if (req.user.id !== userId && req.user.role !== 'admin') {
+    if (req.user.id !== userId) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to save results for this user'
@@ -60,7 +60,7 @@ router.get('/user/:userId', auth, async (req, res) => {
     const { userId } = req.params;
     
     // Check authorization
-    if (req.user.id !== userId && req.user.role !== 'admin') {
+    if (req.user.id !== userId) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to view results for this user'
@@ -101,7 +101,7 @@ router.get('/:resultId', auth, async (req, res) => {
     }
     
     // Check authorization
-    if (req.user.id !== result.userId && req.user.role !== 'admin') {
+    if (req.user.id !== result.userId) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to view this result'
@@ -126,14 +126,6 @@ router.get('/:resultId', auth, async (req, res) => {
 router.get('/paper/:paperId', auth, async (req, res) => {
   try {
     const { paperId } = req.params;
-    
-    // Check if admin (only admins can see all results for a paper)
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to view all results for this paper'
-      });
-    }
     
     // Fetch results
     const results = await Result.find({ paperId }).sort({ date: -1 });

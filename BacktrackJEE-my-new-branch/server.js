@@ -57,14 +57,16 @@ import attemptsRoutes from "./routes/attempts.js";
 import questionsRoutes from "./routes/questions.js";
 import resultsRoutes from "./routes/results.js";
 import userRoutes from "./routes/user.js";
-import userstatsRouter from "./routes/userstats.js";
+
+import dashboardRouter from "./routes/dashboard.js";
 
 app.use("/api/auth", authRoutes);
 app.use("/api", attemptsRoutes);
 app.use("/api/papers", questionsRoutes);
 app.use("/api/results", resultsRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/userstats", userstatsRouter);
+
+app.use("/api", dashboardRouter);
 
 // Serve robots.txt and sitemap.xml
 app.get('/robots.txt', (req, res) => {
