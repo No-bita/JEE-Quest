@@ -30,7 +30,11 @@ const userSchema = new mongoose.Schema({
     paid: {
         type: Boolean,
         default: false
-    }
+    },
+    purchasedPapers: [{
+        type: String, // paperId
+        default: []
+    }]
 }, {
     timestamps: true // ✅ Auto-adds `createdAt` & `updatedAt`
 });

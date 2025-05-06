@@ -341,6 +341,18 @@ export const subscriptionApi = {
 
 // User API endpoints
 export const userApi = {
+  // Check if user has access to a paper
+  async checkPaperAccess(paperId: string) {
+    return api.get(`/user/papers/${paperId}/access`);
+  },
+  // Purchase a single paper
+  async purchaseSinglePaper(paperId: string) {
+    return api.post(`/user/papers/${paperId}/purchase`, {});
+  },
+  // Get all purchased papers
+  async getPurchasedPapers() {
+    return api.get(`/user/papers/purchased`);
+  },
   getUserProfile: async () => {
     return await api.get('/user/profile');
   },

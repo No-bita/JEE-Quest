@@ -3,12 +3,23 @@ import mongoose from 'mongoose';
 import Mapping from '../models/Mapping.js';
 const router = express.Router();
 
+import authenticateUser from '../middleware/authmiddleware.js';
+
 // Route to fetch questions for a specific paper
-router.get("/:paperId/questions", async (req, res) => {
+router.get("/:paperId/questions", authenticateUser, async (req, res) => {
   const { paperId } = req.params;
   console.log(`Fetching questions for paper: ${paperId}`);
 
   try {
+    // Access control: only allow if admin, paid, or purchased this paper
+    const user = req.user;
+    if (
+      user.role !== 'admin' &&
+      !user.paid &&
+      !(user.purchasedPapers && user.purchasedPapers.includes(paperId))
+    ) {
+      return res.status(403).json({ success: false, message: "You do not have access to this paper. Please purchase it to unlock." });
+    }
     // Find the collection name from the mapping
     const mapping = await Mapping.findOne({ paperId });
     console.log(`Mapping found:`, mapping);
