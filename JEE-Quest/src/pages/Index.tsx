@@ -5,6 +5,7 @@ import { ArrowRight, BookOpen, Lightbulb, BarChart3, Linkedin } from 'lucide-rea
 import { useNavigate, Routes, Route, Navigate, Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import { toast } from 'sonner';
+import { Helmet } from 'react-helmet-async';
 
 
 // Home page component (the main content from the original Index component)
@@ -31,6 +32,19 @@ const HomePage: React.FC = () => {
 
   return (
     <>
+      <Helmet>
+        <title>JEE Quest | Crack JEE Mains with Past Papers & Smart Analytics</title>
+        <meta name="description" content="Practice JEE Mains previous year questions (PYQs) with detailed solutions, analytics, and AI tools. Boost your exam preparation with JEE Quest." />
+        <link rel="canonical" href="https://jee-quest.vercel.app/" />
+        <meta property="og:title" content="JEE Quest | Crack JEE Mains with Past Papers & Smart Analytics" />
+        <meta property="og:description" content="Practice JEE Mains previous year questions (PYQs) with detailed solutions, analytics, and AI tools. Boost your exam preparation with JEE Quest." />
+        <meta property="og:url" content="https://jee-quest.vercel.app/" />
+        <meta property="og:image" content="https://jee-quest.vercel.app/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="JEE Quest | Crack JEE Mains with Past Papers & Smart Analytics" />
+        <meta name="twitter:description" content="Practice JEE Mains previous year questions (PYQs) with detailed solutions, analytics, and AI tools. Boost your exam preparation with JEE Quest." />
+        <meta name="twitter:image" content="https://jee-quest.vercel.app/og-image.png" />
+      </Helmet>
       <main className="bg-[#FCFDF7]">
         <Hero />
         

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import clsx from 'clsx';
+import { Helmet } from 'react-helmet-async';
 
 const cn = clsx;
 
@@ -663,6 +664,19 @@ const Dashboard: React.FC = () => {
     <div className="flex min-h-0">
       <Sidebar />
       <div className="flex-1 bg-gray-50">
+        <Helmet>
+          <title>JEE Quest | Practice JEE Mains Previous Year Papers Online</title>
+          <meta name="description" content="Browse and practice JEE Mains previous year papers (2020-2025) with detailed solutions, analytics, and smart tools. Start your exam preparation now!" />
+          <link rel="canonical" href="https://jee-quest.vercel.app/papers" />
+          <meta property="og:title" content="JEE Quest | Practice JEE Mains Previous Year Papers Online" />
+          <meta property="og:description" content="Browse and practice JEE Mains previous year papers (2020-2025) with detailed solutions, analytics, and smart tools. Start your exam preparation now!" />
+          <meta property="og:url" content="https://jee-quest.vercel.app/papers" />
+          <meta property="og:image" content="https://jee-quest.vercel.app/og-image.png" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="JEE Quest | Practice JEE Mains Previous Year Papers Online" />
+          <meta name="twitter:description" content="Browse and practice JEE Mains previous year papers (2020-2025) with detailed solutions, analytics, and smart tools. Start your exam preparation now!" />
+          <meta name="twitter:image" content="https://jee-quest.vercel.app/og-image.png" />
+        </Helmet>
         <div className="page-container pt-8 md:pt-12">
           {/* Welcome Header */}
           <div className="flex items-center justify-between">
@@ -873,19 +887,22 @@ const Dashboard: React.FC = () => {
               ) : (
                 // Show papers organized by year in tabs
                 <Tabs defaultValue={years[0]} className="w-full">
-                  <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6">
+                  <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6" style={{ background: '#F6FAF9' }}>
                     {years.map(year => (
                       <TabsTrigger
                         key={year}
                         value={year}
                         className={cn(
-                          "relative px-4 py-2 rounded-xl text-center",
-                          year === "2020" ? "bg-blue-50 border border-blue-500 text-blue-600 font-bold" : ""
+                          "relative px-4 py-2 rounded-xl text-center transition-colors duration-150 border",
+                          // Selected styling
+                          `data-[state=active]:bg-white data-[state=active]:border-2 data-[state=active]:border-[#2563EB] data-[state=active]:text-[#2563EB] data-[state=active]:z-10`,
+                          // Unselected styling
+                          `data-[state=inactive]:bg-[#F3F4F6] data-[state=inactive]:border-transparent data-[state=inactive]:text-[#374151] hover:data-[state=inactive]:bg-[#E5E7EB]`
                         )}
                       >
                         {year}
                         {year === "2020" && (
-                          <span className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-[1px] rounded-xl">
+                          <span className="absolute top-0 right-0 bg-[#3B82F6] text-white text-xs px-2 py-[1px] rounded-xl">
                             Free trial
                           </span>
                         )}
@@ -924,7 +941,7 @@ const Dashboard: React.FC = () => {
         
         {/* Add the Banner component */}
         <Banner 
-          text="🚀 We’re hiring a Growth Intern! Click to Apply 🚀" 
+          text="🚀 We're hiring a Growth Intern! Click to Apply 🚀" 
           linkUrl="https://forms.gle/fKCit1Kih2wbZGu9A"
         />
       </div>

@@ -1,9 +1,10 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import ResourceCard from '@/components/ResourceCard';
 import Footer from '@/components/Footer';
 import { BookOpen, FileText, TrendingUp, Star } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 const categories = [
   {
@@ -35,63 +36,88 @@ const resources = [
   }
 ];
 
+const tabs = [
+  'All',
+  'Practice Papers',
+  'Study Guides',
+  'Exam Strategy',
+  'Motivation',
+  'Blog',
+];
+
+const blogPosts = [
+  {
+    slug: 'jee-mains-prep-tips',
+    title: 'Top Tips for JEE Mains Preparation',
+    summary: 'Boost your JEE Mains score with these proven strategies...',
+    date: '2024-07-01',
+    image: 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=400&q=80',
+  },
+];
+
 const AboutUs: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('All');
+
   return (
     <>
+      <Helmet>
+        <title>About Us | JEE Quest Resource Hub</title>
+        <meta name="description" content="Learn about JEE Quest, our mission, and explore curated resources, guides, and tips to help you crack JEE Mains with confidence." />
+        <link rel="canonical" href="https://jee-quest.vercel.app/about" />
+        <meta property="og:title" content="About Us | JEE Quest Resource Hub" />
+        <meta property="og:description" content="Learn about JEE Quest, our mission, and explore curated resources, guides, and tips to help you crack JEE Mains with confidence." />
+        <meta property="og:url" content="https://jee-quest.vercel.app/about" />
+        <meta property="og:image" content="https://jee-quest.vercel.app/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="About Us | JEE Quest Resource Hub" />
+        <meta name="twitter:description" content="Learn about JEE Quest, our mission, and explore curated resources, guides, and tips to help you crack JEE Mains with confidence." />
+        <meta name="twitter:image" content="https://jee-quest.vercel.app/og-image.png" />
+      </Helmet>
       <NavBar />
       {/* Hero Section */}
-      <section className="bg-[#FAFBF6] text-[#1A2B2E] py-16 px-4 text-center mt-16 md:mt-20">
-        <h1 className="text-5xl font-bold mb-4">Resource hub</h1>
-        <p className="mb-8 text-lg max-w-xl mx-auto">Ideas, templates, and tools for students preparing for JEE. Curated to help you crack the exam with confidence.</p>
-        <button className="bg-white text-black font-semibold px-6 py-3 rounded-lg shadow hover:bg-gray-200 transition">Discover resources</button>
+      <section className="bg-[#F3F8F6] text-[#1A2B2E] py-16 px-4 text-center mt-16 md:mt-20 border-b border-[#E3E9E2]">
+        <h1 className="mb-4 text-[#2D5A4A]">Resource hub</h1>
+        <p className="mb-8 text-lg max-w-xl mx-auto text-[#4B6358]">Ideas, templates, and tools for students preparing for JEE. Curated to help you crack the exam with confidence.</p>
+        <button className="bg-[#5BB98C] text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-[#4CA97A] transition">Discover resources</button>
       </section>
 
-      {/* Category Row */}
-      <div className="bg-[#F7FAF7] text-[#1A2B2E] py-8 flex flex-col md:flex-row items-center justify-center gap-10 border-b border-[#E3E9E2]">
-        {categories.map((cat, idx) => (
-          <div key={idx} className="flex flex-col items-center w-56 text-center">
-            <div className="mb-2">{cat.icon}</div>
-            <div className="font-semibold text-lg mb-1">{cat.title}</div>
-            <div className="text-gray-300 text-sm">{cat.desc}</div>
+      {/* Tab Navigation */}
+      <nav className="max-w-5xl mx-auto mt-8 flex gap-6 border-b border-gray-200 overflow-x-auto">
+        {tabs.map(tab => (
+          <button
+            key={tab}
+            className={`pb-3 px-2 text-gray-700 border-b-2 transition-colors duration-150 whitespace-nowrap ${activeTab === tab ? 'border-[#5BB98C] text-[#5BB98C] bg-white' : 'border-transparent hover:text-[#5BB98C]'}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </nav>
+
+      {/* Featured Resource/Blog Card */}
+      <div className="max-w-5xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="col-span-1 md:col-span-2 bg-white rounded-xl shadow-lg p-8 flex flex-col md:flex-row gap-6">
+          <img src={blogPosts[0].image} className="w-full md:w-1/3 rounded-lg object-cover" alt="Featured" />
+          <div>
+            <h2 className="text-2xl text-[#2D5A4A] mb-2">{blogPosts[0].title}</h2>
+            <p className="text-[#4B6358] mb-4">{blogPosts[0].summary}</p>
+            <span className="text-xs text-gray-400">{blogPosts[0].date}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Resource Cards Grid */}
+      <div className="max-w-5xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {resources.map((res, idx) => (
+          <div key={idx} className="bg-white rounded-xl shadow p-6 flex flex-col gap-2 hover:shadow-md transition">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-[#5BB98C]">{res.icon}</span>
+              <span className="text-base text-gray-900">{res.title}</span>
+            </div>
+            <div className="text-gray-600 text-sm leading-relaxed">{res.description}</div>
           </div>
         ))}
       </div>
-
-      {/* Main Content */}
-      <main className="bg-[#FAFBF6] min-h-[60vh] py-16 px-4">
-        <h2 className="text-3xl font-semibold text-center mb-12">Explore all our resources</h2>
-        <div className="flex flex-col md:flex-row gap-10 max-w-6xl mx-auto">
-          {/* Sidebar */}
-          <aside className="w-full md:w-64 mb-8 md:mb-0">
-            <div className="mb-6 text-gray-500 text-sm">4 resources</div>
-            <div className="relative mb-8">
-              <input type="text" placeholder="Search all resources" className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" />
-            </div>
-            <div className="mb-8">
-              <div className="font-semibold mb-2 text-gray-700">Categories</div>
-              <ul className="space-y-1">
-                <li><span className="block bg-blue-100 text-blue-700 px-3 py-1 rounded">All</span></li>
-                <li className="text-gray-600">Practice Papers</li>
-                <li><a href="#faq-section" className="text-gray-600 hover:underline" role="link">FAQs</a></li>
-                <li className="text-gray-600">Exam Strategy</li>
-                <li className="text-gray-600">Motivation</li>
-              </ul>
-            </div>
-          </aside>
-          {/* Resource Cards Grid */}
-          <section className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {resources.map((res, idx) => (
-              <div key={idx} className="border rounded-xl p-6 bg-white shadow-sm hover:shadow-md transition flex flex-col gap-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-[#5BB98C]">{res.icon}</span>
-                  <span className="font-medium text-base text-gray-900">{res.title}</span>
-                </div>
-                <div className="text-gray-600 text-sm leading-relaxed">{res.description}</div>
-              </div>
-            ))}
-          </section>
-        </div>
-      </main>
 
       {/* FAQ Section */}
       <section id="faq-section" className="max-w-3xl mx-auto mt-16 mb-20 px-4 bg-[#FAFBF6] rounded-2xl py-12 shadow-none transition-opacity duration-500">

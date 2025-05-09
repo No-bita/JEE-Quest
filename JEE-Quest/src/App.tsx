@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Discussions from './pages/Discussions';
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react"
+import { HelmetProvider } from 'react-helmet-async';
 
 // Import pages
 import Index from "./pages/Index";
@@ -50,10 +51,10 @@ const AppContent = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Redirect from landing page to dashboard if logged in */}
-            <Route path="*" element={isLoggedIn ? <Navigate to="/papers" /> : <Index />} />
+            {/* Always show landing page at root URL */}
+            <Route path="/" element={<Index />} />
 
-            {/* Protected routes - redirect to landing if not logged in */}
+            {/* Protected routes - redirect to signin if not logged in */}
             <Route path="/papers" element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />} />
             <Route path="/results/:paperId?" element={isLoggedIn ? <Results /> : <Navigate to="/signin" />} />
             <Route path="/discussions" element={isLoggedIn ? <Discussions /> : <Navigate to="/signin" />} />
@@ -70,6 +71,9 @@ const AppContent = () => {
             {/* Auth routes - redirect to dashboard if already logged in */}
             <Route path="/signin" element={isLoggedIn ? <Navigate to="/papers" /> : <SignIn setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/papers" /> : <Register />} />
+
+            {/* Catch-all route - redirect to home */}
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </BrowserRouter>
         <Analytics />
@@ -81,9 +85,11 @@ const AppContent = () => {
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const App = () => (
-  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-    <AppContent />
-  </GoogleOAuthProvider>
+  <HelmetProvider>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <AppContent />
+    </GoogleOAuthProvider>
+  </HelmetProvider>
 );
 
 export default App;
