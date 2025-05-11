@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { motion, useAnimation, useViewportScroll, useTransform } from 'framer-motion';
+import { motion, useAnimation, useTransform, useScroll } from 'framer-motion';
 
 interface AnimatedPastPapersProps {
   children: React.ReactNode;
@@ -49,7 +49,7 @@ export const AnimatedPastPapers: React.FC<AnimatedPastPapersProps> = ({ children
   const ref = useRef<HTMLSpanElement>(null);
 
   // Parallax effect
-  const { scrollY } = useViewportScroll();
+  const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 400], [0, 30]);
 
   useEffect(() => {

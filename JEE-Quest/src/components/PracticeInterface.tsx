@@ -137,7 +137,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
         const result = await response.json();
         if (!result.success || !result.data) throw new Error('Invalid response format');
         
-        const paperQuestions = result.data.map(q => ({
+        const paperQuestions = result.data.questions.map(q => ({
           id: q.id,
           text: q.text || '',
           imageUrl: q.imageUrl,
@@ -478,7 +478,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                           <ul className="list-disc pl-5 space-y-1">
                             <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
                             <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                            <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                            <li>Unattempted Answer: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
                           </ul>
                         </div>
                       </div>
@@ -490,7 +490,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                           <ul className="list-disc pl-5 space-y-1">
                             <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
                             <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-                            <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+                            <li>Unattempted Answer: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
                           </ul>
                         </div>
                       </div>

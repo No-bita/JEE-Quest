@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ import CountUp from 'react-countup';
 import { ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { CORRECT_MARKS, INCORRECT_MARKS, UNATTEMPTED_MARKS, ResultsData, Question } from '@/utils/types';
 import { toast } from '@/components/ui/use-toast';
+import Confetti from 'react-confetti';
+import { Clock as ClockIcon } from 'lucide-react';
 
 const Results: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -37,6 +39,10 @@ const Results: React.FC = () => {
     unattempted: number;
     total: number;
   }>>([]);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [highlighted, setHighlighted] = useState<number | null>(null);
+  const questionRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   // Helper: Format seconds as mm:ss
   const formatTimeMMSS = (seconds: number) => {
@@ -142,6 +148,14 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
     fetchPaperData();
   }, [paperId, navigate]);
 
+  useEffect(() => {
+    if (scoreData?.totalScore > 0) {
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 5000); // Stop confetti after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [scoreData?.totalScore]);
+
   // Helper: Subject performance
   const calculateSubjectPerformance = (questions: Question[], answers: Record<number, number>) => {
     if (!questions || !answers) return [];
@@ -204,6 +218,16 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
     }
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const num = parseInt(searchValue, 10);
+    if (!isNaN(num) && questionRefs.current[num]) {
+      questionRefs.current[num]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setHighlighted(num);
+      setTimeout(() => setHighlighted(null), 1500);
+    }
+  };
+
   if (isLoading || !scoreData) {
     return (
       <div className="flex min-h-screen" style={{ backgroundColor: '#FAFBF6' }}>
@@ -225,14 +249,9 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: '#FAFBF6' }}>
+      {showConfetti && <Confetti recycle={false} numberOfPieces={200} />}
       <Sidebar />
       <div className="flex-1 page-container pt-24 max-w-5xl mx-auto px-2 md:px-6">
-        {paperNote && (
-          <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-300 text-blue-900 text-center text-base font-medium">
-            <span className="font-semibold">Note:</span> {paperNote}
-          </div>
-        )}
-
         {/* Score Highlight */}
         <div className="flex flex-col items-center mb-8">
           <div className="bg-white shadow-lg rounded-2xl px-8 py-6 mb-2">
@@ -265,44 +284,50 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
             <div className="text-2xl font-bold text-black">{formatTime(results?.timeSpent || 0)}</div>
           </div>
         </div>
-        <div className="flex flex-col md:flex-row items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
-          {/* Marking Scheme */}
-          <div className="md:w-1/2 w-full">
-            <h3 className="font-semibold mb-2">Marking Scheme:</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Correct answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
-              <li>Incorrect answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
-              <li>Unattempted Question: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
-            </ul>
+        {/* Move the note here, keep original UI */}
+        {paperNote && (
+          <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-300 text-blue-900 text-center text-base font-medium">
+            <span className="font-semibold">Note:</span> {paperNote}
           </div>
-          {/* Pie Chart */}
-          <div className="md:w-1/2 w-full h-72 flex items-center justify-center">
-            {pieData.some(item => item.value > 0) ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => [value, 'Questions']} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-muted-foreground">
-                No question data available
-              </div>
-            )}
+        )}
+        <div className="flex flex-col md:flex-row items-center justify-between mb-6">
+          <div className="w-full bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow mb-4 md:mb-0 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="md:w-1/3 w-full">
+              <h3 className="font-semibold mb-2">Marking Scheme:</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
+                <li>Incorrect Answer: <span className="font-medium text-red-600">{INCORRECT_MARKS} mark</span></li>
+                <li>Unattempted Answer: <span className="font-medium text-gray-600">{UNATTEMPTED_MARKS} marks</span></li>
+              </ul>
+            </div>
+            <div className="md:w-2/3 w-full h-72 flex items-center justify-center">
+              {pieData.some(item => item.value > 0) ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [value, 'Questions']} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-muted-foreground">
+                  No question data available
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <Link to={`/papers`}>
@@ -334,7 +359,21 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
           </div>
         </div>
         <div className="glass-card rounded-xl p-6">
-          <h2 className="text-xl font-bold mb-6">Question Analysis</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold mb-0">Question Analysis</h2>
+            <form onSubmit={handleSearch} className="flex gap-2 items-center mb-0">
+              <input
+                type="number"
+                min={1}
+                max={questions.length}
+                value={searchValue}
+                onChange={e => setSearchValue(e.target.value)}
+                placeholder="Jump to question..."
+                className="border rounded px-3 py-2 w-40 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <button type="submit" className="bg-primary text-white px-4 py-2 rounded">Go</button>
+            </form>
+          </div>
           {questions.length > 0 ? (
             <div className="space-y-6">
               {questions.map((question, index) => {
@@ -349,12 +388,19 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                     CORRECT_MARKS : 
                     INCORRECT_MARKS;
                 return (
-                  <div key={question.id} className="p-4 rounded-lg border">
+                  <div
+                    key={question.id}
+                    ref={el => (questionRefs.current[index + 1] = el)}
+                    className={`p-4 rounded-lg border transition-shadow duration-300 ${highlighted === index + 1 ? 'ring-2 ring-primary shadow-lg' : ''}`}
+                  >
                     <div className="flex justify-between items-start mb-3">
                       <div className="font-medium flex items-center gap-2">
                         <span className="bg-primary/10 text-primary rounded px-2 py-0.5">{index + 1}</span>
-                        <span className="ml-2 text-xs font-mono text-muted-foreground">
-                          {results?.questionTimes?.[question.id] ? formatTimeMMSS(results.questionTimes[question.id]) : ''}
+                        <span className="ml-2 flex items-center">
+                          <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full flex items-center text-xs font-mono">
+                            <ClockIcon className="w-3 h-3 mr-1" />
+                            {userAnswer ? (results?.questionTimes?.[question.id] ? formatTimeMMSS(results.questionTimes[question.id]) : '0:00') : '0:00'}
+                          </span>
                         </span>
                         {question.text}
                       </div>
@@ -395,6 +441,10 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                               }`}
                             >
                               <span className="font-medium mr-2">{option.id}.</span>
+                              {/* Show (Your answer) if this is the user's incorrect answer */}
+                              {Number(option.id) === Number(userAnswer) && Number(option.id) !== Number(question.correctOption) && (
+                                <span className="text-xs text-red-600 ml-2">(Your answer)</span>
+                              )}
                               {option.text}
                               {Number(option.id) === Number(question.correctOption) && (
                                 <span className="text-green-600 text-xs ml-2">
@@ -406,7 +456,17 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                         })}
                       </div>
                     ) : (
-                      <div className="text-sm text-muted-foreground mb-3">Options not available</div>
+                      <div className="text-sm text-muted-foreground mb-3 flex flex-col gap-2">
+                        {/* Integer type answer display */}
+                        {userAnswer ? (
+                          <span className={`font-medium ${Number(userAnswer) === Number(question.correctOption) ? 'text-green-600' : 'text-red-600'}`}>
+                            Your answer: {userAnswer}
+                          </span>
+                        ) : (
+                          <span className="font-medium text-gray-500">Not attempted</span>
+                        )}
+                        <span className="font-medium text-green-600">Correct answer: {question.correctOption}</span>
+                      </div>
                     )}
                     <div className="text-sm text-muted-foreground flex gap-4">
                       <span>Subject: {question.subject}</span>
