@@ -124,11 +124,11 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
   return (
     <>
       <NavBar />
-      <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-[#FAFBF6]">
-        <Card className="w-full max-w-md bg-white rounded-2xl border border-[#E3E9E2] shadow-sm hover:shadow-md px-6 md:px-8 py-8 md:py-10">
+      <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-[#FAFBF6] dark:bg-gray-950">
+        <Card className="w-full max-w-md bg-white dark:bg-[#23272F] rounded-2xl border border-[#E3E9E2] dark:border-gray-700 shadow-sm dark:shadow-2xl hover:shadow-md px-6 md:px-8 py-8 md:py-10">
           <CardHeader>
-            <CardTitle className="text-3xl md:text-4xl font-bold text-center text-[#384B47]">Sign In</CardTitle>
-            <CardDescription className="text-center text-gray-600">
+            <CardTitle className="text-3xl md:text-4xl font-bold text-center text-[#384B47] dark:text-gray-100">Sign In</CardTitle>
+            <CardDescription className="text-center text-gray-600 dark:text-gray-300">
               Enter your credentials to sign in to your account
             </CardDescription>
           </CardHeader>
@@ -140,9 +140,9 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#384B47] font-medium">Email</FormLabel>
+                      <FormLabel className="text-[#384B47] dark:text-gray-200 font-medium">Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="you@example.com" {...field} className="rounded-lg border border-[#E3E9E2] bg-[#F7FAF7] text-[#1A2B2E] placeholder-gray-400 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
+                        <Input placeholder="you@example.com" {...field} className="rounded-lg border border-[#E3E9E2] dark:border-gray-700 bg-[#F7FAF7] dark:bg-gray-900 text-[#1A2B2E] dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -153,20 +153,20 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#384B47] font-medium">Password</FormLabel>
+                      <FormLabel className="text-[#384B47] dark:text-gray-200 font-medium">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="rounded-lg border border-[#E3E9E2] bg-[#F7FAF7] text-[#1A2B2E] placeholder-gray-400 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
+                        <Input type="password" placeholder="••••••••" {...field} className="rounded-lg border border-[#E3E9E2] dark:border-gray-700 bg-[#F7FAF7] dark:bg-gray-900 text-[#1A2B2E] dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <div className="flex justify-end">
-                  <Link to="/forgot-password" className="text-sm text-[#5BB98C] hover:underline font-medium">
+                  <Link to="/forgot-password" className="text-sm text-[#5BB98C] dark:text-green-400 hover:underline font-medium">
                     Forgot password?
                   </Link>
                 </div>
-                <Button type="submit" className="w-full bg-[#5BB98C] text-white rounded-lg hover:bg-[#4CA97A] font-semibold text-lg py-3 transition" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-[#5BB98C] dark:bg-green-500 text-white dark:text-gray-900 rounded-lg hover:bg-[#4CA97A] dark:hover:bg-green-400 font-semibold text-lg py-3 transition" disabled={isLoading}>
                   {isLoading ? (
                     <span className="flex items-center justify-center">
                       <span className="mr-2 h-6 w-6">
@@ -182,10 +182,10 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
             </Form>
           </CardContent>
           
-          <CardFooter className="flex flex-col space-y-2 mt-4 border-t border-[#E3E9E2] pt-4">
-            <div className="text-sm text-center">
+          <CardFooter className="flex flex-col space-y-2 mt-4 border-t border-[#E3E9E2] dark:border-gray-700 pt-4">
+            <div className="text-sm text-center text-gray-600 dark:text-gray-400">
               Don't have an account?{' '}
-              <Link to="/register" className="text-[#5BB98C] hover:underline font-medium">
+              <Link to="/register" className="text-[#5BB98C] dark:text-green-400 hover:underline font-medium">
                 Register
               </Link>
             </div>

@@ -82,11 +82,11 @@ const Register: React.FC = () => {
   return (
     <>
       <NavBar />
-      <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-[#FAFBF6]">
-        <Card className="w-full max-w-md bg-white rounded-2xl border border-[#E3E9E2] shadow-sm hover:shadow-md px-6 md:px-8 py-8 md:py-10">
+      <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-[#FAFBF6] dark:bg-gray-950">
+        <Card className="w-full max-w-md bg-white dark:bg-[#23272F] rounded-2xl border border-[#E3E9E2] dark:border-gray-700 shadow-sm dark:shadow-2xl hover:shadow-md px-6 md:px-8 py-8 md:py-10">
           <CardHeader>
-            <CardTitle className="text-3xl md:text-4xl font-bold text-center text-[#384B47]">Register</CardTitle>
-            <CardDescription className="text-center text-gray-600">
+            <CardTitle className="text-3xl md:text-4xl font-bold text-center text-[#384B47] dark:text-gray-100">Register</CardTitle>
+            <CardDescription className="text-center text-gray-600 dark:text-gray-300">
               Create your free account to access JEE Mains practice papers
             </CardDescription>
           </CardHeader>
@@ -98,9 +98,9 @@ const Register: React.FC = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#384B47] font-medium">Full Name</FormLabel>
+                      <FormLabel className="text-[#384B47] dark:text-gray-200 font-medium">Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} className="rounded-lg border border-[#E3E9E2] bg-[#F7FAF7] text-[#1A2B2E] placeholder-gray-400 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
+                        <Input placeholder="John Doe" {...field} className="rounded-lg border border-[#E3E9E2] dark:border-gray-700 bg-[#F7FAF7] dark:bg-gray-900 text-[#1A2B2E] dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -111,9 +111,9 @@ const Register: React.FC = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#384B47] font-medium">Email</FormLabel>
+                      <FormLabel className="text-[#384B47] dark:text-gray-200 font-medium">Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="you@example.com" {...field} className="rounded-lg border border-[#E3E9E2] bg-[#F7FAF7] text-[#1A2B2E] placeholder-gray-400 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
+                        <Input placeholder="you@example.com" {...field} className="rounded-lg border border-[#E3E9E2] dark:border-gray-700 bg-[#F7FAF7] dark:bg-gray-900 text-[#1A2B2E] dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -124,9 +124,9 @@ const Register: React.FC = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#384B47] font-medium">Password</FormLabel>
+                      <FormLabel className="text-[#384B47] dark:text-gray-200 font-medium">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="rounded-lg border border-[#E3E9E2] bg-[#F7FAF7] text-[#1A2B2E] placeholder-gray-400 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
+                        <Input type="password" placeholder="••••••••" {...field} className="rounded-lg border border-[#E3E9E2] dark:border-gray-700 bg-[#F7FAF7] dark:bg-gray-900 text-[#1A2B2E] dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -137,15 +137,15 @@ const Register: React.FC = () => {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[#384B47] font-medium">Confirm Password</FormLabel>
+                      <FormLabel className="text-[#384B47] dark:text-gray-200 font-medium">Confirm Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} className="rounded-lg border border-[#E3E9E2] bg-[#F7FAF7] text-[#1A2B2E] placeholder-gray-400 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
+                        <Input type="password" placeholder="••••••••" {...field} className="rounded-lg border border-[#E3E9E2] dark:border-gray-700 bg-[#F7FAF7] dark:bg-gray-900 text-[#1A2B2E] dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#5BB98C] focus:border-[#5BB98C]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full bg-[#5BB98C] text-white rounded-lg hover:bg-[#4CA97A] font-semibold text-lg py-3 transition" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-[#5BB98C] dark:bg-green-500 text-white dark:text-gray-900 rounded-lg hover:bg-[#4CA97A] dark:hover:bg-green-400 font-semibold text-lg py-3 transition" disabled={isLoading}>
                   {isLoading ? (
                     <span className="mr-2 h-6 w-6">
                       <Lottie animationData={loadAnimationData} loop={true} style={{height: 24, width: 24}} />
@@ -158,9 +158,9 @@ const Register: React.FC = () => {
             </Form>
           </CardContent>
           <CardFooter>
-            <div className="text-sm text-center w-full">
+            <div className="text-sm text-center w-full text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
-              <Link to="/signin" className="text-[#5BB98C] hover:underline font-medium">
+              <Link to="/signin" className="text-[#5BB98C] dark:text-green-400 hover:underline font-medium">
                 Sign In
               </Link>
             </div>

@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, CalendarRange, LogIn, BarChart2, BookOpen, History, Trophy } from 'lucide-react';
+import { Search, CalendarRange, LogIn, BarChart2, BookOpen, History, Trophy, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import clsx from 'clsx';
 import { Helmet } from 'react-helmet-async';
+import { useTheme } from '@/context/ThemeContext';
 
 const cn = clsx;
 
@@ -485,6 +486,7 @@ const mockNotifications = [
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   // Defensive check for authentication
   React.useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -663,7 +665,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex min-h-0">
       <Sidebar />
-      <div className="flex-1 bg-gray-50">
+      <div className="flex-1 bg-gray-50 dark:bg-[#101014]">
         <Helmet>
           <title>JEE Quest | Practice JEE Mains Previous Year Papers Online</title>
           <meta name="description" content="Browse and practice JEE Mains previous year papers (2020-2025) with detailed solutions, analytics, and smart tools. Start your exam preparation now!" />
@@ -685,40 +687,49 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
 
+  {/* Theme Toggle Button */}
+  <button
+    onClick={toggleTheme}
+    className="rounded-xl bg-[#FAFAFA] dark:bg-[#23272F] p-2 shadow-sm border border-[#F0F0F0] dark:border-gray-700 hover:bg-[#F3F3F3] dark:hover:bg-[#23272F]/80 transition"
+    aria-label="Toggle dark mode"
+  >
+    {theme === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-700" />}
+  </button>
+
   <div className="relative">
     <button
-      className="rounded-xl bg-[#FAFAFA] p-2 shadow-sm border border-[#F0F0F0] hover:bg-[#F3F3F3] transition"
+      className="rounded-xl bg-[#FAFAFA] dark:bg-[#23272F] p-2 shadow-sm border border-[#F0F0F0] dark:border-gray-700 hover:bg-[#F3F3F3] dark:hover:bg-[#23272F]/80 transition"
       onClick={() => setNotifOpen((open) => !open)}
       ref={notifBtnRef}
       aria-label="Notifications"
     >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#232323" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#232323] dark:text-[#A1A1AA]"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     </button>
     <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 border-2 border-white"></span>
     {notifOpen && (
-      <div ref={notifDropdownRef} className="absolute right-0 mt-2 w-80 bg-white border border-[#E3E9E2] shadow-xl rounded-xl z-50 animate-fade-in">
-        <div className="px-4 py-3 border-b border-[#E3E9E2] flex items-center justify-between">
-          <span className="font-semibold text-[#384B47]">Notifications</span>
-          <button className="text-xs text-[#5BB98C] hover:underline">Mark all as read</button>
+      <div ref={notifDropdownRef} className="absolute right-0 mt-2 w-80 bg-white dark:bg-[#23272F] border border-[#E3E9E2] dark:border-gray-700 shadow-xl rounded-xl z-50 animate-fade-in">
+        <div className="px-4 py-3 border-b border-[#E3E9E2] dark:border-gray-700 flex items-center justify-between">
+          <span className="font-semibold text-[#384B47] dark:text-gray-100">Notifications</span>
+          <button className="text-xs text-[#5BB98C] dark:text-green-400 hover:underline">Mark all as read</button>
         </div>
-        <ul className="max-h-80 overflow-y-auto divide-y divide-[#F0F0F0]">
+        <ul className="max-h-80 overflow-y-auto divide-y divide-[#F0F0F0] dark:divide-gray-800">
           {mockNotifications.length > 0 ? (
             mockNotifications.slice(0, 5).map((notif, idx) => (
-              <li key={idx} className={`flex items-start gap-3 px-4 py-3 hover:bg-[#FAFBF6] cursor-pointer ${!notif.read ? 'bg-[#F7FAF7]' : ''}`}>
-                <span className={`mt-1 ${notif.read ? 'text-gray-400' : 'text-[#5BB98C]'}`}>{notif.icon}</span>
+              <li key={idx} className={`flex items-start gap-3 px-4 py-3 hover:bg-[#FAFBF6] dark:hover:bg-[#23272F]/60 cursor-pointer ${!notif.read ? 'bg-[#F7FAF7] dark:bg-[#1A1D1A]' : ''}`}>
+                <span className={`mt-1 ${notif.read ? 'text-gray-400 dark:text-gray-500' : 'text-[#5BB98C] dark:text-green-400'}`}>{notif.icon}</span>
                 <div className="flex-1">
-                  <div className={`text-sm ${!notif.read ? 'font-semibold text-[#1A2B2E]' : 'text-gray-700'}`}>{notif.title}</div>
-                  <div className="text-xs text-gray-400 mt-1">{notif.time}</div>
+                  <div className={`text-sm ${!notif.read ? 'font-semibold text-[#1A2B2E] dark:text-gray-100' : 'text-gray-700 dark:text-gray-400'}`}>{notif.title}</div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{notif.time}</div>
                 </div>
-                {!notif.read && <span className="block h-2 w-2 rounded-full bg-[#5BB98C] mt-2"></span>}
+                {!notif.read && <span className="block h-2 w-2 rounded-full bg-[#5BB98C] dark:bg-green-400 mt-2"></span>}
               </li>
             ))
           ) : (
-            <li className="px-4 py-6 text-center text-gray-400 text-sm">You're all caught up!</li>
+            <li className="px-4 py-6 text-center text-gray-400 dark:text-gray-500 text-sm">You're all caught up!</li>
           )}
         </ul>
-        <div className="border-t border-[#E3E9E2] px-4 py-2 text-center">
-          <a href="#" className="text-[#5BB98C] text-sm font-medium hover:underline">See all notifications</a>
+        <div className="border-t border-[#E3E9E2] dark:border-gray-700 px-4 py-2 text-center">
+          <a href="#" className="text-[#5BB98C] dark:text-green-400 text-sm font-medium hover:underline">See all notifications</a>
           <div className="mt-3">
             <Button
               variant="ghost"
@@ -733,10 +744,11 @@ const Dashboard: React.FC = () => {
       </div>
     )}
   </div>
+
   {/* User Profile Section */}
   <div className="relative">
     <button
-      className="flex items-center gap-3 pl-2 rounded-xl bg-[#FAFAFA] p-2 shadow-sm border border-[#F0F0F0] hover:bg-[#F3F3F3] transition"
+      className="flex items-center gap-2 pl-2 rounded-xl bg-[#FAFAFA] dark:bg-[#23272F] p-1.5 shadow-sm border border-[#F0F0F0] dark:border-gray-700 hover:bg-[#F3F3F3] dark:hover:bg-[#23272F]/80 transition min-h-0 min-w-0"
       onClick={() => setProfileDropdownOpen((open) => !open)}
       ref={profileBtnRef}
       aria-label="User menu"
@@ -744,19 +756,19 @@ const Dashboard: React.FC = () => {
       <img
         src={localStorage.getItem('userAvatar') || 'https://randomuser.me/api/portraits/men/32.jpg'}
         alt={userName}
-        className="h-10 w-10 rounded-full object-cover bg-gray-200"
+        className="h-8 w-8 rounded-full object-cover bg-gray-200"
         onError={(e) => { (e.target as HTMLImageElement).src = 'https://randomuser.me/api/portraits/men/32.jpg'; }}
       />
       <div className="flex flex-col items-start">
-        <span className="font-bold text-lg leading-5">{userName}</span>
+        <span className="font-bold text-base leading-5 text-gray-900 dark:text-gray-100">{userName}</span>
       </div>
     </button>
     {profileDropdownOpen && (
-      <div ref={profileDropdownRef} className="absolute right-0 mt-2 w-48 bg-white border border-[#E3E9E2] shadow-xl rounded-xl z-50 animate-fade-in">
-        <ul className="divide-y divide-[#F0F0F0]">
-          <li className="px-4 py-3 hover:bg-[#FAFBF6] cursor-pointer">Profile</li>
-          <li className="px-4 py-3 hover:bg-[#FAFBF6] cursor-pointer">Settings</li>
-          <li className="px-4 py-3 hover:bg-[#FAFBF6] cursor-pointer text-red-500">Logout</li>
+      <div ref={profileDropdownRef} className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#23272F] border border-[#E3E9E2] dark:border-gray-700 shadow-xl rounded-xl z-50 animate-fade-in">
+        <ul className="divide-y divide-[#F0F0F0] dark:divide-gray-800">
+          <li className="px-4 py-3 hover:bg-[#FAFBF6] dark:hover:bg-[#23272F]/60 cursor-pointer">Profile</li>
+          <li className="px-4 py-3 hover:bg-[#FAFBF6] dark:hover:bg-[#23272F]/60 cursor-pointer">Settings</li>
+          <li className="px-4 py-3 hover:bg-[#FAFBF6] dark:hover:bg-[#23272F]/60 cursor-pointer text-red-500">Logout</li>
         </ul>
       </div>
     )}
@@ -765,11 +777,11 @@ const Dashboard: React.FC = () => {
           </div>
           
           {/* Quick Stats Modern Dashboard */}
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 items-stretch">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 items-stretch mt-8 md:mt-10">
   {/* Tests Completed */}
-  <div className="rounded-xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#D6CCFF' }}>
-    <span className="text-md text-gray-500">Tests Completed</span>
-    <span className="text-3xl font-bold text-black">{userStats.testsCompleted}</span>
+  <div className="rounded-xl border border-[#F0F0F0] dark:border-gray-700 shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1 bg-[#D6CCFF] dark:bg-[#232347]">
+    <span className="text-md text-gray-500 dark:text-gray-300">Tests Completed</span>
+    <span className="text-3xl font-bold text-black dark:text-white">{userStats.testsCompleted}</span>
   </div>
   {/* Modal for nudge when no tests completed */}
   <Dialog open={showNudgeModal} onOpenChange={setShowNudgeModal}>
@@ -792,24 +804,24 @@ const Dashboard: React.FC = () => {
     </DialogContent>
   </Dialog>
   {/* Average Score */}
-  <div className="rounded-xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#FFCFC7' }}>
-    <span className="text-md text-gray-500">Average Score</span>
-    <span className="text-3xl font-bold text-black">{userStats.averageScore}%</span>
+  <div className="rounded-xl border border-[#F0F0F0] dark:border-gray-700 shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1 bg-[#FFCFC7] dark:bg-[#3a2323]">
+    <span className="text-md text-gray-500 dark:text-gray-300">Average Score</span>
+    <span className="text-3xl font-bold text-black dark:text-white">{userStats.averageScore}%</span>
   </div>
   {/* Top Subject */}
-  <div className="rounded-xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#FFE3AC' }}>
-    <span className="text-md text-gray-500">Top Subject</span>
-    <span className="text-3xl font-bold text-black">{userStats.topSubject}</span>
+  <div className="rounded-xl border border-[#F0F0F0] dark:border-gray-700 shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1 bg-[#FFE3AC] dark:bg-[#3a3623]">
+    <span className="text-md text-gray-500 dark:text-gray-300">Top Subject</span>
+    <span className="text-3xl font-bold text-black dark:text-white">{userStats.topSubject}</span>
   </div>
   {/* Study Hours */}
-  <div className="rounded-xl border border-[#F0F0F0] shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1" style={{ backgroundColor: '#B6F7B0' }}>
-    <span className="text-md text-gray-500">Study Hours</span>
-    <span className="text-3xl font-bold text-black">{Math.floor(userStats.studyHours)} hrs</span>
+  <div className="rounded-xl border border-[#F0F0F0] dark:border-gray-700 shadow-lg w-full h-32 flex flex-col items-center justify-center text-center gap-1 bg-[#B6F7B0] dark:bg-[#233a23]">
+    <span className="text-md text-gray-500 dark:text-gray-300">Study Hours</span>
+    <span className="text-3xl font-bold text-black dark:text-white">{Math.floor(userStats.studyHours)} hrs</span>
   </div>
 </div>
           
           {/* Main Content - Practice Papers with integrated filters */}
-          <Card className="mb-8">
+          <Card className="mb-8 bg-white dark:bg-[#181A20] border border-[#E3E9E2] dark:border-gray-800">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
                 <CardTitle className="text-3xl mb-1">Practice Papers</CardTitle>
@@ -887,7 +899,7 @@ const Dashboard: React.FC = () => {
               ) : (
                 // Show papers organized by year in tabs
                 <Tabs defaultValue={years[0]} className="w-full">
-                  <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6" style={{ background: '#F6FAF9' }}>
+                  <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6 bg-[#F6FAF9] dark:bg-[#23272F]">
                     {years.map(year => (
                       <TabsTrigger
                         key={year}

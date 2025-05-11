@@ -21,11 +21,11 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-72 bg-white shadow-lg flex flex-col p-4 min-h-fit">
+    <aside className="w-72 bg-white dark:bg-[#181A20] shadow-lg flex flex-col p-4 min-h-fit">
       {/* Logo and App Name Row */}
       <Link to="/papers" className="flex items-center gap-2 mb-6 mt-2 hover:opacity-90 focus:outline-none">
         <img src="/images/JEEQuest.png" alt="JEE Quest Logo" className="h-10 w-10 rounded-full object-cover" />
-        <span className="text-2xl font-bold tracking-tight" style={{ color: '#5BB98C' }}>JEE Quest</span>
+        <span className="text-2xl font-bold tracking-tight text-[#5BB98C] dark:text-green-400">JEE Quest</span>
       </Link>
       <div>
         
@@ -35,20 +35,20 @@ const Sidebar: React.FC = () => {
             <li>
               <Link
                 to="/papers"
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/papers' ? 'bg-[#1D9A6C] text-white' : 'hover:bg-gray-100'}`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/papers' ? 'bg-[#1D9A6C] text-white dark:bg-green-600 dark:text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200'}`}
               >
                 <FaTachometerAlt /> Dashboard
               </Link>
             </li>
             <li>
-              <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100">
+              <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200">
                 <FaChartBar /> Analytics
               </a>
             </li>
             <li>
               <Link
                 to="/leaderboard"
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/leaderboard' ? 'bg-[#1D9A6C] text-white' : 'hover:bg-gray-100'}`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/leaderboard' ? 'bg-[#1D9A6C] text-white dark:bg-green-600 dark:text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200'}`}
               >
                 <FaTrophy /> Leaderboard
               </Link>
@@ -60,7 +60,7 @@ const Sidebar: React.FC = () => {
           {/* Community & Collaboration */}
           <div>
             <button
-              className="flex items-center w-full text-xs text-gray-400 gap-2 px-2 py-1"
+              className="flex items-center w-full text-xs text-gray-400 dark:text-gray-500 gap-2 px-2 py-1"
               onClick={() => toggleSection('community')}
             >
               Community & Support
@@ -71,7 +71,7 @@ const Sidebar: React.FC = () => {
                 <li>
                   <Link
                     to="/discussions"
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/discussions' ? 'bg-[#1D9A6C] text-white' : 'hover:bg-gray-100 text-gray-700'}`}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/discussions' ? 'bg-[#1D9A6C] text-white dark:bg-green-600 dark:text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200'}`}
                   >
                     <FaComments /> Discussion
                   </Link>
@@ -82,7 +82,7 @@ const Sidebar: React.FC = () => {
           {/* Resources & Support */}
           <div className="mt-4">
             <button
-              className="flex items-center w-full text-xs text-gray-400 gap-2 px-2 py-1"
+              className="flex items-center w-full text-xs text-gray-400 dark:text-gray-500 gap-2 px-2 py-1"
               onClick={() => toggleSection('resources')}
             >
               Resources & Support
@@ -93,23 +93,23 @@ const Sidebar: React.FC = () => {
                 <li>
                   <Link
   to="/about"
-  className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/about' ? 'bg-[#1D9A6C] text-white' : 'hover:bg-gray-100 text-gray-700'}`}
+  className={`flex items-center gap-3 px-3 py-2 rounded-lg ${location.pathname === '/about' ? 'bg-[#1D9A6C] text-white dark:bg-green-600 dark:text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200'}`}
 >
   <FaLayerGroup /> Resources
 </Link>
                 </li>
                 <li>
-                  <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                  <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200">
                     <FaStickyNote /> My Notes
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                  <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200">
                     <FaBookmark /> My Bookmarks
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+                  <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200">
                     <FaQuestionCircle /> Support
                   </a>
                 </li>
@@ -121,12 +121,12 @@ const Sidebar: React.FC = () => {
       <div className="mt-4">
         <ul className="space-y-1">
           <li>
-            <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+            <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200">
               <FaLightbulb /> Career Guidance
             </a>
           </li>
           <li>
-            <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+            <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200">
               <FaShareAlt /> Referral
             </a>
           </li>
@@ -135,7 +135,7 @@ const Sidebar: React.FC = () => {
       </div>
       {/* Logout */}
       <div className="mt-6">
-        <button onClick={handleSignOutClick} className="flex items-center gap-3 px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 w-full">
+        <button onClick={handleSignOutClick} className="flex items-center gap-3 px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 w-full">
           <FaSignOutAlt /> Logout
         </button>
       </div>

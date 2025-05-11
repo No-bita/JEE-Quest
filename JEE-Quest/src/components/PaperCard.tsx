@@ -56,28 +56,28 @@ const PaperCard: React.FC<PaperCardProps> = ({
   const titleDisplay = `${date} - ${shift}`;
 
   return (
-    <div className="rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl animate-scale-in bg-[#FAFBF6] border border-gray-200">
+    <div className="rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl animate-scale-in bg-[#FAFBF6] dark:bg-[#181A20] border border-gray-200 dark:border-gray-700">
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="text-lg font-semibold mb-1">
+            <h3 className="text-lg font-semibold mb-1 text-gray-900 dark:text-gray-100">
               {titleDisplay}
             </h3>
             {session && (
-              <div className="flex items-center text-sm text-muted-foreground">
+              <div className="flex items-center text-sm text-muted-foreground dark:text-gray-400">
                 <Calendar size={14} className="mr-1" /> {session}
               </div>
             )}
           </div>
           {/* Badge for Premium Papers */}
           {isPremium && !hasAccess ? (
-            <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50 flex items-center gap-1">
+            <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50 dark:bg-[#2D2320] dark:border-amber-900 dark:text-amber-300 flex items-center gap-1">
               <Lock size={12} />
               Premium
             </Badge>
           ) : (
             isPremium && hasAccess && (
-              <Badge variant="outline" className="text-green-500 border-green-200 bg-green-50 flex items-center gap-1">
+              <Badge variant="outline" className="text-green-500 border-green-200 bg-green-50 dark:bg-[#1A2D1A] dark:border-green-900 dark:text-green-300 flex items-center gap-1">
                 <CheckCircle size={12} />
               </Badge>
             )
@@ -85,12 +85,12 @@ const PaperCard: React.FC<PaperCardProps> = ({
         </div>
 
         <div className="flex space-x-4 mb-6">
-          <div className="flex items-center text-sm">
-            <FileText size={14} className="mr-1.5 text-muted-foreground" />
+          <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+            <FileText size={14} className="mr-1.5 text-muted-foreground dark:text-gray-400" />
             <span>{questionCount} Questions</span>
           </div>
-          <div className="flex items-center text-sm">
-            <Clock size={14} className="mr-1.5 text-muted-foreground" />
+          <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+            <Clock size={14} className="mr-1.5 text-muted-foreground dark:text-gray-400" />
             <span>{duration} Minutes</span>
           </div>
         </div>
@@ -102,7 +102,7 @@ const PaperCard: React.FC<PaperCardProps> = ({
             </Button>
           )}
           <Button 
-            className={`w-full flex items-center justify-center ${isPremium && !hasAccess ? '' : 'bg-primary text-white hover:bg-primary/90'}`}
+            className={`w-full flex items-center justify-center ${isPremium && !hasAccess ? '' : 'bg-primary text-white hover:bg-primary/90 dark:bg-green-600 dark:hover:bg-green-500 dark:text-gray-900'}`}
             variant={isPremium && !hasAccess ? "outline" : "default"}
             onClick={handlePracticeClick}
           >

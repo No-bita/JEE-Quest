@@ -5,44 +5,55 @@ const router = express.Router();
 
 import authenticateUser from '../middleware/authmiddleware.js';
 
-// Route to fetch questions for a specific paper
-router.get("/:paperId/questions", authenticateUser, async (req, res) => {
-  const { paperId } = req.params;
-  console.log(`Fetching questions for paper: ${paperId}`);
+const openPapers = ['jee2020-2', 'jee2020-1'];
 
+// Open access route (no authentication)
+router.get('/:paperId/questions', async (req, res, next) => {
+  const { paperId } = req.params;
+  if (!openPapers.includes(paperId)) return next();
   try {
-    
-    const user = req.user;
-    
     const mapping = await Mapping.findOne({ paperId });
-    console.log(`Mapping found:`, mapping);
-    
     if (!mapping) {
-      console.log(`No mapping found for paperId: ${paperId}`);
       return res.status(404).json({ success: false, message: "Paper not found." });
     }
-
     const collectionName = mapping.collectionName;
-    console.log(`Collection name from mapping: ${collectionName}`);
-
-    // Direct MongoDB collection access
     const db = mongoose.connection.db;
     const papers = await db.collection(collectionName).find({}).toArray();
-    console.log(`Found ${papers.length} papers`);
-
-    // Extract questions and note from the first paper
     const paperObj = papers[0] || {};
     const questions = paperObj.questions || [];
     const note = paperObj.note || null;
-    console.log(`Found ${questions.length} questions`);
-    
     if (!questions.length) {
       return res.status(404).json({ success: false, message: "No questions found for this paper." });
     }
-    
-    // Return the questions and note with success flag for frontend
     return res.json({ success: true, data: { questions, note } });
-    
+  } catch (error) {
+    console.error("❌ Internal Server Error:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error.", 
+      error: error.message 
+    });
+  }
+});
+
+// Authenticated route (for all other papers)
+router.get('/:paperId/questions', authenticateUser, async (req, res) => {
+  const { paperId } = req.params;
+  try {
+    const mapping = await Mapping.findOne({ paperId });
+    if (!mapping) {
+      return res.status(404).json({ success: false, message: "Paper not found." });
+    }
+    const collectionName = mapping.collectionName;
+    const db = mongoose.connection.db;
+    const papers = await db.collection(collectionName).find({}).toArray();
+    const paperObj = papers[0] || {};
+    const questions = paperObj.questions || [];
+    const note = paperObj.note || null;
+    if (!questions.length) {
+      return res.status(404).json({ success: false, message: "No questions found for this paper." });
+    }
+    return res.json({ success: true, data: { questions, note } });
   } catch (error) {
     console.error("❌ Internal Server Error:", error);
     return res.status(500).json({ 

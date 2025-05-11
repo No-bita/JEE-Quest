@@ -45,25 +45,25 @@ const HomePage: React.FC = () => {
         <meta name="twitter:description" content="Practice JEE Mains previous year questions (PYQs) with detailed solutions, analytics, and AI tools. Boost your exam preparation with JEE Quest." />
         <meta name="twitter:image" content="https://jee-quest.vercel.app/og-image.png" />
       </Helmet>
-      <main className="bg-[#FCFDF7]">
+      <main className="bg-[#FCFDF7] dark:bg-gray-900">
         <Hero />
         
         {/* Stats Section */}
-        <section className="py-16" style={{ background: '#FCFDF7' }}>
-  <div className="container max-w-7xl mx-auto px-4">
-    <div className="flex flex-col md:flex-row gap-6 w-full items-stretch">
-      {stats.map((stat, index) => (
-        <div
-          key={index}
-          className="bg-[#FCFDF7] rounded-2xl border border-[#D1D5DB] flex flex-col items-center justify-center py-8 px-6 text-center flex-1"
-        >
-          <div className="text-4xl text-[#26322C] mb-3">{stat.value}</div>
-          <div className="uppercase text-xs tracking-wider text-[#26322Cb3] mt-2">{stat.label}</div>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
+        <section className="py-16 bg-[#FCFDF7] dark:bg-gray-900">
+          <div className="container max-w-7xl mx-auto px-4">
+            <div className="flex flex-col md:flex-row gap-6 w-full items-stretch">
+              {stats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="bg-[#FCFDF7] dark:bg-gray-900 rounded-2xl border border-[#D1D5DB] flex flex-col items-center justify-center py-8 px-6 text-center flex-1"
+                >
+                  <div className="text-4xl text-[#26322C] dark:text-white mb-3">{stat.value}</div>
+                  <div className="uppercase text-xs tracking-wider text-[#26322Cb3] dark:text-gray-300 mt-2">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
         
         {/* About Section */}
         <section className="py-20">
@@ -78,14 +78,14 @@ const HomePage: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1">
+              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] dark:bg-gray-800 shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1">
                 <div className="flex justify-center mb-8">
-                  <div className="bg-white rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
+                  <div className="bg-white dark:bg-gray-900 rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
                     <BookOpen size={32} className="text-[#E86A33]" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-[#1A1A1A] mb-6">Organized Library</h3>
-                <p className="text-base text-[#5B4636] mb-6 leading-relaxed px-2">
+                <h3 className="text-2xl font-bold text-[#1A1A1A] dark:text-white mb-6">Organized Library</h3>
+                <p className="text-base text-[#5B4636] dark:text-gray-300 mb-6 leading-relaxed px-2">
                   Access the complete library of JEE Mains papers (2020-2025), sorted by year and shift for effortless navigation.
                 </p>
                 <button
@@ -96,14 +96,14 @@ const HomePage: React.FC = () => {
                 </button>
               </div>
               
-              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1" style={{ animationDelay: '100ms' }}>
+              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] dark:bg-gray-800 shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1" style={{ animationDelay: '100ms' }}>
                 <div className="flex justify-center mb-8">
-                  <div className="bg-white rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
+                  <div className="bg-white dark:bg-gray-900 rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
                     <Lightbulb size={32} className="text-[#E86A33]" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-[#1A1A1A] mb-6">Smart Practice</h3>
-                <p className="text-base text-[#5B4636] mb-6 leading-relaxed px-2">
+                <h3 className="text-2xl font-bold text-[#1A1A1A] dark:text-white mb-6">Smart Practice</h3>
+                <p className="text-base text-[#5B4636] dark:text-gray-300 mb-6 leading-relaxed px-2">
                   Simulate real exam conditions with timed practice sessions, and question tracking to boost your readiness.
                 </p>
                 <button
@@ -114,14 +114,14 @@ const HomePage: React.FC = () => {
                 </button>
               </div>
               
-              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1" style={{ animationDelay: '200ms' }}>
+              <div className="rounded-3xl border border-[#FFD6C2] bg-[#FFF3EF] dark:bg-gray-800 shadow-lg px-10 py-10 flex flex-col items-center justify-center text-center min-h-[370px] transition-all duration-200 hover:shadow-2xl hover:-translate-y-1" style={{ animationDelay: '200ms' }}>
                 <div className="flex justify-center mb-8">
-                  <div className="bg-white rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
+                  <div className="bg-white dark:bg-gray-900 rounded-full shadow flex items-center justify-center w-16 h-16 mx-auto">
                     <BarChart3 size={32} className="text-[#E86A33]" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-[#1A1A1A] mb-6">Detailed Analysis</h3>
-                <p className="text-base text-[#5B4636] mb-6 leading-relaxed px-2">
+                <h3 className="text-2xl font-bold text-[#1A1A1A] dark:text-white mb-6">Detailed Analysis</h3>
+                <p className="text-base text-[#5B4636] dark:text-gray-300 mb-6 leading-relaxed px-2">
                   Gain actionable insights with subject-wise performance reports for thorough exam preparation.
                 </p>
                 <button
@@ -136,12 +136,12 @@ const HomePage: React.FC = () => {
         </section>
         
         {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-b from-background to-secondary/30">
+        <section className="py-20 bg-gradient-to-b from-background to-secondary/30 dark:from-gray-900 dark:to-gray-800">
           <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 dark:text-white">
               Ready to ace JEE Mains?
             </h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
+            <p className="text-lg text-muted-foreground dark:text-gray-300 max-w-3xl mx-auto mb-8">
               Start your journey with PYQs and smart tools designed to elevate your preparation.
             </p>
             <div className="flex justify-center">
@@ -159,12 +159,12 @@ const HomePage: React.FC = () => {
         </section>
         
         {/* Social Proof Section */}
-        <section className="py-16 bg-secondary/20">
+        <section className="py-16 bg-secondary/20 dark:bg-gray-800">
           <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center">
-            <p className="text-lg text-muted-foreground italic mb-4">
+            <p className="text-lg text-muted-foreground italic mb-4 dark:text-gray-300">
               "By IITians, for aspiring IITians"
             </p>
-            <p className="text-sm text-muted-foreground mb-6">
+            <p className="text-sm text-muted-foreground mb-6 dark:text-gray-400">
               Need personalized guidance? Connect with us for expert advice on your JEE preparation.
             </p>
             <a 
@@ -180,8 +180,8 @@ const HomePage: React.FC = () => {
         </section>
       </main>
       {/* Footer */}
-      <footer className="w-full border-t bg-background py-6 mt-8">
-        <div className="container max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground gap-2">
+      <footer className="w-full border-t bg-background dark:bg-gray-900 py-6 mt-8">
+        <div className="container max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground dark:text-gray-300 gap-2">
           <span>&copy; {new Date().getFullYear()} JEEQuest. All rights reserved.</span>
           <div className="flex gap-4">
             <Link to="/privacy-policy" className="hover:underline">Privacy Policy</Link>

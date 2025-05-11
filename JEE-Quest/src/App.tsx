@@ -7,6 +7,7 @@ import Discussions from './pages/Discussions';
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react"
 import { HelmetProvider } from 'react-helmet-async';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Import pages
 import Index from "./pages/Index";
@@ -60,6 +61,7 @@ const AppContent = () => {
             <Route path="/discussions" element={isLoggedIn ? <Discussions /> : <Navigate to="/signin" />} />
 
             {/* Public routes */}
+            <Route path="/practice" element={<Navigate to="/practice/jee2020-2" replace />} />
             <Route path="/practice/:paperId" element={<Practice />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
@@ -87,7 +89,9 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const App = () => (
   <HelmetProvider>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </GoogleOAuthProvider>
   </HelmetProvider>
 );

@@ -6,13 +6,14 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend 
 } from 'recharts';
 import CountUp from 'react-countup';
-import { ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Clock, Sun, Moon } from 'lucide-react';
 import { CORRECT_MARKS, INCORRECT_MARKS, UNATTEMPTED_MARKS, ResultsData, Question } from '@/utils/types';
 import { toast } from '@/components/ui/use-toast';
 import Confetti from 'react-confetti';
 import { Clock as ClockIcon } from 'lucide-react';
 import Lottie from 'lottie-react';
 import loadAnimationData from '../load.json';
+import { useTheme } from '@/context/ThemeContext';
 
 const Results: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -45,6 +46,7 @@ const Results: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [highlighted, setHighlighted] = useState<number | null>(null);
   const questionRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const { theme, toggleTheme } = useTheme();
 
   // Helper: Format seconds as mm:ss
   const formatTimeMMSS = (seconds: number) => {
@@ -232,7 +234,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
 
   if (isLoading || !scoreData) {
     return (
-      <div className="flex min-h-screen" style={{ backgroundColor: '#FAFBF6' }}>
+      <div className="flex min-h-screen bg-[#FAFBF6] dark:bg-gray-900">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center h-[60vh]">
           <div className="flex flex-col items-center justify-center h-screen">
@@ -255,17 +257,27 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
   } = scoreData;
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: '#FAFBF6' }}>
+    <div className="flex min-h-screen bg-[#FAFBF6] dark:bg-gray-900">
       {showConfetti && <Confetti recycle={false} numberOfPieces={200} />}
       <Sidebar />
       <div className="flex-1 page-container pt-24 max-w-5xl mx-auto px-2 md:px-6">
+        {/* Theme Toggle Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={toggleTheme}
+            className="rounded-xl bg-[#FAFAFA] dark:bg-[#23272F] p-2 shadow-sm border border-[#F0F0F0] dark:border-gray-700 hover:bg-[#F3F3F3] dark:hover:bg-[#23272F]/80 transition"
+            aria-label="Toggle dark mode"
+          >
+            {theme === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-700" />}
+          </button>
+        </div>
         {/* Score Highlight */}
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-white shadow-lg rounded-2xl px-8 py-6 mb-2">
+          <div className="bg-white dark:bg-gray-900 shadow-lg rounded-2xl px-8 py-6 mb-2">
             <div className="text-4xl font-extrabold text-primary">
               <CountUp end={totalScore} duration={3} />/{maxPossibleScore}
             </div>
-            <div className="text-base text-muted-foreground text-center">Your Score</div>
+            <div className="text-base text-muted-foreground dark:text-gray-300 text-center">Your Score</div>
           </div>
         </div>
         {/* Stat Cards Row */}
@@ -293,7 +305,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
         </div>
         {/* Move the note here, keep original UI */}
         {paperNote && (
-          <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-300 text-blue-900 text-center text-base font-medium">
+          <div className="mb-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900 border border-blue-300 text-blue-900 dark:text-blue-100 text-center text-base font-medium">
             <span className="font-semibold">Note:</span> {paperNote}
           </div>
         )}
@@ -398,26 +410,28 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                   <div
                     key={question.id}
                     ref={el => (questionRefs.current[index + 1] = el)}
-                    className={`p-4 rounded-lg border transition-shadow duration-300 ${highlighted === index + 1 ? 'ring-2 ring-primary shadow-lg' : ''}`}
+                    className={`p-4 rounded-lg border transition-shadow duration-300 bg-white dark:bg-[#181A20] border-gray-200 dark:border-gray-700 ${highlighted === index + 1 ? 'ring-2 ring-primary shadow-lg' : ''}`}
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div className="font-medium flex items-center gap-2">
-                        <span className="bg-primary/10 text-primary rounded px-2 py-0.5">{index + 1}</span>
+                        <span className="bg-primary/10 text-primary rounded px-2 py-0.5 dark:bg-primary/20 dark:text-primary">
+                          {index + 1}
+                        </span>
                         <span className="ml-2 flex items-center">
-                          <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full flex items-center text-xs font-mono">
+                          <span className="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300 px-2 py-1 rounded-full flex items-center text-xs font-mono">
                             <ClockIcon className="w-3 h-3 mr-1" />
                             {userAnswer ? (results?.questionTimes?.[question.id] ? formatTimeMMSS(results.questionTimes[question.id]) : '0:00') : '0:00'}
                           </span>
                         </span>
                         {question.text}
                       </div>
-                      <div className={`flex items-center gap-2 text-sm font-medium px-3 py-1 rounded ${
-                        !userAnswer 
-                          ? 'bg-gray-50 text-gray-600' 
+                      <div className={`flex items-center gap-2 text-sm font-medium px-3 py-1 rounded 
+                        ${!userAnswer 
+                          ? 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300' 
                           : isCorrect 
-                          ? 'bg-green-50 text-green-600' 
-                          : 'bg-red-50 text-red-600'
-                      }`}>
+                          ? 'bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400' 
+                          : 'bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-400'}`}
+                      >
                         <span>{answerStatus}</span>
                         <span className="font-bold">{questionMarks > 0 ? '+' : ''}{questionMarks}</span>
                       </div>
@@ -439,22 +453,21 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                           return (
                             <div 
                               key={option.id} 
-                              className={`p-2 rounded ${
-                                Number(option.id) === Number(question.correctOption) 
-                                  ? 'bg-green-50 border border-green-200' 
+                              className={`p-2 rounded border text-gray-900 dark:text-gray-100
+                                ${Number(option.id) === Number(question.correctOption) 
+                                  ? 'bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700' 
                                   : Number(option.id) === Number(userAnswer) && Number(option.id) !== Number(question.correctOption) 
-                                  ? 'bg-red-50 border border-red-200'
-                                  : 'bg-gray-50 border border-gray-200'
-                              }`}
+                                  ? 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-700'
+                                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}
                             >
                               <span className="font-medium mr-2">{option.id}.</span>
                               {/* Show (Your answer) if this is the user's incorrect answer */}
                               {Number(option.id) === Number(userAnswer) && Number(option.id) !== Number(question.correctOption) && (
-                                <span className="text-xs text-red-600 ml-2">(Your answer)</span>
+                                <span className="text-xs text-red-600 dark:text-red-400 ml-2">(Your answer)</span>
                               )}
                               {option.text}
                               {Number(option.id) === Number(question.correctOption) && (
-                                <span className="text-green-600 text-xs ml-2">
+                                <span className="text-green-600 dark:text-green-400 text-xs ml-2">
                                   (Correct answer)
                                 </span>
                               )}
@@ -466,17 +479,17 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                       <div className="text-sm text-muted-foreground mb-3 flex flex-col gap-2">
                         {/* Integer type answer display */}
                         {userAnswer ? (
-                          <span className={`font-medium ${Number(userAnswer) === Number(question.correctOption) ? 'text-green-600' : 'text-red-600'}`}>
+                          <span className={`font-medium ${Number(userAnswer) === Number(question.correctOption) ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                             Your answer: {userAnswer}
                           </span>
                         ) : (
-                          <span className="font-medium text-gray-500">Not attempted</span>
+                          <span className="font-medium text-gray-500 dark:text-gray-400">Not attempted</span>
                         )}
-                        <span className="font-medium text-green-600">Correct answer: {question.correctOption}</span>
+                        <span className="font-medium text-green-600 dark:text-green-400">Correct answer: {question.correctOption}</span>
                       </div>
                     )}
                     <div className="text-sm text-muted-foreground flex gap-4">
-                      <span>Subject: {question.subject}</span>
+                      <span className="dark:text-gray-400">Subject: {question.subject}</span>
                     </div>
                   </div>
                 );

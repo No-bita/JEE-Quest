@@ -319,7 +319,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
       <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-2">No Questions Found</h2>
-          <p className="text-gray-600 mb-4">Unable to load questions for this paper.</p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">Unable to load questions for this paper.</p>
           <Button onClick={() => navigate('/papers')}>Back to Papers</Button>
         </div>
       </div>
@@ -430,7 +430,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
               onClick={() => {
                 // Mark for review: set to marked-attempted if answered, else marked-unattempted
                 setQuestionStatus(prev => {
-                  const isAnswered = answers.hasOwnProperty(currentQuestion.id) && answers[currentQuestion.id] !== undefined && answers[currentQuestion.id] !== null && answers[currentQuestion.id] !== '';
+                  const isAnswered = answers.hasOwnProperty(currentQuestion.id) && answers[currentQuestion.id] != null;
                   return {
                     ...prev,
                     [currentQuestion.id]: isAnswered ? 'marked-attempted' : 'marked-unattempted',
@@ -478,7 +478,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                           <AlertTriangle size={16} />
                           <span>You have only attempted {attemptedCount} out of {questions.length} questions.</span>
                         </div>
-                        <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                        <div className="text-sm mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
                           <p className="font-medium mb-1">Marking Scheme:</p>
                           <ul className="list-disc pl-5 space-y-1">
                             <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
@@ -490,7 +490,7 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
                     ) : (
                       <div className="flex flex-col gap-2">
                         <span>You've answered all questions. Your test will be submitted and you'll see your results.</span>
-                        <div className="text-sm mt-2 p-3 bg-gray-50 rounded-md">
+                        <div className="text-sm mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
                           <p className="font-medium mb-1">Marking Scheme:</p>
                           <ul className="list-disc pl-5 space-y-1">
                             <li>Correct Answer: <span className="font-medium text-green-600">+{CORRECT_MARKS} marks</span></li>
