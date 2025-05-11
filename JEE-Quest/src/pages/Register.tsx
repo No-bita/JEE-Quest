@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -11,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { authApi } from '@/utils/api';
+import Lottie from 'lottie-react';
+import loadAnimationData from '../load.json';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -146,9 +147,8 @@ const Register: React.FC = () => {
                 />
                 <Button type="submit" className="w-full bg-[#5BB98C] text-white rounded-lg hover:bg-[#4CA97A] font-semibold text-lg py-3 transition" disabled={isLoading}>
                   {isLoading ? (
-                    <span className="flex items-center justify-center">
-                      <span className="animate-spin mr-2 h-4 w-4 border-b-2 border-white rounded-full" />
-                      Registering...
+                    <span className="mr-2 h-6 w-6">
+                      <Lottie animationData={loadAnimationData} loop={true} style={{height: 24, width: 24}} />
                     </span>
                   ) : (
                     'Register'

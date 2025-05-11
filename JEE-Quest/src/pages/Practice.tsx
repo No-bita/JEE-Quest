@@ -5,9 +5,12 @@ import PracticeInterface from '@/components/PracticeInterface';
 import InstructionsModal from '@/components/InstructionsModal';
 import { toast } from 'sonner';
 import { papersApi } from '@/utils/api';
+import Lottie from 'lottie-react';
+import loadAnimationData from '../load.json';
 
 const Practice: React.FC = () => {
   const [showInstructions, setShowInstructions] = useState(true);
+  const [waitingForData, setWaitingForData] = useState(false);
   const { paperId } = useParams<{ paperId: string }>();
   const navigate = useNavigate();
   const [hasAccess, setHasAccess] = useState<boolean>(false);
@@ -15,8 +18,8 @@ const Practice: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   
   useEffect(() => {
+    let cancelled = false;
     if (paperId && paperId.startsWith('jee2020')) {
-      // Open access for all 2020 papers: skip login and access check
       setHasAccess(true);
       setIsLoading(false);
       setIsLoggedIn(true);
@@ -42,36 +45,51 @@ const Practice: React.FC = () => {
           return;
         }
         
-        setHasAccess(true);
+        if (!cancelled) setHasAccess(true);
         
       } catch (error) {
         console.error("[DEBUG] Error checking access:", error);
         toast.error("Failed to check access permissions");
         navigate('/papers');
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
     
     checkAccess();
+    return () => { cancelled = true; };
   }, [paperId, navigate ]);
   
-  if (isLoading) {
-    return (
-      <>
-        <NavBar />
-        <div className="flex items-center justify-center h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </>
-    );
-  }
+  // Handler for when user clicks "Start Test"
+  const handleProceed = () => {
+    if (!isLoading && hasAccess) {
+      setShowInstructions(false);
+    } else {
+      setWaitingForData(true); // Show spinner until data is ready
+    }
+  };
+
+  // When data is ready and user is waiting, proceed
+  useEffect(() => {
+    if (waitingForData && !isLoading && hasAccess) {
+      setShowInstructions(false);
+      setWaitingForData(false);
+    }
+  }, [waitingForData, isLoading, hasAccess]);
   
   if (showInstructions) {
     return (
       <>
         <NavBar />
-        <InstructionsModal open={showInstructions} onProceed={() => setShowInstructions(false)} />
+        <InstructionsModal open={showInstructions} onProceed={handleProceed} />
+        {waitingForData && (
+          <div className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-30 z-50">
+            <div className="w-32 h-32">
+              <Lottie animationData={loadAnimationData} loop={true} />
+            </div>
+            <span className="mt-4 text-[#1D9A6C] font-medium">Setting up your practice session…</span>
+          </div>
+        )}
       </>
     );
   }

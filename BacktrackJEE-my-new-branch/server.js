@@ -55,17 +55,13 @@ app.set("trust proxy", 1);
 import authRoutes from "./routes/auth.js";
 import attemptsRoutes from "./routes/attempts.js";
 import questionsRoutes from "./routes/questions.js";
-import resultsRoutes from "./routes/results.js";
 import userRoutes from "./routes/user.js";
-
 import dashboardRouter from "./routes/dashboard.js";
 
 app.use("/api/auth", authRoutes);
-app.use("/api", attemptsRoutes);
+app.use("/api/attempts", attemptsRoutes);
 app.use("/api/papers", questionsRoutes);
-app.use("/api/results", resultsRoutes);
 app.use("/api/user", userRoutes);
-
 app.use("/api", dashboardRouter);
 
 // Serve robots.txt and sitemap.xml

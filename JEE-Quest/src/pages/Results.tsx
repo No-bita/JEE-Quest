@@ -11,6 +11,8 @@ import { CORRECT_MARKS, INCORRECT_MARKS, UNATTEMPTED_MARKS, ResultsData, Questio
 import { toast } from '@/components/ui/use-toast';
 import Confetti from 'react-confetti';
 import { Clock as ClockIcon } from 'lucide-react';
+import Lottie from 'lottie-react';
+import loadAnimationData from '../load.json';
 
 const Results: React.FC = () => {
   const { paperId } = useParams<{ paperId: string }>();
@@ -233,7 +235,12 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
       <div className="flex min-h-screen" style={{ backgroundColor: '#FAFBF6' }}>
         <Sidebar />
         <div className="flex-1 flex items-center justify-center h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="flex flex-col items-center justify-center h-screen">
+            <div className="w-32 h-32">
+              <Lottie animationData={loadAnimationData} loop={true} />
+            </div>
+            <span className="mt-4 text-[#1D9A6C] font-medium">Loading your results…</span>
+          </div>
         </div>
       </div>
     );

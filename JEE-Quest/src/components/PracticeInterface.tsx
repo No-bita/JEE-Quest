@@ -24,6 +24,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Lottie from 'lottie-react';
+import loadAnimationData from '../load.json';
 
 const CORRECT_MARKS = 4;
 const INCORRECT_MARKS = -1;
@@ -77,7 +79,7 @@ const PracticeInterface: React.FC<PracticeInterfaceProps> = ({ paperId }) => {
       if (!userAnswer) {
         report.unattemptedQuestions++;
         report.totalScore += UNATTEMPTED_MARKS;
-      } else if (userAnswer === q.correctOption) {
+      } else if (Number(userAnswer) === Number(q.correctOption)) {
         report.totalScore += CORRECT_MARKS;
         report.correctQuestions++;
       } else {
@@ -303,8 +305,11 @@ const response = await fetch(`${API_BASE_URL}/papers/${paperId}/questions`, {
 
   if (isLoading) {
     return (
-      <div className="page-container pt-24 flex items-center justify-center h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" aria-label="Loading" />
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div className="w-32 h-32">
+          <Lottie animationData={loadAnimationData} loop={true} />
+        </div>
+        <span className="mt-4 text-[#1D9A6C] font-medium">Loading questions…</span>
       </div>
     );
   }

@@ -1,8 +1,7 @@
 import Attempt from "../models/Attempt.js";
-import User from "../models/user.js";
-import getQuestionModel from "../models/Question.js";
+import mongoose from "mongoose";
 
-// Save a new attempt (POST /api/attempts/save)
+// Save a new attempt with results (POST /api/attempts/save)
 export const saveAttempt = async (req, res) => {
   try {
     const requiredFields = [
@@ -21,36 +20,84 @@ export const saveAttempt = async (req, res) => {
     const userId = req.user.id;
     const userName = req.user.name;
 
-    // Validate existing attempt first
-    const existingAttempt = await Attempt.findOne({ userId, paperId });
-    if (existingAttempt) {
-      return res.status(409).json({ 
-        message: "Attempt already exists for this user and paper.",
-        existingId: existingAttempt._id
+    // Calculate performance metrics
+    const QuestionModel = mongoose.models[paperId] || 
+      mongoose.model(paperId, new mongoose.Schema({
+        question_id: Number,
+        type: String,
+        question_text: String,
+        options: Object,
+        correct_option: Number,
+        imageUrl: String
+      }), paperId);
+
+    const questions = await QuestionModel.find({});
+    
+    let correct = 0;
+    let incorrect = 0;
+    let unattempted = 0;
+    const questionAnalysis = [];
+
+    for (const question of questions) {
+      const userAnswer = answers[question._id] ?? null;
+      const isCorrect = userAnswer === question.correct_option;
+
+      let status;
+      if (userAnswer === null) {
+        unattempted++;
+        status = "unattempted";
+      } else if (isCorrect) {
+        correct++;
+        status = "correct";
+      } else {
+        incorrect++;
+        status = "incorrect";
+      }
+
+      questionAnalysis.push({
+        questionId: question._id,
+        questionText: question.question_text,
+        userAnswer,
+        correctAnswer: question.correct_option,
+        status,
+        timeSpent: questionTimings.find(t => t.questionId === question._id)?.timeSpent || 0
       });
     }
 
-    const newAttempt = new Attempt({
-      userId,
-      userName,
-      paperId,
-      answers: answers.map(answer => ({
-        ...answer,
-        timestamp: new Date() // Add server-side timestamp
-      })),
-      questionTimings,
-      timeSpent,
-      score,
-      maxPossibleScore,
-      date: new Date() // Server-generated date
-    });
+    const accuracy = ((correct / (correct + incorrect)) * 100).toFixed(1);
+
+    // const newAttempt = new Attempt({
+    //   userId,
+    //   userName,
+    //   paperId,
+    //   answers: answers.map(answer => ({
+    //     ...answer,
+    //     timestamp: new Date()
+    //   })),
+    //   questionTimings,
+    //   timeSpent,
+    //   score,
+    //   maxPossibleScore,
+    //   date: new Date(),
+    //   performance: {
+    //     totalQuestions: questions.length,
+    //     correct,
+    //     incorrect,
+    //     unattempted,
+    //     accuracy,
+    //     timeTaken: timeSpent
+    //   },
+    //   questionAnalysis
+    // });
 
     await newAttempt.save();
 
     return res.status(201).json({
       success: true,
       attemptId: newAttempt._id,
-      score: newAttempt.score
+      score: newAttempt.score,
+      performance: newAttempt.performance,
+      questionAnalysis: newAttempt.questionAnalysis
     });
 
   } catch (error) {
@@ -79,7 +126,7 @@ export const checkAttempt = async (req, res) => {
     const attempt = await Attempt.findOne({
       userId: req.user.id,
       paperId
-    }).select("_id score createdAt");
+    }).select("_id score performance createdAt");
 
     return res.json({
       exists: !!attempt,
@@ -97,8 +144,8 @@ export const checkAttempt = async (req, res) => {
   }
 };
 
-// Get exam results (GET /api/attempts/results/:paperId)
-export const getExamResults = async (req, res) => {
+// Get attempt details with results (GET /api/attempts/:paperId)
+export const getAttemptDetails = async (req, res) => {
   try {
     const { paperId } = req.params;
     const userId = req.user.id;
@@ -114,56 +161,52 @@ export const getExamResults = async (req, res) => {
       });
     }
 
-    // Calculate time metrics
-    const timeTaken = attempt.endTime && attempt.startTime
-      ? Math.round((attempt.endTime - attempt.startTime) / (1000 * 60))
-      : 0;
-
-    // Format review data
-    const reviewData = attempt.responses.map(response => ({
-      questionId: response.question._id,
-      questionText: response.question.question_text,
-      userAnswer: response.selectedOption || "⏺ Skipped",
-      correctAnswer: response.question.correctOption,
-      resultStatus: response.isCorrect 
-        ? "✅ Correct" 
-        : response.selectedOption 
-          ? "❌ Incorrect" 
-          : "⚪ Skipped",
-      marksEarned: response.marksObtained,
-      timeSpent: response.timeSpent
-    }));
-
-    // Compile performance summary
-    const performanceSummary = {
-      totalMarks: attempt.totalMarks,
-      questionsAttempted: attempt.attemptedQuestions,
-      correctAnswers: attempt.correctAnswers,
-      incorrectAnswers: attempt.incorrectAnswers,
-      skippedQuestions: attempt.totalQuestions - attempt.attemptedQuestions,
-      timeTakenMinutes: timeTaken,
-      accuracyPercentage: ((attempt.correctAnswers / attempt.attemptedQuestions) * 100).toFixed(1),
-      attemptStatus: attempt.status
-    };
-
     return res.status(200).json({
       meta: {
         paperId: attempt.paperId,
         attemptDate: attempt.date,
         userId: attempt.userId
       },
-      performanceSummary,
-      detailedReview: reviewData
+      performance: attempt.performance,
+      questionAnalysis: attempt.questionAnalysis,
+      timeSpent: attempt.timeSpent,
+      markedQuestions: attempt.markedQuestions
     });
 
   } catch (error) {
-    console.error("Results Fetch Error:", {
+    console.error("Attempt Details Fetch Error:", {
       user: req.user?.id,
       paperId: req.params?.paperId,
       error: error.message
     });
     return res.status(500).json({
-      error: "Failed to retrieve exam results. Please try again later."
+      error: "Failed to retrieve attempt details. Please try again later."
     });
+  }
+};
+
+// Get user's all attempts (GET /api/attempts/user)
+export const getUserAttempts = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const attempts = await Attempt.find({ userId })
+      .select('paperId date score maxPossibleScore performance')
+      .sort({ date: -1 });
+
+    return res.json({
+      success: true,
+      attempts: attempts.map(attempt => ({
+        paperId: attempt.paperId,
+        date: attempt.date,
+        score: attempt.score,
+        maxPossibleScore: attempt.maxPossibleScore,
+        performance: attempt.performance
+      }))
+    });
+
+  } catch (error) {
+    console.error("Error fetching user attempts:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

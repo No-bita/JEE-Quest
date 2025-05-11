@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
+import Lottie from 'lottie-react';
+import loadAnimationData from '../load.json';
 
 // Define API types for better type safety
 interface LoginResponse {
@@ -167,7 +169,9 @@ const SignIn: React.FC<{ setIsLoggedIn: React.Dispatch<React.SetStateAction<bool
                 <Button type="submit" className="w-full bg-[#5BB98C] text-white rounded-lg hover:bg-[#4CA97A] font-semibold text-lg py-3 transition" disabled={isLoading}>
                   {isLoading ? (
                     <span className="flex items-center justify-center">
-                      <span className="animate-spin mr-2 h-4 w-4 border-b-2 border-white rounded-full" />
+                      <span className="mr-2 h-6 w-6">
+                        <Lottie animationData={loadAnimationData} loop={true} style={{height: 24, width: 24}} />
+                      </span>
                       <span className="text-sm">{loadingMessage}</span>
                     </span>
                   ) : (

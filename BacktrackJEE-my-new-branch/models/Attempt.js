@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
 
 const attemptSchema = new mongoose.Schema({
-  userId: { type: String, required: true }, // Reference to User._id
-  userName: { type: String, required: true }, // For quick lookup/reporting
-  paperId: { type: String, required: true }, // Reference to Paper.paperId
-  year: { type: Number, required: true },
-  session: { type: String, required: true },
-  shift: { type: String, required: true },
-  date: { type: String, required: true },
-
+  userId: { type: String, required: true },
+  userName: { type: String, required: true },
+  paperId: { type: String, required: true },
+  date: { type: Date, required: true },
+  
   // Store answers as { [questionId]: selectedOption }
   answers: {
     type: Object,
@@ -20,20 +17,40 @@ const attemptSchema = new mongoose.Schema({
     {
       questionId: { type: Number, required: true },
       timeSpent: { type: Number, required: true }, // seconds
-      answeredAt: { type: Date } // optional
+      answeredAt: { type: Date }
     }
   ],
 
   // Total time spent on the paper
   timeSpent: { type: Number, required: true },
 
-  // Scoring summary (optional, if you want to store it here)
-  score: { type: Number },
-  maxPossibleScore: { type: Number },
+  // Scoring summary
+  score: { type: Number, required: true },
+  maxPossibleScore: { type: Number, required: true },
 
-  // Marked questions (optional, for review/flagging features)
+  // Performance metrics
+  performance: {
+    totalQuestions: { type: Number },
+    correct: { type: Number },
+    incorrect: { type: Number },
+    unattempted: { type: Number },
+    accuracy: { type: Number },
+    timeTaken: { type: Number }
+  },
+
+  // Question-wise analysis
+  questionAnalysis: [{
+    questionId: { type: Number, required: true },
+    questionText: { type: String, required: true },
+    userAnswer: { type: Number },
+    correctAnswer: { type: Number, required: true },
+    status: { type: String, enum: ['correct', 'incorrect', 'unattempted'] },
+    timeSpent: { type: Number }
+  }],
+
+  // Marked questions for review/flagging
   markedQuestions: {
-    type: Object, // { [questionId]: "reviewed" | "flagged" | ... }
+    type: Object,
     default: {}
   }
 }, { timestamps: true });
@@ -43,4 +60,4 @@ attemptSchema.index({ userId: 1, paperId: 1 }, { unique: true });
 
 const Attempt = mongoose.model("Attempt", attemptSchema);
 
-export default Attempt;
+export default Attempt; 
